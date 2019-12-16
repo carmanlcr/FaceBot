@@ -99,7 +99,7 @@ public class Post implements Model{
 		int post = 0;
 		String date1 = dateFormat1.format(date);
 		String query = "SELECT count(*) cuenta FROM "+TABLE_NAME + 
-				"WHERE users_id = ? AND DATE(created_at) = ?;";
+				" WHERE users_id = ? AND DATE(created_at) = ?;";
 		Connection conexion = conn.conectar();
 		try {
 			PreparedStatement pst = (PreparedStatement) conexion.prepareStatement(query);
