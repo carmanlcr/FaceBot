@@ -22,18 +22,15 @@ public class Post_Detail implements Model {
 	
 	public void insert() throws SQLException {
 		setCreated_at(dateFormat.format(date));
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(posts_id,hashtag_id,created_at) "
 					+ " VALUE (?,?,?);";
 			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setInt(1, getPosts_id());
 			exe.setInt(2, getHashtag_id());
 			exe.setString(3, getCreated_at());
-			
 			exe.executeUpdate();
-			
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

@@ -23,15 +23,15 @@ public class Path_Photo implements Model {
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private static Conexion conn = new Conexion();
-	Statement st;
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormatDateTime.format(date));
 		
 		String insert = "";
-		try {
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement()){
 			if(getGeneres_id() == 0) {
 				
 				
@@ -45,16 +45,11 @@ public class Path_Photo implements Model {
 						+ "VALUE ('"+getPath()+"','"+getCreated_at()+"',"+getCategories_id()+","+getSub_categories_id()+","
 						+getGeneres_id()+");";
 			}
-			st = (Statement) conexion.createStatement();
 			st.executeUpdate(insert);
-			conexion.close();
 		} catch(SQLException e)  {
 			System.err.println(e);
 		} catch(Exception e){
 			System.err.println(e);
-			
-		}finally {
-			st.close();
 		}
 	}
 	
@@ -63,12 +58,12 @@ public class Path_Photo implements Model {
 	 * @deprecated
 	 */
 	public void desactPathPhoto() {
-		Connection conexion = conn.conectar();
+		
 		
 		String update = "";
-		try {
+		try (Connection conexion = conn.conectar();){
 			update = "UPDATE "+TABLE_NAME+" SET active = ? WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ?";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(update);
+			PreparedStatement  query = conexion.prepareStatement(update);
 			query.setInt(1, 0);
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getSub_categories_id());
@@ -86,10 +81,8 @@ public class Path_Photo implements Model {
 	public String getPathPhotos() {
 		String path = "";
 		String query = "";
-		ResultSet rs = null;
-		Connection conexion = conn.conectar();
 		PreparedStatement  queryE;
-		try {
+		try (Connection conexion = conn.conectar();){
 			
 			if(getSub_categories_id() == 0) {
 				query = "SELECT path FROM "+TABLE_NAME+" WHERE categories_id=? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
@@ -111,14 +104,10 @@ public class Path_Photo implements Model {
 				queryE.setInt(3, getGeneres_id());
 				queryE.setInt(4, 1);
 			}
-			
-			
 			rs = queryE.executeQuery();
-			
 			if(rs.next()) {
 				path = rs.getString("path");
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}	

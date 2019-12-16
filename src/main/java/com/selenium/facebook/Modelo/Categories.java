@@ -19,21 +19,17 @@ public class Categories implements Model{
 	
 	
 	public void insert() {
-		Connection conexion = conn.conectar();
-			try {
-				String insert = "INSERT INTO "+TABLE_NAME+"(name) "
-						+ "VALUES (?);";
-				PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(name) "
+				+ "VALUES (?);";
+			try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
 				exe.setString(1, getName());
-				
 				exe.executeUpdate();
 				
-				conexion.close();
 			} catch(SQLException e)  {
 				System.err.println(e);
 			} catch(Exception e){
 				System.err.println(e);
-				
 			}
 			
 	}
@@ -44,20 +40,18 @@ public class Categories implements Model{
 	
 	public List<String> getAllActive()  {
 		ArrayList<String> list = new ArrayList<String>();
-		Connection conexion = conn.conectar();
+
+		String queryExce = "SELECT * FROM "+TABLE_NAME+" WHERE active = ? ;";
+		
 		ResultSet rs;
-		try {
-			String queryExce = "SELECT * FROM "+TABLE_NAME+" WHERE active = ? ;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+		try (Connection conexion = conn.conectar()){
+			PreparedStatement  query = conexion.prepareStatement(queryExce);
 			query.setInt(1, 1);
 			rs = query.executeQuery();
-
-
 			while (rs.next() ) {
 				list.add(rs.getString("name"));
-               
 			}
-			conexion.close();
+			rs.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -67,26 +61,18 @@ public class Categories implements Model{
 
 	public int getIdCategories(String name) throws SQLException {
 		int id = 0;
-		Statement st = null;
-		ResultSet rs = null;
-		Connection conexion = conn.conectar();
-		try {
-			
-			st = (Statement) conexion.createStatement();
-			
-			
-			rs = st.executeQuery("SELECT * FROM "+TABLE_NAME+" WHERE name = '"+name+"' AND active = 1;");
-			
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE name = '"+name+"' AND active = 1;";
+		try(Connection conexion = conn.conectar();
+				Statement st = (Statement) conexion.createStatement();
+				ResultSet rs = st.executeQuery(query);) {
+		
 			while (rs.next() ) {
 				id = rs.getInt("categories_id");
                
 			}
-			conexion.close();
+			
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally{
-			st.close();
-			conexion.close();
 		}
 		
 		return id;
@@ -95,26 +81,17 @@ public class Categories implements Model{
 	
 	public int getIdCategorieHashTag(String name) throws SQLException {
 		int id = 0;
-		Statement st = null;
-		ResultSet rs = null;
-		Connection conexion = conn.conectar();
-		try {
-			
-			st = (Statement) conexion.createStatement();
-			
-			
-			rs = st.executeQuery("SELECT * FROM "+TABLE_NAME+" WHERE name = '"+name+"' AND active = 0;");
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE name = '"+name+"' AND active = 0;";
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			
 			while (rs.next() ) {
 				id = rs.getInt("categories_id");
                
 			}
-			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally{
-			st.close();
-			conexion.close();
 		}
 		
 		return id;
@@ -123,26 +100,18 @@ public class Categories implements Model{
 	
 	public String getNameCategories(int id) throws SQLException {
 		String name = "";
-		Statement st = null;
-		ResultSet rs = null;
-		Connection conexion = conn.conectar();
-		try {
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = "+id+";";
+		
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			
-			st = (Statement) conexion.createStatement();
-			
-			
-			rs = st.executeQuery("SELECT * FROM "+TABLE_NAME+" WHERE categories_id = "+id+";");
 			
 			while (rs.next() ) {
 				name = rs.getString("name");
-               
 			}
-			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally{
-			st.close();
-			conexion.close();
 		}
 		
 		return name;
@@ -151,29 +120,20 @@ public class Categories implements Model{
 	
 	public List<Integer> getSubCategorieConcat() throws SQLException {
 		List<Integer> concat = new ArrayList<Integer>();
-		Statement st = null;
-		ResultSet rs = null;
-		Connection conexion = conn.conectar();
-		try {
-			
-			st = (Statement) conexion.createStatement();
-			
-			
-			rs = st.executeQuery("SELECT ca.categories_id, ca.name, sb.sub_categories_id, sb.name "
-					+"FROM "+TABLE_NAME+" ca " + 
-					"INNER JOIN sub_categories sb ON ca.categories_id = sb.categories_id " + 
-					"ORDER BY RAND() LIMIT 1;");
+		String query = "SELECT ca.categories_id, ca.name, sb.sub_categories_id, sb.name "
+				+"FROM "+TABLE_NAME+" ca " + 
+				"INNER JOIN sub_categories sb ON ca.categories_id = sb.categories_id " + 
+				"ORDER BY RAND() LIMIT 1;";
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			
 			if(rs.next()) {
 				concat.add(rs.getInt("ca.categories_id"));
 				concat.add(rs.getInt("sb.sub_categories_id"));
 			}
-			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally{
-			st.close();
-			conexion.close();
 		}	
 				
 		return concat;

@@ -20,11 +20,11 @@ public class Sub_Categorie implements Model {
 	private static Conexion conn = new Conexion();
 	
 	public void insert() throws SQLException {
-		Connection conexion = conn.conectar();
+		
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 		String strDate= formatter.format(date);
-			try {
+			try (Connection conexion = conn.conectar();){
 				String insert = "INSERT INTO "+TABLE_NAME+"(name,categories_id,created_at,updated_at) "
 						+ "VALUES (?,?,?,?);";
 				PreparedStatement exe = conexion.prepareStatement(insert);
@@ -34,7 +34,6 @@ public class Sub_Categorie implements Model {
 				exe.setString(4, strDate);
 				exe.executeUpdate();
 				
-				conexion.close();
 			} catch(SQLException e)  {
 				System.err.println(e);
 			} catch(Exception e){
@@ -51,9 +50,9 @@ public class Sub_Categorie implements Model {
 	public List<String> getSubCategories(){
 		List<String> list = new ArrayList<String>();
 
-		Connection conexion = conn.conectar();
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT sca.name FROM "+TABLE_NAME+" sca "
 					+ "WHERE sca.categories_id = ? ; ";
@@ -65,7 +64,6 @@ public class Sub_Categorie implements Model {
 			while (rs.next() ) {
                list.add(rs.getString("sca.name"));
 			}
-			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
 		}
@@ -76,9 +74,9 @@ public class Sub_Categorie implements Model {
 	public int getIdPhraseSubCategories(String name) throws SQLException {
 
 		int indice = 0;
-		Connection conexion = conn.conectar();
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT sca.sub_categories_id FROM "+TABLE_NAME+" sca "
 					+ "WHERE sca.name = ? LIMIT 1; ";
@@ -90,7 +88,6 @@ public class Sub_Categorie implements Model {
 			while (rs.next() ) {
                indice =  rs.getInt("sca.sub_categories_id");
 			}
-			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
 		}

@@ -2,9 +2,7 @@ package com.selenium.facebook.Modelo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,21 +18,17 @@ public class Inicio_Aplicacion implements Model{
 	private static Conexion conn = new Conexion();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	Statement st;
-	ResultSet rs;
 	
 	public void insert() {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormat.format(date));
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(version,created_at) "
 					+ " VALUE (?,?);";
 			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
 			exe.setString(1, getVersion());
 			exe.setString(2, getCreated_at());
-			
 			exe.executeUpdate();
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

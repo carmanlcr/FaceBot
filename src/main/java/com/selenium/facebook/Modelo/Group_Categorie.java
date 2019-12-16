@@ -32,8 +32,8 @@ public class Group_Categorie implements Model {
 	public Group_Categorie getGroupSearch() {
 		Group_Categorie groCa = new Group_Categorie();
 		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? ORDER BY RAND() LIMIT 1";
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			PreparedStatement  queryE = (PreparedStatement) conexion.prepareStatement(query);
 			queryE.setInt(1, getCategories_id());
 			
@@ -45,7 +45,6 @@ public class Group_Categorie implements Model {
 				groCa.setCreated_at(rs.getString("created_at"));
 				groCa.setCategories_id(rs.getInt("categories_id"));
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			e.getStackTrace();
 		}

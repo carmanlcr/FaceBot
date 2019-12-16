@@ -23,19 +23,16 @@ public class Task implements Model{
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormatDateTime.format(date));
 		
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at) VALUE "
 					+ " (?,?);";
-			
 			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setString(1, getName());
 			exe.setString(2, getCreated_at());
 			exe.executeUpdate();
-			
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -50,10 +47,10 @@ public class Task implements Model{
 	public List<String> getTasksActive(){
 		List<String> list = new ArrayList<String>();
 		
-		Connection conexion = conn.conectar();
+		
 		String query = "SELECT t.name FROM "+TABLE_NAME+" t " + 
 				"WHERE active = ?;"; 
-		try {
+		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			pst.setInt(1, 1);
 			rs = pst.executeQuery();
@@ -61,7 +58,6 @@ public class Task implements Model{
 			while (rs.next() ) {
 				list.add(rs.getString("t.name"));
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

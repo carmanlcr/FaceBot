@@ -27,19 +27,18 @@ public class Genere implements Model{
 	ResultSet rs;
 	
 	public void insert() {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormatDateTime.format(date));
 		
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id) VALUE "
 					+ " (?,?,?);";
 			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
 			exe.setString(1, getName());
 			exe.setString(2, getCreated_at());
 			exe.setInt(3, getCategories_id());
-			
 			exe.executeUpdate();
-			conexion.close();
+			
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -53,19 +52,17 @@ public class Genere implements Model{
 	
 	public List<String> getGeneresActive(){
 		List<String> list = new ArrayList<String>();
-		Connection conexion = conn.conectar();
+		
 		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				"WHERE categories_id = ? AND active = ?;"; 
-		try {
+		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			pst.setInt(1, getCategories_id());
 			pst.setInt(2, 1);
 			rs = pst.executeQuery();
-			
 			while (rs.next() ) {
 				list.add(rs.getString("g.name"));
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -77,14 +74,14 @@ public class Genere implements Model{
 	
 	public List<String> getGeneresActiveWithPhrasesHashTagPhoto(){
 		List<String> list = new ArrayList<String>();
-		Connection conexion = conn.conectar();
+		
 		String query = "SELECT DISTINCT(g.generes_id), g.name FROM (" + 
 				"SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				"INNER JOIN path_photos pp ON pp.generes_id = g.generes_id AND pp.active = ? " + 
 				"INNER JOIN phrases ph ON ph.generes_id = g.generes_id AND ph.active = ? " + 
 				"INNER JOIN hashtag ht ON ht.generes_id = g.generes_id AND ht.active = ? " + 
 				"WHERE g.categories_id = ? AND g.active = ?) g ;"; 
-		try {
+		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			pst.setInt(1, 1);
 			pst.setInt(2, 1);
@@ -92,11 +89,9 @@ public class Genere implements Model{
 			pst.setInt(4, getCategories_id());
 			pst.setInt(5, 1);
 			rs = pst.executeQuery();
-			
 			while (rs.next() ) {
 				list.add(rs.getString("g.name"));
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -108,10 +103,10 @@ public class Genere implements Model{
 	
 	public int getIdGenere() {
 		int idGenere = 0;
-		Connection conexion = conn.conectar();
+		
 		String query = "SELECT g.generes_id FROM "+TABLE_NAME+" g " + 
 				"WHERE g.active = ? AND g.name = ?;"; 
-		try {
+		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			pst.setInt(1, 1);
 			pst.setString(2, getName());
@@ -120,7 +115,6 @@ public class Genere implements Model{
 			while (rs.next() ) {
 				idGenere = rs.getInt("g.generes_id");
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

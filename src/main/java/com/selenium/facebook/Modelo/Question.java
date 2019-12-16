@@ -26,8 +26,8 @@ public class Question implements Model {
 	@Override
 	public void insert() throws SQLException {
 		setCreated_at(dateFormat.format(date));
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+""
 					+ "(question, answer, created_at) "
 					+ " VALUE (?,?,?);";
@@ -39,8 +39,6 @@ public class Question implements Model {
 			
 			query.executeUpdate();
 			
-			conexion.close();
-			
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -49,8 +47,8 @@ public class Question implements Model {
 	
 	public String getAnswerQuestion() {
 		String questionA = "";
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String select = "SELECT * FROM "+TABLE_NAME+""
 					+ "WHERE question = ?;";
 			
@@ -62,7 +60,6 @@ public class Question implements Model {
 				questionA = rs.getString("answer");
 			}
 			
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

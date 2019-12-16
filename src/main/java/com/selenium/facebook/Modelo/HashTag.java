@@ -25,17 +25,14 @@ public class HashTag implements Model{
 	private static Conexion conn = new Conexion();
 	
 	public void insert() throws SQLException {
-		Statement st = null;
-		Connection conexion = conn.conectar();
+		
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 		String strDate= formatter.format(date);
 		String insert = "";
-			try {
-				
+			try (Connection conexion = conn.conectar();
+					Statement st = conexion.createStatement();){
 				if(getGeneres_id() == 0) {
-					
-					
 					insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id,sub_categories_id) "
 							+ "VALUE ('"+getName()+"','"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+");";
 				}else if(getSub_categories_id() == 0) {
@@ -46,16 +43,11 @@ public class HashTag implements Model{
 							+ "VALUE ('"+getName()+"','"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+","
 							+getGeneres_id()+");";
 				}
-				st = (Statement) conexion.createStatement();
 				st.executeUpdate(insert);
-				conexion.close();
 			} catch(SQLException e)  {
 				System.err.println(e);
 			} catch(Exception e){
 				System.err.println(e);
-			}finally {
-				st.close();
-				conexion.close();
 			}
 			
 		
@@ -70,9 +62,9 @@ public class HashTag implements Model{
 		
 		String[] list = new String[4];
 		int indice = 0;
-		Connection conexion = conn.conectar();
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT ht.name FROM "+TABLE_NAME+" ht "
 					+ "WHERE ht.active = ? AND ht.generes_id = ? "
@@ -90,8 +82,6 @@ public class HashTag implements Model{
 			}
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			conexion.close();
 		}
 		
 		return list;
@@ -100,9 +90,9 @@ public class HashTag implements Model{
 	public List<String> getHashTagForCategories(){
 		List<String> list = new ArrayList<String>();
 		
-		Connection conexion = conn.conectar();
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT ht.name FROM "+TABLE_NAME+" ht "
 					+ "WHERE ht.active = ? AND ht.generes_id = ? "
@@ -119,12 +109,6 @@ public class HashTag implements Model{
 			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
-		}finally {
-			try {
-				conexion.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 		
 		return list;
@@ -133,8 +117,8 @@ public class HashTag implements Model{
 	public int getIdCategorieHashTag() throws SQLException {
 		int id = 0;
 		ResultSet rs = null;
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			String queryExce = "SELECT ht.hashtag_id "
 					         + "FROM "+TABLE_NAME+" ht "
 					         + "WHERE ht.active = ? AND ht.name = ? "
@@ -151,11 +135,8 @@ public class HashTag implements Model{
 				id = rs.getInt("hashtag_id");
                
 			}
-			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally{
-			conexion.close();
 		}
 		
 		return id;

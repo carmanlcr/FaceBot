@@ -24,10 +24,10 @@ public class Task_Model_Detail implements Model {
 	
 	public void insert() throws SQLException {
 		
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormatDateTime.format(date));
 		
-		try {
+		try(Connection conexion = conn.conectar();) {
 			String insert = "INSERT INTO "+TABLE_NAME+"(tasks_model_id,tasks_id,created_at) VALUE "
 					+ " (?,?,?);";
 			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
@@ -36,7 +36,6 @@ public class Task_Model_Detail implements Model {
 			exe.setString(3, getCreated_at());
 			
 			exe.executeUpdate();
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -45,8 +44,8 @@ public class Task_Model_Detail implements Model {
 	
 	public List<Integer> getTaskModelDetailDiferent(){
 		List<Integer> list = new ArrayList<>();
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT tmd.tasks_id FROM "+TABLE_NAME+" tmd " + 
 								"WHERE tasks_model_id = ?;";
@@ -57,10 +56,7 @@ public class Task_Model_Detail implements Model {
 			
 			while (rs.next() ) {
 				 list.add(rs.getInt("tmd.tasks_id"));
-
-               
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

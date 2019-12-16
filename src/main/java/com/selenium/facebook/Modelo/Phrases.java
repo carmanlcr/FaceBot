@@ -19,17 +19,16 @@ public class Phrases implements Model{
 	private int categories_id;
 	private int sub_categories_id;
 	private int generes_id;
-	private static Conexion conn = new Conexion();
+	private Conexion conn = new Conexion();
 	
 	
 	public void insert() throws SQLException {
-		Statement st = null;
-		Connection conexion = conn.conectar();
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd H:m:s");
 		String strDate= formatter.format(date);
 		String insert = "";
-			try {
+			try (Connection conexion = conn.conectar();
+					Statement st = conexion.createStatement();){
 				if(getGeneres_id() == 0) {
 					
 					
@@ -43,7 +42,6 @@ public class Phrases implements Model{
 							+ "VALUE ('"+getPhrase()+"','"+strDate+"','"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+","
 							+getGeneres_id()+");";
 				}
-				st = (Statement) conexion.createStatement();
 				st.executeUpdate(insert);
 				
 				conexion.close();
@@ -52,9 +50,6 @@ public class Phrases implements Model{
 			} catch(Exception e){
 				System.err.println(e);
 				
-			}finally {
-				st.close();
-				conexion.close();
 			}
 			
 	}
@@ -64,15 +59,15 @@ public class Phrases implements Model{
 		
 	}
 	 
-	public String getPhraseRandom() throws SQLException{
+	public Phrases getPhraseRandom() throws SQLException{
+		Phrases ph = null;
 		
-		String list = "";
-		Connection conexion = conn.conectar();
-		Statement st = (Statement) conexion.createStatement();
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();){
 			
-			String queryExce = "SELECT ph.phrase FROM "+TABLE_NAME+" ph "
+			String queryExce = "SELECT * FROM "+TABLE_NAME+" ph "
 					+ "WHERE ph.active = ? AND ph.categories_id = ? "
 					+ "AND ph.generes_id = ? "
 					+ "ORDER BY RAND() LIMIT 1;";
@@ -82,26 +77,29 @@ public class Phrases implements Model{
 			query.setInt(3,getGeneres_id());
 			rs = query.executeQuery();
 
-			while (rs.next() ) {
-               list +=  rs.getString("phrase");
+			if(rs.next() ) {
+				ph = new Phrases();
+				ph.setPhrase(rs.getString("ph.phrase"));
+				ph.setCategories_id(rs.getInt("ph.categories_id"));
+				ph.setGeneres_id(rs.getInt("ph.generes_id"));
+				ph.setSub_categories_id(rs.getInt("ph.sub_categories_id"));
+				ph.setActive(rs.getBoolean("ph.active"));
 			}
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			st.close();
-			conexion.close();
 		}
 		
-		return list;
+		return ph;
  	}
 	
 	public String getPhraseRandomSubCategorie() throws SQLException{
 		
 		String list = "";
-		Connection conexion = conn.conectar();
-		Statement st = (Statement) conexion.createStatement();
+		
+		
 		ResultSet rs = null;
-		try {
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();){
 			
 			String queryExce = "SELECT ph.phrase FROM "+TABLE_NAME+" ph "
 					+ "WHERE ph.active = ? AND ph.categories_id = ? "
@@ -118,9 +116,6 @@ public class Phrases implements Model{
 			}
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			st.close();
-			conexion.close();
 		}
 		
 		return list;

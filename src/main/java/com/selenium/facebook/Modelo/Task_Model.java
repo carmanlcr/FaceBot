@@ -20,10 +20,10 @@ public class Task_Model implements Model {
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormat.format(date));
 		
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at) VALUE "
 					+ " (?,?);";
 			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
@@ -31,7 +31,6 @@ public class Task_Model implements Model {
 			exe.setString(2, getCreated_at());
 			
 			exe.executeUpdate();
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -45,19 +44,14 @@ public class Task_Model implements Model {
 	
 	public int getLast() {
 		int id = 0;
-		Connection conexion = conn.conectar();
 		
-		
-		try {
+		try (Connection conexion = conn.conectar();){
 			
 			st = (Statement) conexion.createStatement();
 			rs = st.executeQuery("SELECT tk.tasks_model_id FROM "+TABLE_NAME+" tk ORDER BY tk.tasks_model_id DESC LIMIT 1");
-
-			
 			while (rs.next() ) {
                id =  rs.getInt("tk.tasks_model_id");
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -67,8 +61,8 @@ public class Task_Model implements Model {
 
 	public int getTaskModelDetailDiferent(String values){
 		int list = 0;
-		Connection conexion = conn.conectar();
-		try {
+		
+		try (Connection conexion = conn.conectar();){
 			
 			String queryExce = "SELECT tm.tasks_model_id FROM "+TABLE_NAME+" tm " + 
 							"WHERE tm.tasks_model_id NOT IN ("+values+") ORDER BY rand() LIMIT 1;";
@@ -79,7 +73,6 @@ public class Task_Model implements Model {
 			while (rs.next() ) {
 				list = rs.getInt("tm.tasks_model_id");
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}

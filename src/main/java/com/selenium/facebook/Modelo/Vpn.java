@@ -1,5 +1,6 @@
 package com.selenium.facebook.Modelo;
 
+import java.lang.Thread.State;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,17 +20,11 @@ public class Vpn implements Model{
 	private static Conexion conn = new Conexion();
 	
 	public List<String> getAllActive() throws SQLException {
-
-		Connection conexion = conn.conectar();
 		List<String> list = new ArrayList<String>();
-		Statement st = null;
-	    ResultSet rs = null;
-		try {
-			st = (Statement) conexion.createStatement();
-			
-			
-			rs = st.executeQuery("SELECT name FROM "+TABLE_NAME+" WHERE active = 1 ORDER BY name ASC");
-			
+	    String query = "SELECT name FROM "+TABLE_NAME+" WHERE active = 1 ORDER BY name ASC";
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			list.add("Seleccione");
 			while (rs.next() ) {
 				list.add(rs.getString("name"));
@@ -38,9 +33,6 @@ public class Vpn implements Model{
 			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			st.close();
-			conexion.close();
 		}
 		
 		return list;
@@ -48,15 +40,10 @@ public class Vpn implements Model{
 	
 	public String getNameVPN(String name) throws SQLException {
 		String nameVpn = "";
-		Statement st = null;
-		ResultSet rs = null;
-		Connection conexion = conn.conectar();
-		try {
-			
-			st = (Statement) conexion.createStatement();
-			
-			
-			rs = st.executeQuery("SELECT * FROM "+TABLE_NAME+" WHERE name = '"+nameVpn+"';");
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE name = '"+nameVpn+"';";
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			
 			while (rs.next() ) {
 				nameVpn = rs.getString("name");
@@ -65,26 +52,18 @@ public class Vpn implements Model{
 			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally{
-			st.close();
-			conexion.close();
 		}
 		
 		return nameVpn;
-		
 	}
 	
 	public int getFind(String name) throws SQLException {
 		int idVpn = 0;
-		ResultSet rs = null;
-		Statement st = null;
-		Connection conexion = conn.conectar();
-		try {
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE name = '"+name+"';";
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			
-			st = (Statement) conexion.createStatement();
-			String query = "SELECT * FROM "+TABLE_NAME+" WHERE name = '"+name+"';";
-			
-			rs = st.executeQuery(query);
 			
 			while (rs.next() ) {
 				idVpn = rs.getInt("vpn_id");
@@ -93,40 +72,25 @@ public class Vpn implements Model{
 			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			rs.close();
-			conexion.close();
-		}
-			
-		
+		}			
 		
 		return idVpn;
 	}
 	
 	public int findOrCreate(String name) throws SQLException {
 		int idVpn = 0;
-		ResultSet rs = null;
-		Statement st = null;
-		Connection conexion = conn.conectar();
-		try {
-			
-			st = (Statement) conexion.createStatement();
-			String query = "SELECT * FROM "+TABLE_NAME+" WHERE UPPER(name) = '"+name.toUpperCase()+"';";
-			
-			rs = st.executeQuery(query);
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE UPPER(name) = '"+name.toUpperCase()+"';";
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement();
+				ResultSet rs = st.executeQuery(query)){
 			
 			while (rs.next() ) {
 				idVpn = rs.getInt("vpn_id");
                
 			}
-			conexion.close();
 		}catch(Exception e) {
 			System.err.println(e);
-		}finally {
-			rs.close();
-			conexion.close();
-		}
-			
+		}			
 		if(idVpn==0) {
 			setName(name);
 			insert();
@@ -136,15 +100,14 @@ public class Vpn implements Model{
 	}
 	
 	public void insert() throws SQLException {
-		Connection conexion = conn.conectar();
+		
 
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(name) VALUES (?);";
 			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setString(1, getName());
 			
 			exe.executeUpdate();
-			conexion.close();
 		} catch(Exception e)  {
 			System.err.println(e);
 		}

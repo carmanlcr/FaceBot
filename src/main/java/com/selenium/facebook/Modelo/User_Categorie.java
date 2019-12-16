@@ -26,9 +26,9 @@ public class User_Categorie implements Model{
 	ResultSet rs;
 	
 	public void insert() {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormat.format(date));
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
 					+ " VALUE (?,?,?);";
 			PreparedStatement exe = conexion.prepareStatement(insert);
@@ -37,7 +37,6 @@ public class User_Categorie implements Model{
 			exe.setString(3, getCreated_at());
 			exe.executeUpdate();
 
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -50,9 +49,9 @@ public class User_Categorie implements Model{
 	}
 	
 	public void inserts(List<Integer> list) {
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormat.format(date));
-		try {
+		try (Connection conexion = conn.conectar();){
 			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
 					+ " VALUES ";
 			for(Integer usercate : list) {
@@ -63,7 +62,6 @@ public class User_Categorie implements Model{
 			st = (Statement) conexion.createStatement();
 			st.executeUpdate(sinUltimoCaracter);
 			
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -71,14 +69,12 @@ public class User_Categorie implements Model{
 	}
 	
 	public void updateCategories() throws SQLException{
-		Connection conexion = conn.conectar();
+		
 		setCreated_at(dateFormat.format(date));
-		try {
+		try (Connection conexion = conn.conectar();
+				Statement st = conexion.createStatement()){
 			String update = "UPDATE "+TABLE_NAME+" SET categories_id ="+getCategories_id()+" WHERE users_id = "+getUsers_id();
-			st = (Statement) conexion.createStatement();
 			st.executeUpdate(update);
-
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
