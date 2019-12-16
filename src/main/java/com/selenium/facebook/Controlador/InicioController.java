@@ -399,7 +399,7 @@ public class InicioController {
 		ph.setCategories_id(categoria_id);
 		ph.setGeneres_id(idGenere);
 		System.out.println("Extraer frase random");
-		String post = ph.getPhraseRandom();
+		ph = ph.getPhraseRandom();
 		List<String> copia = checkBoxHashTag.get(ini);
 		String hash = "";
 		System.out.println("Elegir HashTag");
@@ -433,7 +433,7 @@ public class InicioController {
 		String pieDe = pieDeFoto.get(ini).getText();
 		String usuario = listUsers.get(ini).getText();
 		System.out.println("Escribir el pie de la foto");
-		drive.inputWrite(2, "xc_message", post + " " + pieDe + " " + usuario + " " + hash,150);
+		drive.inputWrite(2, "xc_message", ph.getPhrase() + " " + pieDe + " " + usuario + " " + hash,150);
 
 		Thread.sleep(getNumberRandomForSecond(1250, 2000));
 		System.out.println("Darle a postear imagen");
