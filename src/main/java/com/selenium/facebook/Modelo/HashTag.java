@@ -15,6 +15,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class HashTag implements Model{
 
+	private final String TABLE_NAME = "hashtag";
 	private String name;
 	private boolean active;
 	private int created_at;
@@ -35,13 +36,13 @@ public class HashTag implements Model{
 				if(getGeneres_id() == 0) {
 					
 					
-					insert = "INSERT INTO hashtag(name,created_at,categories_id,sub_categories_id) "
+					insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id,sub_categories_id) "
 							+ "VALUE ('"+getName()+"','"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+");";
 				}else if(getSub_categories_id() == 0) {
-					insert = "INSERT INTO hashtag(name,created_at,categories_id,generes_id) "
+					insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id,generes_id) "
 							+ "VALUE ('"+getName()+"','"+strDate+"',"+getCategories_id()+","+getGeneres_id()+");";
 				}else {
-					insert = "INSERT INTO hashtag(name,created_at,categories_id,sub_categories_id,generes_id) "
+					insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id,sub_categories_id,generes_id) "
 							+ "VALUE ('"+getName()+"','"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+","
 							+getGeneres_id()+");";
 				}
@@ -73,7 +74,7 @@ public class HashTag implements Model{
 		ResultSet rs = null;
 		try {
 			
-			String queryExce = "SELECT ht.name FROM hashtag ht "
+			String queryExce = "SELECT ht.name FROM "+TABLE_NAME+" ht "
 					+ "WHERE ht.active = ? AND ht.generes_id = ? "
 					+ "AND ht.categories_id = ? "
 					+ "ORDER BY RAND() LIMIT 4;";
@@ -103,7 +104,7 @@ public class HashTag implements Model{
 		ResultSet rs = null;
 		try {
 			
-			String queryExce = "SELECT ht.name FROM hashtag ht "
+			String queryExce = "SELECT ht.name FROM "+TABLE_NAME+" ht "
 					+ "WHERE ht.active = ? AND ht.generes_id = ? "
 					+ "AND ht.categories_id = ? ; ";
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
@@ -135,7 +136,7 @@ public class HashTag implements Model{
 		Connection conexion = conn.conectar();
 		try {
 			String queryExce = "SELECT ht.hashtag_id "
-					         + "FROM hashtag ht "
+					         + "FROM "+TABLE_NAME+" ht "
 					         + "WHERE ht.active = ? AND ht.name = ? "
 					         + "AND ht.categories_id = ? AND generes_id = ?;";
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);

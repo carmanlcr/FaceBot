@@ -10,6 +10,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class Task_Model implements Model {
 
+	private final String TABLE_NAME = "tasks_model";
 	private String name;
 	private String created_at;
 	private Date date = new Date();
@@ -23,10 +24,13 @@ public class Task_Model implements Model {
 		setCreated_at(dateFormat.format(date));
 		
 		try {
-			String insert = "INSERT INTO tasks_model(name,created_at) VALUE "
-					+ " ('"+getName()+"','"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at) VALUE "
+					+ " (?,?);";
+			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
+			exe.setString(1, getName());
+			exe.setString(2, getCreated_at());
+			
+			exe.executeUpdate();
 			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -47,7 +51,7 @@ public class Task_Model implements Model {
 		try {
 			
 			st = (Statement) conexion.createStatement();
-			rs = st.executeQuery("SELECT tk.tasks_model_id FROM tasks_model tk ORDER BY tk.tasks_model_id DESC LIMIT 1");
+			rs = st.executeQuery("SELECT tk.tasks_model_id FROM "+TABLE_NAME+" tk ORDER BY tk.tasks_model_id DESC LIMIT 1");
 
 			
 			while (rs.next() ) {
@@ -66,7 +70,7 @@ public class Task_Model implements Model {
 		Connection conexion = conn.conectar();
 		try {
 			
-			String queryExce = "SELECT tm.tasks_model_id FROM tasks_model tm " + 
+			String queryExce = "SELECT tm.tasks_model_id FROM "+TABLE_NAME+" tm " + 
 							"WHERE tm.tasks_model_id NOT IN ("+values+") ORDER BY rand() LIMIT 1;";
 			
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);

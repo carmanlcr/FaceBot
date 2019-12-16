@@ -13,6 +13,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class Path_Photo implements Model {
 	
+	private final String TABLE_NAME = "path_photos";
 	private String path;
 	private boolean active;
 	private String created_at;
@@ -34,13 +35,13 @@ public class Path_Photo implements Model {
 			if(getGeneres_id() == 0) {
 				
 				
-				insert = "INSERT INTO path_photos(path,created_at,categories_id,sub_categories_id) "
+				insert = "INSERT INTO "+TABLE_NAME+"(path,created_at,categories_id,sub_categories_id) "
 						+ "VALUE ('"+getPath()+"','"+getCreated_at()+"',"+getCategories_id()+","+getSub_categories_id()+");";
 			}else if(getSub_categories_id() == 0) {
-				insert = "INSERT INTO path_photos(path,created_at,categories_id,generes_id) "
+				insert = "INSERT INTO "+TABLE_NAME+"(path,created_at,categories_id,generes_id) "
 						+ "VALUE ('"+getPath()+"','"+getCreated_at()+"',"+getCategories_id()+","+getGeneres_id()+");";
 			}else {
-				insert = "INSERT INTO path_photos(path,created_at,categories_id,sub_categories_id,generes_id) "
+				insert = "INSERT INTO "+TABLE_NAME+"(path,created_at,categories_id,sub_categories_id,generes_id) "
 						+ "VALUE ('"+getPath()+"','"+getCreated_at()+"',"+getCategories_id()+","+getSub_categories_id()+","
 						+getGeneres_id()+");";
 			}
@@ -66,7 +67,7 @@ public class Path_Photo implements Model {
 		
 		String update = "";
 		try {
-			update = "UPDATE path_photos SET active = ? WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ?";
+			update = "UPDATE "+TABLE_NAME+" SET active = ? WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ?";
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(update);
 			query.setInt(1, 0);
 			query.setInt(2, getCategories_id());
@@ -91,19 +92,19 @@ public class Path_Photo implements Model {
 		try {
 			
 			if(getSub_categories_id() == 0) {
-				query = "SELECT path FROM path_photos WHERE categories_id=? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
+				query = "SELECT path FROM "+TABLE_NAME+" WHERE categories_id=? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
 				queryE= (PreparedStatement) conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getGeneres_id());
 				queryE.setInt(3, 1);
 			}else if(getGeneres_id() == 0) {
-				query = "SELECT path FROM path_photos WHERE categories_id=? AND sub_categories_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
+				query = "SELECT path FROM "+TABLE_NAME+" WHERE categories_id=? AND sub_categories_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
 				queryE= (PreparedStatement) conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getSub_categories_id());
 				queryE.setInt(3, 1);
 			}else {
-				query = "SELECT path FROM path_photos WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
+				query = "SELECT path FROM "+TABLE_NAME+" WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
 				queryE= (PreparedStatement) conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getSub_categories_id());

@@ -19,26 +19,21 @@ public class Categories implements Model{
 	
 	
 	public void insert() {
-		Statement st = null;
 		Connection conexion = conn.conectar();
 			try {
 				String insert = "INSERT INTO "+TABLE_NAME+"(name) "
-						+ "VALUES ('"+getName()+"');";
-				st = (Statement) conexion.createStatement();
-				st.executeUpdate(insert);
+						+ "VALUES (?);";
+				PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
+				exe.setString(1, getName());
 				
+				exe.executeUpdate();
+				
+				conexion.close();
 			} catch(SQLException e)  {
 				System.err.println(e);
 			} catch(Exception e){
 				System.err.println(e);
 				
-			}finally {
-				try {
-					st.close();
-					conexion.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
 			}
 			
 	}

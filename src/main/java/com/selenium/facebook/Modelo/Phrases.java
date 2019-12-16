@@ -13,7 +13,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class Phrases implements Model{
 	
-	
+	private final String TABLE_NAME = "phrases";
 	private String phrase;
 	private boolean active;
 	private int categories_id;
@@ -33,13 +33,13 @@ public class Phrases implements Model{
 				if(getGeneres_id() == 0) {
 					
 					
-					insert = "INSERT INTO phrases(phrase,created_at,updated_at,categories_id,sub_categories_id) "
+					insert = "INSERT INTO "+TABLE_NAME+"(phrase,created_at,updated_at,categories_id,sub_categories_id) "
 							+ "VALUE ('"+getPhrase()+"','"+strDate+"', '"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+");";
 				}else if(getSub_categories_id() == 0) {
-					insert = "INSERT INTO phrases(phrase,created_at,updated_at,categories_id,generes_id) "
+					insert = "INSERT INTO "+TABLE_NAME+"(phrase,created_at,updated_at,categories_id,generes_id) "
 							+ "VALUE ('"+getPhrase()+"','"+strDate+"','"+strDate+"',"+getCategories_id()+","+getGeneres_id()+");";
 				}else {
-					insert = "INSERT INTO phrases(phrase,created_at,updated_at,categories_id,sub_categories_id,generes_id) "
+					insert = "INSERT INTO "+TABLE_NAME+"(phrase,created_at,updated_at,categories_id,sub_categories_id,generes_id) "
 							+ "VALUE ('"+getPhrase()+"','"+strDate+"','"+strDate+"',"+getCategories_id()+","+getSub_categories_id()+","
 							+getGeneres_id()+");";
 				}
@@ -72,7 +72,7 @@ public class Phrases implements Model{
 		ResultSet rs = null;
 		try {
 			
-			String queryExce = "SELECT ph.phrase FROM phrases ph "
+			String queryExce = "SELECT ph.phrase FROM "+TABLE_NAME+" ph "
 					+ "WHERE ph.active = ? AND ph.categories_id = ? "
 					+ "AND ph.generes_id = ? "
 					+ "ORDER BY RAND() LIMIT 1;";
@@ -103,7 +103,7 @@ public class Phrases implements Model{
 		ResultSet rs = null;
 		try {
 			
-			String queryExce = "SELECT ph.phrase FROM phrases ph "
+			String queryExce = "SELECT ph.phrase FROM "+TABLE_NAME+" ph "
 					+ "WHERE ph.active = ? AND ph.categories_id = ? "
 					+ "AND ph.sub_categories_id = ? "
 					+ "ORDER BY RAND() LIMIT 1;";

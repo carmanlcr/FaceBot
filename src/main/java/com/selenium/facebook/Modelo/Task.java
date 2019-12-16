@@ -12,6 +12,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class Task implements Model{
 	
+	private final String TABLE_NAME = "tasks";
 	private String name;
 	private String created_at;
 	private boolean active;
@@ -26,10 +27,14 @@ public class Task implements Model{
 		setCreated_at(dateFormatDateTime.format(date));
 		
 		try {
-			String insert = "INSERT INTO tasks(name,created_at) VALUE "
-					+ " ('"+getName()+"','"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at) VALUE "
+					+ " (?,?);";
+			
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setString(1, getName());
+			exe.setString(2, getCreated_at());
+			exe.executeUpdate();
+			
 			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -46,7 +51,7 @@ public class Task implements Model{
 		List<String> list = new ArrayList<String>();
 		
 		Connection conexion = conn.conectar();
-		String query = "SELECT t.name FROM tasks t " + 
+		String query = "SELECT t.name FROM "+TABLE_NAME+" t " + 
 				"WHERE active = ?;"; 
 		try {
 			PreparedStatement pst = conexion.prepareStatement(query);

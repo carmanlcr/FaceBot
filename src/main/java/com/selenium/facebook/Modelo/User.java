@@ -1,7 +1,9 @@
 package com.selenium.facebook.Modelo;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +18,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class User implements Model{
 	
+	private final String TABLE_NAME = "users";
 	private int users_id;
 	private String username;
 	private String email;
@@ -42,7 +45,7 @@ public class User implements Model{
 		try {
 			
 			st = (Statement) conexion.createStatement();
-			String query = "SELECT * FROM users us "
+			String query = "SELECT * FROM "+TABLE_NAME+" us "
 					+ "INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id "
 					+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "
 					+ "INNER JOIN categories ca ON ca.categories_id = uc.categories_id "
@@ -80,7 +83,7 @@ public class User implements Model{
 		try {
 			
 			st = (Statement) conexion.createStatement();
-			rs = st.executeQuery("SELECT * FROM users us "
+			rs = st.executeQuery("SELECT * FROM "+TABLE_NAME+" us "
 					+ "INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id "
 					+ "ORDER BY rand() LIMIT 1");
 
@@ -112,7 +115,7 @@ public class User implements Model{
 		try {
 			
 			st = (Statement) conexion.createStatement();
-			rs = st.executeQuery("SELECT us.users_id FROM users us WHERE username = '"+getUsername()+"' GROUP BY us.users_id;");
+			rs = st.executeQuery("SELECT us.users_id FROM "+TABLE_NAME+" us WHERE username = '"+getUsername()+"' GROUP BY us.users_id;");
 
 			
 			while (rs.next() ) {
@@ -130,11 +133,21 @@ public class User implements Model{
 	public void insert() {
 		Connection conexion = conn.conectar();
 		try {
-			String insert = "INSERT INTO users(username,email,full_name,phone,password,creator,date_of_birth,created,sim_card_number,vpn_id)"
-					+ " VALUES ('"+getUsername()+"', '"+getEmail()+"', '"+getFull_name()+"', "+getPhone()+", '"+getPassword()+"', '"+getCreator() 
-					+ "', '"+getDate_of_birth()+"', '"+getCreated()+"', "+getSim_card_number()+", "+getVpn_id()+");";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(username,email,full_name,phone,password,creator,date_of_birth,created,sim_card_number,vpn_id)"
+					+ " VALUES (?, ?, ?,?, ?, ? , ?, ?, ?,?);";
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setString(1, getUsername());
+			exe.setString(2, getEmail());
+			exe.setString(3, getFull_name());
+			exe.setBigDecimal(4, new BigDecimal(getPhone()));
+			exe.setString(5, getPassword());
+			exe.setString(6, getCreator());
+			exe.setString(7, getDate_of_birth());
+			exe.setString(8, getCreated());
+			exe.setInt(9, getSim_card_number());
+			exe.setInt(10, getVpn_id());
+			
+			exe.executeUpdate();
 			
 			User_Categorie usercate = new User_Categorie();
 			usercate.setCategories_id(getCategories_id());
@@ -160,7 +173,7 @@ public class User implements Model{
 		Connection conexion = conn.conectar();
 		
 		try {
-			String query = "SELECT * FROM users us" 
+			String query = "SELECT * FROM "+TABLE_NAME+" us" 
 					+ " WHERE NOT us.username = '"+username+"' "
 					+ " GROUP BY RAND() LIMIT 1;";
 			st = (Statement) conexion.createStatement();
@@ -189,7 +202,7 @@ public class User implements Model{
 			
 			st = (Statement) conexion.createStatement();
 			String query = "SELECT us.users_id,us.username,us.phone,us.password,vp.name,us.email,uc.categories_id,ub.users_block_id, count(*) as canpost "
-					+ "FROM users us "
+					+ "FROM "+TABLE_NAME+" us "
 					+ "INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id "
 					+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "
 					+ "LEFT JOIN users_block ub ON ub.users_id = us.users_id AND ub.active = 1 "
@@ -231,7 +244,7 @@ public class User implements Model{
 			
 			st = (Statement) conexion.createStatement();
 			String query = "SELECT us.username "
-					+ "FROM users us "
+					+ "FROM "+TABLE_NAME+" us "
 					+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "
 					+ "WHERE uc.categories_id = "+getCategories_id()+" "
 					+ "GROUP BY us.username";

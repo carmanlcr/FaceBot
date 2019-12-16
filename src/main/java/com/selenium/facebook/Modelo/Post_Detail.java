@@ -10,6 +10,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class Post_Detail implements Model {
 
+	private final String TABLE_NAME = "posts_detail";
 	private int posts_id;
 	private int hashtag_id;
 	private String created_at;
@@ -23,10 +24,14 @@ public class Post_Detail implements Model {
 		setCreated_at(dateFormat.format(date));
 		Connection conexion = conn.conectar();
 		try {
-			String insert = "INSERT INTO posts_detail(posts_id,hashtag_id,created_at) "
-					+ " VALUE ("+getPosts_id()+", "+getHashtag_id()+", '"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(posts_id,hashtag_id,created_at) "
+					+ " VALUE (?,?,?);";
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setInt(1, getPosts_id());
+			exe.setInt(2, getHashtag_id());
+			exe.setString(3, getCreated_at());
+			
+			exe.executeUpdate();
 			
 			conexion.close();
 		}catch(SQLException e) {

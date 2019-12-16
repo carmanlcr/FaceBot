@@ -14,6 +14,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class User_Block extends User implements Model{
 
+	private final String TABLE_NAME = "users_block";
 	private int users_id;
 	private boolean active;
 	private String comentario;
@@ -32,10 +33,14 @@ public class User_Block extends User implements Model{
 		setUpdated_at(dateFormatDateTime.format(date));
 		Connection conexion = conn.conectar();
 		try {
-			String insert = "INSERT INTO users_block(users_id,comentario,created_at,updated_at) VALUE "
-					+ " ("+getUsers_id()+", '"+getComentario()+"','"+getCreated_at()+"', '"+getUpdated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,comentario,created_at,updated_at) VALUE "
+					+ " (?,?,?,?);";
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setInt(1, getUsers_id());
+			exe.setString(2, getComentario());
+			exe.setString(3, getCreated());
+			exe.setString(4, getUpdated_at());
+			exe.executeUpdate();
 			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -50,7 +55,7 @@ public class User_Block extends User implements Model{
 		try {
 			
 			st = (Statement) conexion.createStatement();
-			rs = st.executeQuery("SELECT us.users_id FROM users_block us WHERE users_id = "+getUsers_id()+" AND active = 1;");
+			rs = st.executeQuery("SELECT us.users_id FROM "+TABLE_NAME+" us WHERE users_id = "+getUsers_id()+" AND active = 1;");
 
 			
 			while (rs.next() ) {
@@ -66,7 +71,7 @@ public class User_Block extends User implements Model{
 	}
 	
 	public boolean desblockUser(String username) {
-		String query = "UPDATE users_block SET active = ?, updated_at = ?  WHERE users_id = ? ";
+		String query = "UPDATE "+TABLE_NAME+" SET active = ?, updated_at = ?  WHERE users_id = ? ";
 		Connection conexion = conn.conectar();
 		setUpdated_at(dateFormatDateTime.format(date));
 		User user = new User();

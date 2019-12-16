@@ -12,6 +12,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class Task_Model_Detail implements Model {
 	
+	private final String TABLE_NAME = "tasks_model_detail";
 	private int tasks_model_id;
 	private int tasks_id;
 	private String created_at;
@@ -27,10 +28,14 @@ public class Task_Model_Detail implements Model {
 		setCreated_at(dateFormatDateTime.format(date));
 		
 		try {
-			String insert = "INSERT INTO tasks_model_detail(tasks_model_id,tasks_id,created_at) VALUE "
-					+ " ('"+getTasks_model_id()+"','"+getTasks_id()+"','"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(tasks_model_id,tasks_id,created_at) VALUE "
+					+ " (?,?,?);";
+			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
+			exe.setInt(1, getTasks_model_id());
+			exe.setInt(2, getTasks_id());
+			exe.setString(3, getCreated_at());
+			
+			exe.executeUpdate();
 			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -43,7 +48,7 @@ public class Task_Model_Detail implements Model {
 		Connection conexion = conn.conectar();
 		try {
 			
-			String queryExce = "SELECT tmd.tasks_id FROM tasks_model_detail tmd " + 
+			String queryExce = "SELECT tmd.tasks_id FROM "+TABLE_NAME+" tmd " + 
 								"WHERE tasks_model_id = ?;";
 			
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);

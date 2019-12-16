@@ -15,6 +15,7 @@ import com.selenium.facebook.Interface.Model;
 
 
 public class Genere implements Model{
+	private final String TABLE_NAME = "generes";
 	private String name;
 	private String created_at;
 	private int categories_id;
@@ -30,10 +31,14 @@ public class Genere implements Model{
 		setCreated_at(dateFormatDateTime.format(date));
 		
 		try {
-			String insert = "INSERT INTO generes(name,created_at,categories_id) VALUE "
-					+ " ('"+getName()+"','"+getCreated_at()+"','"+getCategories_id()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id) VALUE "
+					+ " (?,?,?);";
+			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
+			exe.setString(1, getName());
+			exe.setString(2, getCreated_at());
+			exe.setInt(3, getCategories_id());
+			
+			exe.executeUpdate();
 			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -49,7 +54,7 @@ public class Genere implements Model{
 	public List<String> getGeneresActive(){
 		List<String> list = new ArrayList<String>();
 		Connection conexion = conn.conectar();
-		String query = "SELECT g.generes_id, g.name FROM generes g " + 
+		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				"WHERE categories_id = ? AND active = ?;"; 
 		try {
 			PreparedStatement pst = conexion.prepareStatement(query);
@@ -74,7 +79,7 @@ public class Genere implements Model{
 		List<String> list = new ArrayList<String>();
 		Connection conexion = conn.conectar();
 		String query = "SELECT DISTINCT(g.generes_id), g.name FROM (" + 
-				"SELECT g.generes_id, g.name FROM generes g " + 
+				"SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				"INNER JOIN path_photos pp ON pp.generes_id = g.generes_id AND pp.active = ? " + 
 				"INNER JOIN phrases ph ON ph.generes_id = g.generes_id AND ph.active = ? " + 
 				"INNER JOIN hashtag ht ON ht.generes_id = g.generes_id AND ht.active = ? " + 
@@ -104,7 +109,7 @@ public class Genere implements Model{
 	public int getIdGenere() {
 		int idGenere = 0;
 		Connection conexion = conn.conectar();
-		String query = "SELECT g.generes_id FROM generes g " + 
+		String query = "SELECT g.generes_id FROM "+TABLE_NAME+" g " + 
 				"WHERE g.active = ? AND g.name = ?;"; 
 		try {
 			PreparedStatement pst = conexion.prepareStatement(query);

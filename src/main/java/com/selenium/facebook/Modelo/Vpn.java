@@ -1,6 +1,7 @@
 package com.selenium.facebook.Modelo;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,7 +12,8 @@ import com.selenium.facebook.Interface.Model;
 
 
 public class Vpn implements Model{
-
+	
+	private final String TABLE_NAME = "vpn";
 	private String name;
 	private boolean activo;
 	private static Conexion conn = new Conexion();
@@ -26,7 +28,7 @@ public class Vpn implements Model{
 			st = (Statement) conexion.createStatement();
 			
 			
-			rs = st.executeQuery("SELECT name FROM vpn WHERE active = 1 ORDER BY name ASC");
+			rs = st.executeQuery("SELECT name FROM "+TABLE_NAME+" WHERE active = 1 ORDER BY name ASC");
 			
 			list.add("Seleccione");
 			while (rs.next() ) {
@@ -54,7 +56,7 @@ public class Vpn implements Model{
 			st = (Statement) conexion.createStatement();
 			
 			
-			rs = st.executeQuery("SELECT * FROM vpn WHERE name = '"+nameVpn+"';");
+			rs = st.executeQuery("SELECT * FROM "+TABLE_NAME+" WHERE name = '"+nameVpn+"';");
 			
 			while (rs.next() ) {
 				nameVpn = rs.getString("name");
@@ -80,7 +82,7 @@ public class Vpn implements Model{
 		try {
 			
 			st = (Statement) conexion.createStatement();
-			String query = "SELECT * FROM vpn WHERE name = '"+name+"';";
+			String query = "SELECT * FROM "+TABLE_NAME+" WHERE name = '"+name+"';";
 			
 			rs = st.executeQuery(query);
 			
@@ -109,7 +111,7 @@ public class Vpn implements Model{
 		try {
 			
 			st = (Statement) conexion.createStatement();
-			String query = "SELECT * FROM vpn WHERE UPPER(name) = '"+name.toUpperCase()+"';";
+			String query = "SELECT * FROM "+TABLE_NAME+" WHERE UPPER(name) = '"+name.toUpperCase()+"';";
 			
 			rs = st.executeQuery(query);
 			
@@ -134,19 +136,17 @@ public class Vpn implements Model{
 	}
 	
 	public void insert() throws SQLException {
-		Statement st = null;
 		Connection conexion = conn.conectar();
 
 		try {
-			String insert = "INSERT INTO vpn(name) VALUES ('"+getName()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(name) VALUES (?);";
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setString(1, getName());
+			
+			exe.executeUpdate();
 			conexion.close();
 		} catch(Exception e)  {
 			System.err.println(e);
-		}finally {
-			st.close();
-			conexion.close();
 		}
 			
 

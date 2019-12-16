@@ -1,6 +1,7 @@
 package com.selenium.facebook.Modelo;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -14,6 +15,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class User_Categorie implements Model{
 
+	private final String TABLE_NAME = "users_categories";
 	private int users_id;
 	private int categories_id;
 	private String created_at;
@@ -27,10 +29,13 @@ public class User_Categorie implements Model{
 		Connection conexion = conn.conectar();
 		setCreated_at(dateFormat.format(date));
 		try {
-			String insert = "INSERT INTO users_categories(users_id,categories_id,created_at) "
-					+ " VALUE ("+getUsers_id()+", "+getCategories_id()+", '"+getCreated_at()+"');";
-			st = (Statement) conexion.createStatement();
-			st.executeUpdate(insert);
+			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
+					+ " VALUE (?,?,?);";
+			PreparedStatement exe = conexion.prepareStatement(insert);
+			exe.setInt(1, getUsers_id());
+			exe.setInt(2, getCategories_id());
+			exe.setString(3, getCreated_at());
+			exe.executeUpdate();
 
 			conexion.close();
 		}catch(SQLException e) {
@@ -48,7 +53,7 @@ public class User_Categorie implements Model{
 		Connection conexion = conn.conectar();
 		setCreated_at(dateFormat.format(date));
 		try {
-			String insert = "INSERT INTO users_categories(users_id,categories_id,created_at) "
+			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
 					+ " VALUES ";
 			for(Integer usercate : list) {
 				insert += "("+getUsers_id()+", "+usercate+", '"+getCreated_at()+"'),";
@@ -69,7 +74,7 @@ public class User_Categorie implements Model{
 		Connection conexion = conn.conectar();
 		setCreated_at(dateFormat.format(date));
 		try {
-			String update = "UPDATE users_categories SET categories_id ="+getCategories_id()+" WHERE users_id = "+getUsers_id();
+			String update = "UPDATE "+TABLE_NAME+" SET categories_id ="+getCategories_id()+" WHERE users_id = "+getUsers_id();
 			st = (Statement) conexion.createStatement();
 			st.executeUpdate(update);
 
