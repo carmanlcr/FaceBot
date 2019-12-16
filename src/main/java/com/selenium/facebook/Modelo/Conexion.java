@@ -16,7 +16,7 @@ public class Conexion {
     @SuppressWarnings("finally")
 	public Connection conectar() {
         try {
-        	Class.forName("com.mysql.jdbc.Driver");
+        	Class.forName("com.mysql.cj.jdbc.Driver");
             connect = (Connection) DriverManager.getConnection(URL + BD, USER, PASSWORD);
             
         }catch(SQLException e1) {
