@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
@@ -16,7 +17,9 @@ import com.selenium.facebook.Interface.Model;
 
 public class Genere implements Model{
 	private final String TABLE_NAME = "generes";
+	private int generes_id;
 	private String name;
+	private String fan_page;
 	private String created_at;
 	private int categories_id;
 	private boolean active;
@@ -29,14 +32,14 @@ public class Genere implements Model{
 	public void insert() {
 		
 		setCreated_at(dateFormatDateTime.format(date));
-		
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(name,created_at,categories_id) VALUE "
-					+ " (?,?,?);";
-			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(name,fan_page,created_at,categories_id) VALUE "
+				+ " (?,?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);){
 			exe.setString(1, getName());
-			exe.setString(2, getCreated_at());
-			exe.setInt(3, getCategories_id());
+			exe.setString(2, getFan_page());
+			exe.setString(3, getCreated_at());
+			exe.setInt(4, getCategories_id());
 			exe.executeUpdate();
 			
 		}catch(SQLException e) {
@@ -70,6 +73,32 @@ public class Genere implements Model{
 		
 		
 		return list;
+	}
+	
+	public HashMap<String,Integer> getGeneresForCategorieActive(){
+		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+		
+		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
+				"INNER JOIN path_photos pp ON pp.generes_id = g.generes_id AND pp.active = 1 " + 
+				"INNER JOIN phrases ph ON ph.generes_id = g.generes_id AND ph.active = 1 " + 
+				"INNER JOIN hashtag ht ON ht.generes_id = g.generes_id AND ht.active = 1 " + 
+				"WHERE g.categories_id = ? AND g.active = ?;";
+		
+		try (Connection conexion = conn.conectar();){
+			PreparedStatement pst = conexion.prepareStatement(query);
+			pst.setInt(1, getCategories_id());
+			pst.setInt(2, 1);
+			rs = pst.executeQuery();
+			while (rs.next() ) {
+				mapGe.put(rs.getString("g.name"), rs.getInt("g.generes_id"));
+			}
+		}catch(SQLException e) {
+			System.err.println(e);
+		}
+		
+		
+		
+		return mapGe;
 	}
 	
 	public List<String> getGeneresActiveWithPhrasesHashTagPhoto(){
@@ -122,14 +151,55 @@ public class Genere implements Model{
 		return idGenere;
 	}
 	
+	public Genere getFanPage() {
+		Genere gene = null;
+		
+		String query = "SELECT * FROM "+TABLE_NAME+" g "
+				+ "WHERE fan_page IS NOT NULL AND generes_id = ? ORDER BY RAND() LIMIT 1; ";
+		try(Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			pst.setInt(1, getGeneres_id());
+			
+			rs = pst.executeQuery();
+			
+			if(rs.next()) {
+				gene = new Genere();
+				gene.setGeneres_id(getGeneres_id());
+				gene.setName(rs.getString("g.name"));
+				gene.setFan_page(rs.getString("g.fan_page"));
+				gene.setActive(rs.getBoolean("g.active"));
+				gene.setCategories_id(rs.getInt("g.categories_id"));
+				gene.setCreated_at(rs.getString("g.created_at"));
+			}
+		}catch (SQLException e) {
+			e.getStackTrace();
+		}
+		return gene;
+		
+	}
 	
-	
+	public int getGeneres_id() {
+		return generes_id;
+	}
+
+	public void setGeneres_id(int generes_id) {
+		this.generes_id = generes_id;
+	}
+
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
+	public String getFan_page() {
+		return fan_page;
+	}
+
+	public void setFan_page(String fan_page) {
+		this.fan_page = fan_page;
+	}
+
 	public String getCreated_at() {
 		return created_at;
 	}

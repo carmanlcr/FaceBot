@@ -1,4 +1,7 @@
 package com.selenium.facebook.Controlador;
+
+import com.selenium.facebook.Controlador.DriverController;
+
 public class IniciaSesion {
 	
 	private String username;
@@ -30,11 +33,11 @@ public class IniciaSesion {
 		//Insertar el usuario
 		if(dr.searchElement(2, "email") != 0) {
 			System.out.println("Escribir el usuario");
-			dr.inputWrite(2, "email", username,110);
+			dr.inputWrite(2, "email", "luis.andres.carman@gmail.com",110);
 			//Insertar el password
 			Thread.sleep(1000);
 			System.out.println("Escribir la contraseña");
-			dr.inputWrite(2, "pass", password ,110);
+			dr.inputWrite(2, "pass", "Carabobo?18" ,110);
 			//Presionar el boton de sesion
 			Thread.sleep(1000);
 			System.out.println("Dar Click al boton de iniciar sesión");
@@ -47,7 +50,7 @@ public class IniciaSesion {
 			//Insertar la contraseña
 			Thread.sleep(1000);
 			System.out.println("Escribir la contraseña");
-			dr.inputWrite(2, "pass", password ,110);
+			dr.inputWrite(2, "pass", password,110);
 			//Presionar boton de aceptar
 			Thread.sleep(1000);
 			System.out.println("Dar Click al boton de iniciar sesión");

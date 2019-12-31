@@ -6,12 +6,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
 
-public class Categories implements Model{
+public class Categorie implements Model{
 
 	private final String TABLE_NAME = "categories";
 	private String name;
@@ -139,6 +140,24 @@ public class Categories implements Model{
 		return concat;
 	}
 	
+	public HashMap<String, Integer> getComboBox(){
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		String sql = "SELECT * FROM "+TABLE_NAME+" WHERE active = ? ORDER BY name ASC";
+		ResultSet rs = null;
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pre = conexion.prepareStatement(sql)){
+			
+			pre.setInt(1, 1);
+			rs = pre.executeQuery();
+			
+			while(rs.next()) map.put(rs.getString("name"), rs.getInt("categories_id"));
+		}catch (SQLException e) {
+			e.getStackTrace();
+		}
+		
+		
+		return map;
+	}
 	public String getName() {
 		return name;
 	}

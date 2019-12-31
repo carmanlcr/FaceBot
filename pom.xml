@@ -38,8 +38,15 @@
 	<dependency>
     	<groupId>mysql</groupId>
 	    <artifactId>mysql-connector-java</artifactId>
-	    <version>6.0.2</version>
+	    <version>5.1.38</version>
    </dependency>
+	
+	<!-- https://mvnrepository.com/artifact/com.toedter/jcalendar -->
+<dependency>
+    <groupId>com.toedter</groupId>
+    <artifactId>jcalendar</artifactId>
+    <version>1.4</version>
+</dependency>
 	
 		
   </dependencies>

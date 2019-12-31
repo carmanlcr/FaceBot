@@ -103,12 +103,12 @@ public class User implements Model{
 	
 	public int getIdUser(){
 		int id = 0;
-		String query = "SELECT us.users_id FROM "+TABLE_NAME+" us WHERE username = '"+getUsername()+"' GROUP BY us.users_id;";
+		String query = "SELECT us.users_id FROM "+TABLE_NAME+" us WHERE username = ? GROUP BY us.users_id;";
 		
 		try (Connection conexion = conn.conectar();
-				Statement st = conexion.createStatement();
-				ResultSet rs = st.executeQuery(query)){
-			
+				PreparedStatement pre = conexion.prepareStatement(query)){
+			pre.setString(1, getUsername());
+			ResultSet rs = pre.executeQuery();
 			while (rs.next() ) {
                id =  rs.getInt("us.users_id");
 			}

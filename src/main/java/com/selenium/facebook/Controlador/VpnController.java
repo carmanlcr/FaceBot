@@ -4,17 +4,19 @@ import java.io.IOException;
 
 
 public class VpnController {
-	private static RobotClick robot;
+	private RobotController robot;
 	
+	public VpnController(RobotController robot) {
+		this.robot = robot;
+	}
 	
 	void iniciarVpn(String vpn, boolean bandera) throws InterruptedException {
-		robot = new RobotClick(vpn);
 		//Abrir la aplicación OpenVPN
 		try {
 			openVPN();
 			Thread.sleep(2000);
 			//Maximizar ventana
-			robot.maximixar();
+			robot.maximizar();
 			//Seleccionar el buscador de la vpn
 			if(bandera) {
 				robot.pulsarTabulador();
@@ -50,9 +52,17 @@ public class VpnController {
 				Thread.sleep(256);
 				robot.pulsarTabulador();
 				Thread.sleep(256);
+				robot.pulsarTabulador();
+				Thread.sleep(256);
+				robot.pulsarTabulador();
+				Thread.sleep(256);
+				robot.pulsarTabulador();
+				Thread.sleep(256);
+				robot.pulsarTabulador();
+				Thread.sleep(256);
 			}
 			//copiar la vpn en el portapapeles
-			robot.copy();
+			robot.copy(vpn);
 			Thread.sleep(2000);
 			//Pegar el nombre de la VPN
 			robot.paste();
@@ -84,12 +94,12 @@ public class VpnController {
 	}
 	
 	void desconectVpn() throws IOException, InterruptedException {
-		robot = new RobotClick();
+		robot = new RobotController();
 		//Abrir la aplicacion OpenVPN
 		openVPN();
 		Thread.sleep(2015);
 		//Maximizar ventana
-		robot.maximixar();
+		robot.maximizar();
 		//Seleccionar la opcion de desconectar
 		
 		robot.pulsarShiftTabulador();

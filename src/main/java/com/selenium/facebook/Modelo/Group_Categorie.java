@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
@@ -30,8 +32,8 @@ public class Group_Categorie implements Model {
 	}
 
 	public Group_Categorie getGroupSearch() {
-		Group_Categorie groCa = new Group_Categorie();
-		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? ORDER BY RAND() LIMIT 1";
+		Group_Categorie groCa = null;
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? ORDER BY RAND() LIMIT 1;";
 		
 		try (Connection conexion = conn.conectar();){
 			PreparedStatement  queryE = (PreparedStatement) conexion.prepareStatement(query);
@@ -40,6 +42,7 @@ public class Group_Categorie implements Model {
 			rs = queryE.executeQuery();
 			
 			if(rs.next()) {
+				groCa = new Group_Categorie();
 				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
 				groCa.setName(rs.getString("name"));
 				groCa.setCreated_at(rs.getString("created_at"));
@@ -49,6 +52,31 @@ public class Group_Categorie implements Model {
 			e.getStackTrace();
 		}
 		return groCa;
+	}
+	
+	public List<Group_Categorie> getGroupCategorie() {
+		List<Group_Categorie> listC = new ArrayList<Group_Categorie>();
+		Group_Categorie groCa = null;
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? ORDER BY RAND();";
+		
+		try (Connection conexion = conn.conectar();){
+			PreparedStatement  queryE = (PreparedStatement) conexion.prepareStatement(query);
+			queryE.setInt(1, getCategories_id());
+			
+			rs = queryE.executeQuery();
+			
+			while(rs.next()) {
+				groCa = new Group_Categorie();
+				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
+				groCa.setName(rs.getString("name"));
+				groCa.setCreated_at(rs.getString("created_at"));
+				groCa.setCategories_id(rs.getInt("categories_id"));
+				listC.add(groCa);
+			}
+		}catch(SQLException e) {
+			e.getStackTrace();
+		}
+		return listC;
 	}
 	public int getGroups_categories_id() {
 		return groups_categories_id;

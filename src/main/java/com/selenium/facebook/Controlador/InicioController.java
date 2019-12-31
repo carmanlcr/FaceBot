@@ -18,32 +18,32 @@ import javax.swing.JTextField;
 import org.openqa.selenium.ElementClickInterceptedException;
 
 import com.selenium.facebook.Modelo.*;
+import com.selenium.facebook.Controlador.DriverController;
+import com.selenium.facebook.Controlador.RobotController;
 
 
 public class InicioController {
-
+	private final String PAGE = "https://mbasic.facebook.com/";
 	private static DriverController drive;
 	private static String[] user;
 	private static User users;
-	private static RobotClick robot;
-	private static VpnController vpn = new VpnController();
+	private static RobotController robot;
+	private static VpnController vpn;
 	private List<JCheckBox> usuarios;
-	private static List<JTextArea> pieDeFoto = new ArrayList<JTextArea>();
-	private static List<List<String>> checkBoxHashTag = new ArrayList<List<String>>();
-	private static List<JComboBox<String>> comboBoxGenere = new ArrayList<JComboBox<String>>();
-	private static List<JTextField> listUsers = new ArrayList<JTextField>();
-	private static int categoria_id;
+	private List<JTextArea> pieDeFoto = new ArrayList<JTextArea>();
+	private List<List<String>> checkBoxHashTag = new ArrayList<List<String>>();
+	private List<JComboBox<String>> comboBoxGenere = new ArrayList<JComboBox<String>>();
+	private List<JTextField> listUsers = new ArrayList<JTextField>();
+	private int categoria_id;
+	private int idUser;
 	private static int idGenere;
-	private int usuariosAProcesar = 1;
 	private static int ini = 0;
 	private int count = 0;
-	private int listTask_id;
 	private String groups_id;
 	private boolean banderaVpn = false;
 	private boolean banderaBlockeo = true;
 	private Post po = new Post();
 
-	@SuppressWarnings("static-access")
 	public InicioController(int categoria_id, List<JCheckBox> listCheckBoxUsersSend, List<JTextArea> listTextARea,
 			List<List<String>> listChechBoxSelected, List<JTextField> listTextFieldUser,
 			List<JComboBox<String>> listJComboBoxGenere) {
@@ -57,14 +57,21 @@ public class InicioController {
 
 	public void init() throws InterruptedException, AWTException, SQLException, IOException {
 		count = comboBoxGenere.size() - 1;
-
+		int usuariosAProcesar = 0;
 		for (JCheckBox jCheckBox : usuarios) {
-
+			usuariosAProcesar++;
 			users = new User();
 			users.setUsername(jCheckBox.getText());
 			users.setEmail(jCheckBox.getText());
 			user = users.getUser();
-			po.setUsers_id(Integer.parseInt(user[0]));
+			idUser = Integer.parseInt(user[0]);
+			po.setUsers_id(idUser);
+			
+			
+			String generes = (String) comboBoxGenere.get(ini).getSelectedItem();
+			Genere gene = new Genere();
+			gene.setName(generes);
+			idGenere = gene.getIdGenere();
 			
 			int idlistTask = po.getLastsTasktPublic();
 			
@@ -74,14 +81,15 @@ public class InicioController {
 				System.out.println("El usuario ya hizo las dos publicaciones del día");
 			}else {
 				String ip = validateIP();
-				vpn.iniciarVpn(user[4], banderaVpn);
-				String ipActual = validateIP();
-				
+				robot = new RobotController();
+//				vpn = new VpnController(robot);
+//				vpn.iniciarVpn(user[4], banderaVpn);
+//				String ipActual = validateIP();
+//				
 				System.out.println(usuariosAProcesar + " usuario(s) de " + usuarios.size() + " usuario(s)");
 				// Valida si la vpn conecto
-				if (ip.equals(ipActual)) {
+				if (ip.equals("sa")) {
 					System.err.println("El usuario " + user[1] + " no se puedo conectar a la vpn");
-					usuariosAProcesar++;
 				} else {
 					// Setear valores a google Chrome
 					drive = new DriverController();
@@ -95,33 +103,7 @@ public class InicioController {
 
 					System.out.println("*********************" + user[1] + "***********************");
 
-					if (drive.searchElement(1,
-							"/html/body/div/div/div[2]/div/form/div/div[2]/div[3]/table/tbody/tr/td/input") != 0) {
-						userBlock("El usuario pide verificacion de telefono");
-						System.out.println("Usuario bloqueado");
-					} else if (drive.searchElement(1,
-							"//*[text()[contains(.,'El correo electrónico que has introducido no coincide con ninguna cuenta. ')]]") != 0) {
-
-						System.out.println("El correo electro no coincide");
-					} else if (drive.searchElement(1,
-							"//*[text()[contains(.,'Sigue unos pasos más para iniciar sesión')]]") != 0) {
-						userBlock("El usuario pide pasos para iniciar sesion");
-						System.out.println("El usuario pide verificación por catcha");
-					} else if (drive.searchElement(1, "//*[text()[contains(.,'Ingresa el código a continuación')]]") != 0) {
-						System.out.println("El usuario pide verificación por catcha");
-						userBlock("El usuario pide verificación por catcha");
-					}else if(drive.searchElement(1, "//*[text()[contains(.,'Confirma tu identidad')]]") != 0) {
-						System.out.println("El usuario pide confirmación de identidad");
-						userBlock("El usuario pide confirmación de identidad");
-					}else if(drive.searchElement(1, "//*[text()[contains(.,'Control de seguridad')]]") != 0) {
-						System.out.println("El usuario pide un control de seguridad");
-						userBlock("El usuario pide un control de seguridad");
-					}else if(drive.searchElement(1, "//*[text()[contains(.,'No puedes usar esta función en este momento.')]]") != 0
-							|| drive.searchElement(1, "//h2[text()[contains(.,'No puedes usar esta función en este momento.')]]") != 0
-							|| drive.searchElement(1, "/html/body/div/div/div[2]/div[1]/h2") != 0) {
-						System.out.println("El usuario alcanzo el maximo de publicaciones al día");
-						
-					} else {//Si el usuario no esta bloqueado
+					if (!validateBlockOUserIncorrect()) {
 						if (drive.searchElement(1, "/html/body/div/div/div/div/table/tbody/tr/td/div/div[3]/a") != 0) {
 							drive.clickButton(1, "/html/body/div/div/div/div/table/tbody/tr/td/div/div[3]/a","Ahora no");
 						}
@@ -158,7 +140,6 @@ public class InicioController {
 				} // fin del else
 
 				// Desconectar la vpn para el siguiente usuario
-				usuariosAProcesar++;
 				if (drive != null) {
 					drive.quit();
 				}
@@ -173,6 +154,48 @@ public class InicioController {
 		System.exit(1);
 			
 	}// Fin del init
+	
+	private boolean validateBlockOUserIncorrect() {
+		if(drive.searchElement(1,
+				"/html/body/div/div/div[2]/div/form/div/div[2]/div[3]/table/tbody/tr/td/input") != 0) {
+			userBlock("El usuario pide verificacion de telefono");
+			System.out.println("Usuario bloqueado");
+			return true;
+		}else if (drive.searchElement(1,
+				"//*[text()[contains(.,'El correo electrónico que has introducido no coincide con ninguna cuenta. ')]]") != 0) {
+
+			System.out.println("El correo electro no coincide");
+			return true;
+		} else if (drive.searchElement(1,
+				"//*[text()[contains(.,'Sigue unos pasos más para iniciar sesión')]]") != 0) {
+			userBlock("El usuario pide pasos para iniciar sesion");
+			System.out.println("El usuario pide verificación por catcha");
+			return true;
+		} else if (drive.searchElement(1, "//*[text()[contains(.,'Ingresa el código a continuación')]]") != 0) {
+			System.out.println("El usuario pide verificación por catcha");
+			userBlock("El usuario pide verificación por catcha");
+			return true;
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'Confirma tu identidad')]]") != 0) {
+			System.out.println("El usuario pide confirmación de identidad");
+			userBlock("El usuario pide confirmación de identidad");
+			return true;
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'Control de seguridad')]]") != 0) {
+			System.out.println("El usuario pide un control de seguridad");
+			userBlock("El usuario pide un control de seguridad");
+			return true;
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'No puedes usar esta función en este momento.')]]") != 0
+				|| drive.searchElement(1, "//h2[text()[contains(.,'No puedes usar esta función en este momento.')]]") != 0
+				|| drive.searchElement(1, "/html/body/div/div/div[2]/div[1]/h2") != 0) {
+			System.out.println("El usuario alcanzo el maximo de publicaciones al día");
+			return true;
+		}else if(drive.searchElement(1, "/html/body/div/div/div/div/table[1]/tbody/tr/td[2]/div") != 0
+				|| drive.searchElement(1, "//*[text()[contains(.,'Reconocimiento facial en Facebook')]]") != 0) {
+			userBlock("Reconocimiento facial en facebook");
+			System.out.println("El usuario pide reconocimiento facial");
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Inico del proceso de instagram luego que el inicio de sesión sea exitoso
@@ -184,12 +207,12 @@ public class InicioController {
 
 		System.out.println("Usuario logueado");
 
-		robot = new RobotClick();
+		
 		Task_Model_Detail tmd = new Task_Model_Detail();
 		tmd.setTasks_model_id(listTask_id);
 		List<Integer> listTask = tmd.getTaskModelDetailDiferent();
 		System.out.println("Buscando tarea para que el usuario realice");
-		random(listTask);
+		random(listTask, listTask_id);
 		
 		if (banderaBlockeo) {
 			// Darle al panel de opciones
@@ -211,7 +234,7 @@ public class InicioController {
 		System.out.println("Se cerro la sesión del usuario " + user[1]);
 	}
 	
-	private void random(List<Integer> listTask) throws InterruptedException, SQLException {
+	private void random(List<Integer> listTask, int listTask_id) throws InterruptedException, SQLException {
 		// int valueScroll = (int) (Math.random() * 15) + 1;
 		int taskModelId = listTask_id;
 		for (Integer li : listTask) {
@@ -219,6 +242,7 @@ public class InicioController {
 			robot.mouseScroll(25);
 			Thread.sleep(getNumberRandom(940, 1130));
 			robot.mouseScroll(-25);
+			Thread.sleep(getNumberRandom(940, 1130));
 			li = 4;
 			switch (li) {
 			case 1:
@@ -235,23 +259,31 @@ public class InicioController {
 				// Revisar los grupos
 				// Ingresar en la seccion de grupos
 				System.out.println("BUSCAR GRUPO Y AGREGARSE");
-				reviewGroups();
+				addGroup();
 				break;
 			case 4:
 				// Publicar en Grupo
 				// Ingresar en la seccion de grupos
-				System.out.println("INGRESAR EN GRUPO Y PUBLICAR");
-				if(pieDeFoto.get(ini).getText().isEmpty()) {
-					publicGroup(taskModelId);
-				}else {
+				if(categoria_id != 3) {
+//					Genere ge = new Genere();
+//					ge.setGeneres_id(idGenere);
+//					ge = ge.getFanPage();
+//					if(ge != null) {
+//						System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
+//						goFanPage(ge.getFan_page());
+//						publicGroup(ge,taskModelId);
+//					}
+					System.out.println("INGRESAR EN GRUPO Y PUBLICAR");
 					publicGroupPublicity(taskModelId);
 				}
-				
 				break;
 			case 5:
 				// Publicacion final
-				System.out.println("HACER PUBLICACION FINAL");
-				publicFinal(taskModelId);
+				if(categoria_id != 3) {
+					System.out.println("HACER PUBLICACION FINAL");
+					publicFinal(taskModelId);
+				}
+				
 				break;
 			case 6:
 				// Revisar los mensajes
@@ -264,11 +296,14 @@ public class InicioController {
 				System.out.println("REVISAR NOTIFICACIONES");
 				reviewNotifaction();
 				break;
+			case 8:
+				if(categoria_id != 3) {
+					reviewGroups();
+				}
+				break;
 			default:
 				break;
 			}
-			// Volver al inicio
-			//drive.clickButton(1, "/html/body/div/div/div[1]/div/div/a[1]","inicio xpath");
 		} // Fin del For
 
 	}
@@ -281,12 +316,10 @@ public class InicioController {
 		if (drive.searchElement(2, "view_photo") != 0) {
 			drive.clickButton(2, "view_photo","view_photo para subir foto");
 			hashTag = publicIfExistElementFoto();
-			groups_id = getIdGroup();
 			return hashTag;
 		} else if (drive.searchElement(1, "//*[text()[contains(.,'Foto')]]") != 0) {
 			drive.clickButton(2, "//*[text()[contains(.,'Foto')]]","Subir foto");
 			hashTag = publicIfExistElementFoto();
-			groups_id = getIdGroup();
 			return hashTag;
 		}else {
 			System.out.println("No se puede publicar en este grupo");
@@ -311,75 +344,81 @@ public class InicioController {
 		return idGroup;
 	}
 
-	private static void uploadImage() throws InterruptedException, SQLException {
+	private void uploadImage() throws InterruptedException, SQLException {
 		
-		System.out.println("Darle click a la opción de fotos");
+		if(ifElementPhotoExist()) {
+			System.out.println("Darle click a la opción de fotos");
+			Thread.sleep(getNumberRandom(2560, 4980));
+			Categorie ca = new Categorie();
+			List<Integer> la = ca.getSubCategorieConcat();
+			Path_Photo pa_ph = new Path_Photo();
+			pa_ph.setCategories_id(la.get(0));
+			pa_ph.setSub_categories_id(la.get(1));
+			System.out.println("Extraer el path de la foto");
+			String path = pa_ph.getPathPhotos();
+			System.out.println("Colocar el path de la foto en el file");
+			drive.inputWriteFile(2, "file1", path);
+			Thread.sleep(getNumberRandomForSecond(1201, 1899));
+			System.out.println("Darle click al boton siguiente para escribir el pie de foto");
+			drive.clickButton(2, "add_photo_done","Darle click a siguiente para subir foto");
+
+			// Esperar que aparezca el boton de publicar
+			while (drive.searchElement(2, "view_post") == 0)
+				;
+			System.out.println("Extraer frase random");
+			Phrases ph = new Phrases();
+			ph.setCategories_id(la.get(0));
+			ph.setSub_categories_id(la.get(1));
+			System.out.println("Extraer frase random");
+			String post = ph.getPhraseRandomSubCategorie();
+			System.out.println("Escribir el pie de la foto");
+			drive.inputWrite(2, "xc_message", post,120);
+
+			Thread.sleep(getNumberRandom(1250, 2000));
+			System.out.println("Darle a postear imagen");
+			if (drive.searchElement(2, "view_post") != 0) {
+				drive.clickButton(2, "view_post","view_post postear imagen");
+			} else if (drive.searchElement(1, "//*[text()[contains(.,'Post')]]") != 0) {
+				drive.clickButton(1, "//*[text()[contains(.,'Post')]]","Post postear imagen");
+			} else if (drive.searchElement(1, "//*[text()[contains(.,'Publicar')]]") != 0) {
+				drive.clickButton(1, "//*[text()[contains(.,'Publicar')]]","Publicar postear imagen");
+			}
+			
+			Thread.sleep(getNumberRandomForSecond(3250, 4000));
+			
+			if(drive.searchElement(1, "//*[text()[contains(.,'Etiquetar Foto')]]") != 0) {
+				System.out.println("Darle a cancelar para no etiquetar foto");
+				drive.clickButton(1, "/html/body/div/div/div[1]/table/tbody/tr/td[3]/a", "Cancelar la etiqueta de personas xpath");
+			}
+			if(drive.searchElement(1, "//*[text()[contains(.,'Omitir')]]") != 0) {
+				System.out.println("Darle a cancelar para no etiquetar foto");
+				drive.clickButton(1, "/html/body/div/div/div[1]/table/tbody/tr/td[3]/a", "Cancelar la etiqueta de personas xpath");
+			}else if(drive.searchElement(1, "//*[text()[contains(.,'Skip')]]") != 0) {
+				System.out.println("Darle a cancelar para no etiquetar foto");
+				drive.clickButton(1, "/html/body/div/div/div[1]/table/tbody/tr/td[3]/a", "Cancelar la etiqueta de personas xpath");
+			}else if(drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/div[1]/a") != 0) {
+				System.out.println("Darle a cancelar para no etiquetar foto");
+				drive.clickButton(1, "/html/body/div/div/div[1]/table/tbody/tr/td[3]/a", "Cancelar la etiqueta de personas xpath");
+			}
+		}else {
+			System.out.println("No se le puede dar click a la opcion de fotos");
+		}
+		
+	}
+	
+	private boolean ifElementPhotoExist() {
 		if (drive.searchElement(2, "view_photo") != 0) {
 			drive.clickButton(2, "view_photo","view_photo para subir foto");
+			return true;
 		} else if (drive.searchElement(1, "//*[text()[contains(.,'Foto')]]") != 0) {
 			drive.clickButton(2, "//*[text()[contains(.,'Foto')]]","Subir foto");
+			return true;
 		}
-
-		Thread.sleep(getNumberRandom(2560, 4980));
-		Categories ca = new Categories();
-		List<Integer> la = ca.getSubCategorieConcat();
-		Path_Photo pa_ph = new Path_Photo();
-		pa_ph.setCategories_id(la.get(0));
-		pa_ph.setSub_categories_id(la.get(1));
-		System.out.println("Extraer el path de la foto");
-		String path = pa_ph.getPathPhotos();
-		System.out.println("Colocar el path de la foto en el file");
-		drive.inputWriteFile(2, "file1", path);
-		Thread.sleep(getNumberRandomForSecond(1201, 1899));
-		System.out.println("Darle click al boton siguiente para escribir el pie de foto");
-		drive.clickButton(2, "add_photo_done","Darle click a siguiente para subir foto");
-
-		// Esperar que aparezca el boton de publicar
-		while (drive.searchElement(2, "view_post") == 0)
-			;
-		System.out.println("Extraer frase random");
-		Phrases ph = new Phrases();
-		ph.setCategories_id(la.get(0));
-		ph.setSub_categories_id(la.get(1));
-		System.out.println("Extraer frase random");
-		String post = ph.getPhraseRandomSubCategorie();
-		System.out.println("Escribir el pie de la foto");
-		drive.inputWrite(2, "xc_message", post,120);
-
-		Thread.sleep(getNumberRandom(1250, 2000));
-		System.out.println("Darle a postear imagen");
-		if (drive.searchElement(2, "view_post") != 0) {
-			drive.clickButton(2, "view_post","view_post postear imagen");
-		} else if (drive.searchElement(1, "//*[text()[contains(.,'Post')]]") != 0) {
-			drive.clickButton(1, "//*[text()[contains(.,'Post')]]","Post postear imagen");
-		} else if (drive.searchElement(1, "//*[text()[contains(.,'Publicar')]]") != 0) {
-			drive.clickButton(1, "//*[text()[contains(.,'Publicar')]]","Publicar postear imagen");
-		}
-		
-		Thread.sleep(getNumberRandomForSecond(3250, 4000));
-		
-		if(drive.searchElement(1, "//*[text()[contains(.,'Etiquetar Foto')]]") != 0) {
-			System.out.println("Darle a cancelar para no etiquetar foto");
-			drive.clickButton(1, "/html/body/div/div/div[1]/table/tbody/tr/td[3]/a", "Cancelar la etiqueta de personas xpath");
-		}
-		if(drive.searchElement(1, "//*[text()[contains(.,'Omitir')]]") != 0) {
-			System.out.println("Darle a cancelar para no etiquetar foto");
-			drive.clickButton(1, "/html/body/div/div/div[1]/table/tbody/tr/td[3]/a", "Cancelar la etiqueta de personas xpath");
-		}else if(drive.searchElement(1, "//*[text()[contains(.,'Skip')]]") != 0) {
-			System.out.println("Darle a cancelar para no etiquetar foto");
-			drive.clickButton(1, "/html/body/div/div/div[1]/table/tbody/tr/td[3]/a", "Cancelar la etiqueta de personas xpath");
-		}else if(drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/div[1]/a") != 0) {
-			System.out.println("Darle a cancelar para no etiquetar foto");
-			drive.clickButton(1, "/html/body/div/div/div[1]/table/tbody/tr/td[3]/a", "Cancelar la etiqueta de personas xpath");
-		}
+		return false;
 	}
 	
 	private String publicIfExistElementFoto() throws InterruptedException, SQLException {
-		Thread.sleep(getNumberRandom(2562, 4980));
-		String user = (String) comboBoxGenere.get(ini).getSelectedItem();
-		Genere gene = new Genere();
-		gene.setName(user);
-		idGenere = gene.getIdGenere();
+		Thread.sleep(getNumberRandom(2562, 4979));
 		Path_Photo pa_ph = new Path_Photo();
 		pa_ph.setCategories_id(categoria_id);
 		pa_ph.setGeneres_id(idGenere);
@@ -403,31 +442,18 @@ public class InicioController {
 		List<String> copia = checkBoxHashTag.get(ini);
 		String hash = "";
 		System.out.println("Elegir HashTag");
+		
 		if (copia.size() > 2) {
+			Collections.shuffle(copia);
 			
-			int x = getNumberRandomForSecond(0, copia.size() - 1);
-			String hashTx = copia.get(x);
-			System.out.println("HashTag 1: "+hashTx);
-			copia.remove(x);
-			int y = getNumberRandomForSecond(0, copia.size() - 1);
-			String hashTy = copia.get(y);
-			System.out.println("HashTag 2: "+hashTy);
-			copia.remove(y);
-			int z = getNumberRandomForSecond(0, copia.size() - 1);
-			String hashTz = copia.get(z);
-			System.out.println("HashTag 3: "+hashTz);
-			copia.remove(z);
-			hash = hashTx + " " + hashTy + " " + hashTz;
+			hash += copia.get(0) +  " ";
+			hash += copia.get(1) +  " ";
+			hash += copia.get(2) +  " ";
+			
 		} else if (copia.size() > 0 && copia.size() < 2) {
-			int x = getNumberRandomForSecond(0, copia.size() - 1);
-			String hashTx = copia.get(x);
-			System.out.println("HashTag 1: "+hashTx);
-			copia.remove(x);
-			int y = getNumberRandomForSecond(0, copia.size() - 1);
-			String hashTy = copia.get(y);
-			System.out.println("HashTag 2: "+hashTy);
-			copia.remove(y);
-			hash = hashTx + " " + hashTy;
+			Collections.shuffle(copia);
+			
+			hash += copia.get(0) +  " ";
 		}
 
 		String pieDe = pieDeFoto.get(ini).getText();
@@ -464,43 +490,7 @@ public class InicioController {
 		}
 		
 		Thread.sleep(getNumberRandomForSecond(2250, 3100));
-		/**
-		 * Comunicado /html/body/div/div/div[2]/div/div[1]/div[4]/div[1]/table/tbody/tr/td[1]/h3
-		 *            /html/body/div/div/div[2]/div/div[1]/div[4]/div[1]/table/tbody/tr/td[1]/h3
-		 *            /html/body/div/div/div[2]/div/div[1]/div[4]/div[1]/table/tbody/tr/td[1]/h3
-		 *            /html/body/div/div/div[2]/div/div[1]/div[4]/div[1]/table/tbody/tr/td[1]/h3
-		 * 
-		 * Historia Completa /html/body/div/div/div[2]/div/div[1]/div[5]/div[1]/div[1]/div[2]/div[2]/a[2]
-		 *                   /html/body/div/div/div[2]/div/div[1]/div[5]/div[1]/div[1]/div[2]/div[2]/a[2]
-		 */
-		
-		/**
-		 * Sin comunicado
-		 * 
-		 * Historia completa /html/body/div/div/div[2]/div/div[1]/div[4]/div[1]/div[1]/div[2]/div[2]/a[3]
-		 */
-		
-		/**
-		 * /html/body/div/div/div[2]/div/div[1]/div[1]/div/div[1]/div[2]/p
-		 */
-		
-		
-//		if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[4]/div[1]/table/tbody/tr/td[1]/h3") != 0) {
-//			System.out.println("Existe un comunicado, pulsar en Historia completa para ver la historia que publicamos");
-//			drive.clickButton(1, "/html/body/div/div/div[2]/div/div[1]/div[5]/div[1]/div[1]/div[2]/div[2]/a[2]", "Historia Completa xPath");
-//			po.setLink_post(drive.getCurrentUrl());
-//			
-//			drive.back();
-//			
-//		}else {
-//			System.out.println("No existe comunicado");
-//			if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[4]/div[1]/div[1]/div[2]/div[2]/a[3]") != 0) {
-//				drive.clickButton(1, "/html/body/div/div/div[2]/div/div[1]/div[4]/div[1]/div[1]/div[2]/div[2]/a[3]", "Historia Completa xPath");
-//			}
-//			
-//			po.setLink_post(drive.getCurrentUrl());
-//			
-//		}
+
 		return hash;
 	}
 		
@@ -589,11 +579,19 @@ public class InicioController {
 		}
 	}
 	
-	private void reviewGroups() throws InterruptedException {
-		String name = JOptionPane.showInputDialog("INGRESE LA BUSQUEDA DEL GRUPO Y PULSE ACEPTAR");
-		
-		while(name == null || name.isEmpty()) {
+	private void addGroup() throws InterruptedException {
+		Group_Categorie gp = new Group_Categorie();
+		gp.setCategories_id(categoria_id);
+		gp = gp.getGroupSearch();
+		String name = "";
+		if(gp != null) {
+			name = gp.getName();
+		}else {
 			name = JOptionPane.showInputDialog("INGRESE LA BUSQUEDA DEL GRUPO Y PULSE ACEPTAR");
+			
+			while(name == null || name.isEmpty()) {
+				name = JOptionPane.showInputDialog("INGRESE LA BUSQUEDA DEL GRUPO Y PULSE ACEPTAR");
+			}
 		}
 		
 		searchGroup(name);
@@ -620,11 +618,6 @@ public class InicioController {
 		
 		drive.clickButton(1, "/html/body/div/div/div[1]/div/div/a[1]", "Volver Inicio xpath");
 		
-		//html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div[1]/table/tbody/tr/td[2]/a
-		//html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div[1]/table/tbody/tr/td[3]/div/div/table/tbody/tr/td[2]/a
-		//html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div[2]/table/tbody/tr/td[2]/a
-		//html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div[3]/table/tbody/tr/td[2]/a
-		//html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div[5]/table/tbody/tr/td[3]/div/div/table/tbody/tr/td[2]/a
 		
 	}
 	
@@ -639,10 +632,6 @@ public class InicioController {
 			System.out.println("Elegir un grupo random");
 			int ramdonGroups = getNumberRandomForSecond(1, quantityGroups);
 			
-			
-				
-				
-				
 				if(drive.searchElement(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+4+"]/table/tbody/tr/td[3]/div/div/table/tbody/tr/td[2]/a") != 0) {
 					System.out.println("Darle click a unirse");
 					drive.clickButton(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+4+"]/table/tbody/tr/td[3]/div/div/table/tbody/tr/td[2]/a", "Unirse xPath "+ramdonGroups);
@@ -750,97 +739,161 @@ public class InicioController {
 
 		}
 	}
-	private void publicGroup(int taskModelId) throws InterruptedException, SQLException {
-		drive.clickButton(1, "/html/body/div/div/div[1]/div/div/a[7]","Grupos xPath");
-		Thread.sleep(getNumberRandomForSecond(2540, 2980));
-		System.out.println("Contar cantidad de grupos");
-		int quantityGroups1 = drive.getQuantityElements(1,
-				"/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li") - 1;
+	
+	private void goFanPage(String urlFanPage) throws InterruptedException {
+		System.out.println("Ingresar en la fan page "+urlFanPage);
+		drive.goPage(urlFanPage);
+		Thread.sleep(getNumberRandomForSecond(1545, 2456));
+		System.out.println("Actualizar pagina");
+		drive.refresh();
+		Thread.sleep(getNumberRandomForSecond(1945, 2456));
+		drive.scrollDown(1);
+		Thread.sleep(getNumberRandomForSecond(845, 996));
+		drive.scrollUp(1);
+		Thread.sleep(getNumberRandomForSecond(3047, 3396));
+
+	}
+	
+	private void publicGroup(Genere ge, int taskModelId) throws InterruptedException, SQLException {
+		if(drive.searchElement(1, "//*[text()[contains(.,'Me gusta')]]") != 0) {
+			System.out.println("Darle like");
+			drive.clickButton(1, "//*[text()[contains(.,'Me gusta')]]","Me gusta");
+		}else if(drive.searchElement(0, "likeButton") != 0) {
+			drive.clickButton(0, "likeButton", "likeButton className");
+		}
 		
-		if (quantityGroups1 < 1) {
-			System.out.println("No existen grupos para este perfil");
-		} else {
-			int ramdonGroups = 1;
-			if(drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[6]/div/a") != 0
-				|| drive.searchElement(1, "//*[text()[contains(.,'Ver todos')]]") != 0) {
-				System.out.println("El usuario tiene mas de 5 grupos");
-				try {
-					System.out.println("Click en Ver Todos");
-					drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[6]/div/a", "Ver todos xpath");
-					Thread.sleep(2514);
-					System.out.println("Contar cantidad de grupos");
-					int quantityGroups2 = drive.getQuantityElements(1,
-							"/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li") - 1;
-					System.out.println("Elegir grupo random");
-					ramdonGroups = getNumberRandomForSecond(1, quantityGroups2);
-				}catch (ElementClickInterceptedException e) {
-					try {
-						System.out.println("Click en Ver Todos");
-						drive.clickButton(1, "//*[text()[contains(.,'Ver todos')]]", "Ver todos");
-						Thread.sleep(2514);
-						System.out.println("Contar cantidad de grupos");
-						int quantityGroups2 = drive.getQuantityElements(1,
-								"/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li") - 1;
-						System.out.println("Elegir grupo random");
-						ramdonGroups = getNumberRandomForSecond(1, quantityGroups2);
-					}catch (ElementClickInterceptedException e2) {
-						e.getStackTrace();
+		if(drive.searchElement(1, "//*[text()[contains(.,'Comentar')]]") != 0) {
+			System.out.println("Darle a comentar");
+			drive.clickButton(1, "//*[text()[contains(.,'Comentar')]]", "Comentar");
+		}
+		Thread.sleep(getNumberRandomForSecond(1245, 1456));
+		
+		robot.pressEsc();
+		Thread.sleep(getNumberRandomForSecond(445, 987));
+		robot.pulsarShiftTabulador();
+		Thread.sleep(getNumberRandomForSecond(445, 987));
+		robot.enter();
+		Thread.sleep(getNumberRandom(2345, 3126));
+		
+		System.out.println("Compartir en un grupo");
+		if(drive.searchElement(1, "//*[text()[contains(.,'Compartir…')]]") != 0) {
+			drive.clickButton(1, "//*[text()[contains(.,'Compartir…')]]", "Compartir ");
+			Thread.sleep(getNumberRandomForSecond(1245, 2348));
+			robot.enter();
+			Thread.sleep(getNumberRandomForSecond(1245, 2348));
+			robot.pressDown();
+			Thread.sleep(getNumberRandomForSecond(478,645));
+			robot.pressDown();
+			Thread.sleep(getNumberRandomForSecond(478,645));
+			robot.enter();
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'Compartir en un grupo')]]") != 0) {
+			drive.clickButton(1, "//*[text()[contains(.,'Compartir en un grupo')]]", "Compartir en un grupo");
+			
+		}
+		Thread.sleep(getNumberRandom(2345, 3126));
+		writeGroupAndPublic(taskModelId);
+
+		drive.goPage(PAGE);
+	}
+	
+	private void writeGroupAndPublic(int taskModelId) throws InterruptedException {
+		Group_Categorie gp = new Group_Categorie();
+		gp.setCategories_id(categoria_id);
+		
+		List<Group_Categorie> list = gp.getGroupCategorie();
+		System.out.println("Buscar grupos segun categoria ");
+		if(list.size() > 0) {
+			Group group_c = null;
+			for(Group_Categorie group : list) {
+				group_c = new Group();
+				String[] values = group.getName().trim().split(" ");
+				String string1 = "";
+				String string2 = "";
+				for(int i = 0; i<values.length; i++) {
+					if(i == 0) {
+						string1 = values[i];
+					}else if(i == 1) {
+						string2 = values[i];
+					}
+				}
+				System.out.println("Buscando grupo por categoria "+string1+" "+string2);
+				group_c = group_c.getOneGroupNotPublication(string1, string2, idUser);
+				if(group_c != null) {
+					System.out.println("se consiguio grupo "+group_c.getName());
+					break;
+				}
+			}
+			
+			
+			
+			
+			if(group_c != null) {
+				System.out.println("El grupo a publicar es "+group_c.getName());
+				int aux = 0;
+				for(int i =1; i< 55; i++) {
+					
+					if(drive.searchElement(1, "/html/body/div["+i+"]/div[2]/div/div/div/div/div/div[2]/div[2]/table/tbody/tr/td[2]/span/span/label/input") != 0) {
+						try {
+							drive.inputWrite(1, "/html/body/div["+i+"]/div[2]/div/div/div/div/div/div[2]/div[2]/table/tbody/tr/td[2]/span/span/label/input", group_c.getName(), 125);
+							System.out.println("Se escribio el nombre del grupo");
+							Thread.sleep(getNumberRandomForSecond(1560, 1789));
+							robot.pressDown();
+							Thread.sleep(getNumberRandomForSecond(456, 789));
+							robot.enter();
+							Thread.sleep(getNumberRandomForSecond(1560, 1789));
+							aux = i;
+							break;
+						}catch (Exception e) {
+						}
 					}
 					
 				}
-				
-			}else {
-				//html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[7]/table/tbody/tr/td[1]/a
-				//html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[12]/table/tbody/tr/td[1]/a
-				System.out.println("Elegir grupo random");
-				ramdonGroups = getNumberRandomForSecond(1, quantityGroups1);
-			}
-			
-			groups_id = "";
-			// Entrar en un grupo
-			System.out.println("Entrar en grupo");
-			drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[" + ramdonGroups
-					+ "]/table/tbody/tr/td[1]/a","Entrar en grupo random");
-			Thread.sleep(getNumberRandom(2490, 3540));
-			robot.mouseScroll(-15);
-			Thread.sleep(150);
-			robot.mouseScroll(15);
-			String hashTag = uploadImageFinal();
-			ini++;
-			if (ini >= count) {
-				ini = 0;
-			}
-			
-			if(!hashTag.isEmpty()) {
-				String[] ha = hashTag.split(" ");
-				System.out.println("Registrando post");
-				
-				po.setCategories_id(categoria_id);
-				po.setTasks_model_id(taskModelId);
-				po.setUsers_id(Integer.parseInt(user[0]));
-				po.setGroups(groups_id);
-				po.insert();
-
-				Post_Detail poDe = new Post_Detail();
-				poDe.setPosts_id(po.getLast());
-				HashTag ht = new HashTag();
-				ht.setCategories_id(categoria_id);
-				ht.setGeneres_id(idGenere);
-				System.out.println("Registrando HashTag");
-				for (int i = 0; i < ha.length; i++) {
-
-					ht.setName(ha[i]);
-
-					poDe.setHashtag_id(ht.getIdCategorieHashTag());
-
-					poDe.insert();
+				Thread.sleep(getNumberRandomForSecond(895, 985));
+				System.out.println(aux);
+				if(drive.searchElement(1, "/html/body/div["+aux+"]/div[2]/div/div/div/div/div/div[3]/div/div/div[3]/label/input") != 0) {
+					System.out.println("Compartir publicacion completa");
+					robot.pulsarTabulador();
+					Thread.sleep(789);
+					robot.pulsarTabulador();
+					Thread.sleep(789);
+					robot.pulsarTabulador();
+					Thread.sleep(789);
+					robot.pressSpace();
+					
 				}
-				System.out.println("El usuario publico correctamente");
+				
+				System.out.println("Darle click a publicar");
+				if(drive.searchElement(1, "/html/body/div["+aux+"]/div[2]/div/div/div/div/div/div[3]/div/div/div[4]/div[2]/div/div[2]/div/div[2]/button[2]") != 0) {
+					drive.clickButton(1, "/html/body/div["+aux+"]/div[2]/div/div/div/div/div/div[3]/div/div/div[4]/div[2]/div/div[2]/div/div[2]/button[2]", "Publicar xPath");
+				}else if(drive.searchElement(1, "/html/body/div["+aux+"]/div[2]/div/div/div/div/div/div[3]/div/div/div[5]/div[2]/div/div[2]/div/div[2]/button[2]") != 0) {
+					drive.clickButton(1, "/html/body/div["+aux+"]/div[2]/div/div/div/div/div/div[3]/div/div/div[5]/div[2]/div/div[2]/div/div[2]/button[2]", "Publicar xPath");
+				}else if(drive.searchElement(1, "") != 0) {
+					drive.clickButton(1, "//*[text()[contains(.,'Publicar')]]", "Publicar");
+				}else {
+					robot.pulsarShiftTabulador();
+					Thread.sleep(789);
+					robot.pulsarShiftTabulador();
+					Thread.sleep(789);
+					robot.pulsarShiftTabulador();
+					Thread.sleep(789);
+					robot.pulsarShiftTabulador();
+					Thread.sleep(789);
+					robot.pulsarShiftTabulador();
+					Thread.sleep(789);
+					robot.enter();
+				}
+				
+				po.setGroups(group_c.getGroups_id());
+				po.setTasks_model_id(taskModelId);
+				po.setCategories_id(categoria_id);
+				po.setUsers_id(idUser);
+				po.setFanPage(true);
+				po.insert();
+				
 			}else {
-				System.out.println("El usuario no publico");
+				System.out.println("No hay grupos para publicar");
 			}
 			
-
 		}
 	}
 	
@@ -880,68 +933,307 @@ public class InicioController {
 	}
 	
 	private void publicGroupPublicity(int taskModelId) throws InterruptedException, SQLException {
-		Group_Categorie group = new Group_Categorie();
-		group.setCategories_id(categoria_id);
-		group = group.getGroupSearch();
+		Group gro = new Group();
+		gro.setUsers_id(idUser);
+		int cantGrupo = gro.getCountGroups();
 		
-		searchGroup(group.getName());
-		
-		validateGroups();
-		
-	}
-	
-	private void validateGroups() throws InterruptedException {
-		int quantityGroups = drive.getQuantityElements(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div");
-		
-		if(quantityGroups < 1) {
-			System.out.println("No existen grupos para publicar");
+		if(cantGrupo < 1) {
+			System.out.println("El usuario no tiene grupos agregados en la base de datos");
 		}else {
-			for(int i = 1; i<=quantityGroups; i++) {
-				if(drive.searchElement(1, 
-						"/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[3]/div/div/table") != 0) {
-					
-				}else {
-					if(drive.searchElement(1, 
-							"/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[2]/a/div[2]/abbr") != 0) {
-						
-						if(drive.searchElement(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[2]/a") != 0) {
-							System.out.println("Entrar en grupo");
-							drive.clickButton(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[2]/a", "Entrar en grupo");
-							Thread.sleep(getNumberRandom(1263, 1890));
-							
-							Post pos = new Post();
-							groups_id = getIdGroup();
-							pos.setGroups(groups_id);
-							pos = pos.getPostForGroup();
-							
-							if(pos.getPosts_id() != 0 || pos.getGroups() != null) {
-								drive.back();
-							}else {
-								if(validateElementViewPost()) {
-									uploadLink();
-									System.out.println("Se publico en grupo");
-									po.setUsers_id(Integer.parseInt(user[0]));
-									po.setCategories_id(categoria_id);
-									po.setTasks_model_id(listTask_id);
-									po.setLink_post(drive.getCurrentUrl());
-									po.setGroups(groups_id);
-									po.insert();
-									
-									ini++;
-									if (ini >= count) {
-										ini = 0;
-									}
-								}
-								
-								break;
+			Group_Categorie groC = new Group_Categorie();
+			groC.setCategories_id(categoria_id);
+			List<Group_Categorie> list = groC.getGroupCategorie();
+			for(int i = 0; i <= 5;i++) {
+				
+				System.out.println("Buscar grupos segun categoria ");
+				if(list.size() > 0) {
+					List<Group> listG = new ArrayList<Group>();
+					Group gr = new Group();
+					for(Group_Categorie group : list) {
+						String[] values = group.getName().trim().split(" ");
+						String string1 = "";
+						String string2 = "";
+						for(int j = 0; j<values.length; j++) {
+							if(j == 0) {
+								string1 = values[j];
+							}else if(j == 1) {
+								string2 = values[j];
 							}
-							
+						}
+						
+						System.out.println("Buscando grupo por categoria "+string1+" "+string2);
+						listG = gr.getGroupNotPublication(string1, string2, idUser);
+						if(listG.size() < 1) {
+							System.out.println("No hay grupos a publicar para la categoria "+group.getName());
+						}else {
+							for(Group g : listG) {
+								String urlGroup = PAGE+"groups/"+g.getGroups_id();
+								System.out.println("Publicar en el grupo "+g.getName());
+								drive.goPage(urlGroup);
+								
+								Thread.sleep(getNumberRandomForSecond(1234, 1456));
+								
+								String hash = uploadImageFinal();
+								ini++;
+								if (ini >= count) {
+									ini = 0;
+								}
+								if(!hash.isEmpty()) {
+									String[] ha = hash.split(" ");
+									System.out.println("Registrando post");
+									
+									po.setCategories_id(categoria_id);
+									po.setTasks_model_id(taskModelId);
+									po.setUsers_id(idUser);
+									po.setGroups(groups_id);
+									po.setFanPage(false);
+									po.insert();
+
+									Post_Detail poDe = new Post_Detail();
+									poDe.setPosts_id(po.getLast());
+									HashTag ht = new HashTag();
+									ht.setCategories_id(categoria_id);
+									ht.setGeneres_id(idGenere);
+									System.out.println("Registrando HashTag");
+									for (int j = 0; j < ha.length; j++) {
+
+										ht.setName(ha[j]);
+
+										poDe.setHashtag_id(ht.getIdCategorieHashTag());
+
+										poDe.insert();
+									}
+									System.out.println("El usuario publico correctamente");
+								}else {
+									System.out.println("El usuario no publico");
+								}//Fin del if para validar si se publicaron hashtag
+							}
 						}
 					}
 				}
 			}
 		}
+//		Group_Categorie group = new Group_Categorie();
+//		group.setCategories_id(categoria_id);
+//		group = group.getGroupSearch();
+//		
+//		searchGroup(group.getName());
+//		
+//		validateGroups(taskModelId);
+	}
+	
+	/*private void validateGroups(int taskModelId) throws InterruptedException, SQLException {
+		int quantityGroups = drive.getQuantityElements(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div");
 		
+		if(quantityGroups < 1) {
+			System.out.println("No existen grupos para publicar ");
+		}else {
+			int quantityPublications = 0;
+			if(quantityGroups > 1 && quantityGroups < 4) {
+				quantityPublications = getNumberRandomForSecond(2, 3);
+			}else if(quantityGroups > 3 && quantityGroups < 7) {
+				quantityPublications = getNumberRandomForSecond(4, 6);
+			}else if(quantityGroups > 6 && quantityGroups < 10) {
+				quantityPublications = getNumberRandomForSecond(7, 9);
+			}else if(quantityGroups > 9 && quantityGroups < 13) {
+				quantityPublications = getNumberRandomForSecond(9, 12);
+			}else if(quantityGroups > 12) {
+				quantityPublications = getNumberRandomForSecond(9, 13);
+			}
+			System.out.println("La cantidad de grupos aproximados en publicar es "+quantityGroups);
+			String urlGroups = drive.getCurrentUrl();
+			for(int i = 1; i<=quantityPublications; i++) {
+				//Si existe el elemento de unise a grupo o cancelar solicitud
+				//lo que indica que en ese grupo no se puede publicar
+				if(drive.searchElement(1, 
+						"/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[3]/div/div/table") != 0) {
+					
+				}else {
+					//Si existe el emento para ingresar en el grupo
+					if(drive.searchElement(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[2]/a") != 0) {
+						System.out.println("Entrar en grupo ");
+						drive.clickButton(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[2]/a", "Entrar en grupo ");
+						Thread.sleep(getNumberRandom(1263, 1880));
+						
+						Post pos = new Post();
+						groups_id = getIdGroup();
+						pos.setGroups(groups_id);
+						pos = pos.getPostForGroup();
+						//Si ya se publico en este grupo las ultimas 48 horas
+						if(pos.getPosts_id() != 0 || pos.getGroups() != null) {
+							drive.back();
+						}else {
+							//Validar si se puede publicar en este grupo
+							if(validateElementViewPost()) {
+								Thread.sleep(getNumberRandom(2490, 3540));
+								robot.mouseScroll(15);
+								Thread.sleep(840);
+								robot.mouseScroll(-15);
+								String hashTag = uploadImageFinal();
+								ini++;
+								if (ini >= count) {
+									ini = 0;
+								}
+								drive.goPage(urlGroups);
+								if(!hashTag.isEmpty()) {
+									String[] ha = hashTag.split(" ");
+									System.out.println("Registrando post");
+									
+									po.setCategories_id(categoria_id);
+									po.setTasks_model_id(taskModelId);
+									po.setUsers_id(idUser);
+									po.setGroups(groups_id);
+									po.setFanPage(false);
+									po.insert();
+
+									Post_Detail poDe = new Post_Detail();
+									poDe.setPosts_id(po.getLast());
+									HashTag ht = new HashTag();
+									ht.setCategories_id(categoria_id);
+									ht.setGeneres_id(idGenere);
+									System.out.println("Registrando HashTag");
+									for (int j = 0; j < ha.length; j++) {
+
+										ht.setName(ha[j]);
+
+										poDe.setHashtag_id(ht.getIdCategorieHashTag());
+
+										poDe.insert();
+									}
+									System.out.println("El usuario publico correctamente");
+								}else {
+									System.out.println("El usuario no publico");
+								}//Fin del if para validar si se publicaron hashtag
+								}//Fin del if validando si existe el elemento para publicar
+							else {
+								drive.back();
+							}
+							}//Fin del else si no se ha publicado en el grupo
+						}//Fin del if
+				}//Fin del else
+			}//Fin del for
+		}//Fin del if si hay grupos para publicar
+	}*/
+	
+	private void reviewGroups() throws InterruptedException {
+		if(drive.searchElement(1, "//*[text()[contains(.,'Grupos')]]") != 0) {
+			drive.clickButton(1, "//*[text()[contains(.,'Grupos')]]", "Grupos ");
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'Groups')]]") != 0) {
+			drive.clickButton(1, "//*[text()[contains(.,'Groups')]]", "Grupos ");
+		}
+		
+		if(drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[6]/div/a") != 0 ) {
+			System.out.println("Ver todos los grupos");
+			pressSeeAll("/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[6]/div/a");
+			if(readGroups()) {
+				
+			}
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'Ver todos')]]") != 0) {
+			System.out.println("Ver todos los grupos");
+			pressSeeAll("//*[text()[contains(.,'Ver todos')]]");
+			if(readGroups()) {
+				
+			}
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'See all')]]") != 0) {
+			System.out.println("Ver todos los grupos");
+			pressSeeAll("//*[text()[contains(.,'See all')]]");
+			if(readGroups()) {
+				
+			}
+		}else {
+			if(readGroups()) {
+				
+			}
+		}
+		
+		if(drive.searchElement(1, "/html/body/div/div/div[1]/div/div/a[1]") != 0) {
+			drive.clickButton(1, "/html/body/div/div/div[1]/div/div/a[1]", "Inicio xPath");
+		}
+	}
+	
+	private void pressSeeAll(String element) throws InterruptedException {
+		drive.clickButton(1, element, "elemento der Ver todos");
+		Thread.sleep(getNumberRandomForSecond(1265, 1980));
+	}
+	
+	private boolean readGroups() throws InterruptedException {
+		
+		int quantityGroups = drive.getQuantityElements(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li");
+		
+		if(quantityGroups < 1) {
+			System.out.println("No hay grupos para este usuario");
+			return false;
+		}else {
+			Group gp = new Group();
+			gp.setUsers_id(idUser);
+			gp.deleteGroups();
+			for(int i = 1; i<= quantityGroups;i++) {
+				String nameGroup = drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li["+i+"]/table/tbody/tr/td[1]/a");
+				drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li["+i+"]/table/tbody/tr/td[1]/a", "Entrar en grupo xPath");
+				Thread.sleep(1250);
+				if(validateElementViewPost()) {
+					System.out.println("Grupo a guardar " +nameGroup);
+					gp.setGroups_id(getIdGroup());
+					System.out.println("Ingresar en los miembros");
+					int cantMiembros = 0;
+
+
+					if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/table/tbody/tr/td[2]/a") != 0) {
+						drive.clickButton(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/table/tbody/tr/td[2]/a", "Miembro xPath");
+						Thread.sleep(getNumberRandomForSecond(1250, 1456));
+						if(drive.getText(3, "u_0_0").equals("")) {
+							cantMiembros = 0;
+						}else {
+							cantMiembros = Integer.parseInt(drive.getText(3, "u_0_0"));
+						}
+						if(cantMiembros == 0) {
+							cantMiembros = Integer.parseInt(drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[3]/ul/li[5]/table/tbody/tr/td[2]/span"));
+							if(drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[3]/ul/li[5]/table/tbody/tr/td[2]/span").equals("")) {
+								cantMiembros = 0;
+							}else {
+								cantMiembros = Integer.parseInt(drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[3]/ul/li[5]/table/tbody/tr/td[2]/span"));
+							}
+						}
+						System.out.println("La cantidad de miembros son: "+cantMiembros);
+						gp.setCant_miembros(cantMiembros);
+						drive.back();
+					}else if(drive.searchElement(1, "//*[text()[contains(.,'Miembro')]]") != 0) {
+						drive.clickButton(1, "//*[text()[contains(.,'Miembro')]]", "Miembro");
+						Thread.sleep(getNumberRandomForSecond(1250, 1456));
+						if(drive.getText(3, "u_0_0").equals("")) {
+							cantMiembros = 0;
+						}else {
+							cantMiembros = Integer.parseInt(drive.getText(3, "u_0_0"));
+						}
+						if(cantMiembros == 0) {
+							cantMiembros = Integer.parseInt(drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[3]/ul/li[5]/table/tbody/tr/td[2]/span"));
+							if(drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[3]/ul/li[5]/table/tbody/tr/td[2]/span").equals("")) {
+								cantMiembros = 0;
+							}else {
+								cantMiembros = Integer.parseInt(drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[3]/ul/li[5]/table/tbody/tr/td[2]/span"));
+							}
+						}
+						System.out.println("La cantidad de miembros son: "+cantMiembros);
+						gp.setCant_miembros(cantMiembros);
+						drive.back();
+					}
+						
+					gp.setName(nameGroup);
+					try {
+						gp.insert();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+					
+					drive.back();
+					Thread.sleep(1250);
+				}else {
+					drive.back();
+					Thread.sleep(1250);
+				}
+			}
+			return true;
+		}
 	}
 	
 	private boolean validateElementViewPost() {
@@ -950,27 +1242,22 @@ public class InicioController {
 			return true;
 		}else if(drive.searchElement(2, "view_post") != 0) {
 			return true;
-		} else if (drive.searchElement(1, "//*[text()[contains(.,'Foto')]]") != 0) {
-			return true;
 		}else {
 			return false;
 		}
 	}
 	
-	private void uploadLink() throws InterruptedException {
-		Thread.sleep(getNumberRandom(2562, 4980));
-		String user = (String) comboBoxGenere.get(ini).getSelectedItem();
-		Genere gene = new Genere();
-		gene.setName(user);
-		idGenere = gene.getIdGenere();
-
-
-		drive.inputWrite(2, "xc_message", pieDeFoto.get(ini).getText(),12);
-		
-		Thread.sleep(getNumberRandomForSecond(2250, 3100));
-		
-		drive.clickButton(2, "view_post", "view_post publicar name");
-	}
+//	private void uploadLink() throws InterruptedException {
+//		Thread.sleep(getNumberRandom(2562, 4980));
+//		
+//
+//
+//		drive.inputWrite(2, "xc_message", pieDeFoto.get(ini).getText(),12);
+//		
+//		Thread.sleep(getNumberRandomForSecond(2250, 3100));
+//		
+//		drive.clickButton(2, "view_post", "view_post publicar name");
+//	}
 	
 	
 	private void publicFinal(int taskModelId) throws InterruptedException, SQLException {
@@ -1082,7 +1369,7 @@ public class InicioController {
 	
 	private void userBlock(String name) {
 		User_Block userB = new User_Block();
-		userB.setUsers_id(Integer.parseInt(user[0]));
+		userB.setUsers_id(idUser);
 		userB.setComentario(name);
 		if (userB.getIdUser() == 0) {
 			userB.insert();

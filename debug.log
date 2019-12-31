@@ -7,3 +7,8 @@
 [1119/171836.478:ERROR:file_io.cc(134)] WriteFile: Se está cerrando la canalización. (0xE8)
 [1121/095839.009:ERROR:file_io.cc(134)] WriteFile: Se está cerrando la canalización. (0xE8)
 [1121/114104.306:ERROR:file_io.cc(134)] WriteFile: Se está cerrando la canalización. (0xE8)
+[1217/175455.209:ERROR:file_io.cc(134)] WriteFile: Se está cerrando la canalización. (0xE8)
+[1218/101200.709:ERROR:file_io.cc(134)] WriteFile: Se está cerrando la canalización. (0xE8)
+[1218/103704.079:ERROR:file_io.cc(134)] WriteFile: Se está cerrando la canalización. (0xE8)
+[1218/161016.093:ERROR:file_io.cc(134)] WriteFile: Se está cerrando la canalización. (0xE8)
+[1219/154552.156:ERROR:file_io.cc(134)] WriteFile: Se está cerrando la canalización. (0xE8)

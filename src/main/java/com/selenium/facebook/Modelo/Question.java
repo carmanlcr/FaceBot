@@ -26,13 +26,12 @@ public class Question implements Model {
 	@Override
 	public void insert() throws SQLException {
 		setCreated_at(dateFormat.format(date));
-		
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+""
-					+ "(question, answer, created_at) "
-					+ " VALUE (?,?,?);";
+		String insert = "INSERT INTO "+TABLE_NAME+""
+				+ "(question, answer, created_at) "
+				+ " VALUE (?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);){
 			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
 			query.setString(1, getQuestion());
 			query.setString(2, getAnswer());
 			query.setString(3, getCreated_at());
@@ -47,14 +46,13 @@ public class Question implements Model {
 	
 	public String getAnswerQuestion() {
 		String questionA = "";
+		String select = "SELECT * FROM "+TABLE_NAME+""
+				+ " WHERE question = ?;";
 		
-		try (Connection conexion = conn.conectar();){
-			String select = "SELECT * FROM "+TABLE_NAME+""
-					+ "WHERE question = ?;";
-			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(select);
+		
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(select);){
 			query.setString(1, getQuestion());
-			
 			rs = query.executeQuery();
 			while(rs.next()) {
 				questionA = rs.getString("answer");

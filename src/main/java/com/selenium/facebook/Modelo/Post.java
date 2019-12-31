@@ -22,11 +22,12 @@ public class Post implements Model{
 	private int users_id;
 	private int categories_id;
 	private String link_post;
+	private boolean isFanPage;
 	private String created_at; 
 	private String groups;
 	private int tasks_model_id;
 	private Calendar c = Calendar.getInstance();
-	private Date date = c.getTime();
+	private Date date;
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -35,18 +36,20 @@ public class Post implements Model{
 	ResultSet rs;
 
 	public void insert() {
+		date = c.getTime();
 		setCreated_at(dateFormat.format(date));
 		
 		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,link_post,groups,created_at) "
-					+ " VALUE (?,?,?,?,?,?);";
+			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,link_post,isFanPage,groups,created_at) "
+					+ " VALUE (?,?,?,?,?,?,?);";
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
 			query.setInt(1, getUsers_id());
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getTasks_model_id());
 			query.setString(4, getLink_post());
-			query.setString(5, getGroups());
-			query.setString(6, getCreated_at());
+			query.setBoolean(5, isFanPage());
+			query.setString(6, getGroups());
+			query.setString(7, getCreated_at());
 			query.executeUpdate();
 			
 		}catch(SQLException e) {
@@ -60,6 +63,7 @@ public class Post implements Model{
 		List<String[]> list = new ArrayList<String[]>();
 		String[] array = null;
 		int increment = 0;
+		date = c.getTime();
 		String created_at = dateFormat1.format(date);
 		String query = " SELECT c.username usuario, COUNT(*) cuenta FROM "
 				+ " (SELECT us.username, pt.created_at "
@@ -92,6 +96,7 @@ public class Post implements Model{
 	
 	public int getCountPostUser() {
 		int post = 0;
+		 date = c.getTime();
 		String date1 = dateFormat1.format(date);
 		String query = "SELECT count(*) cuenta FROM "+TABLE_NAME + 
 				" WHERE users_id = ? AND DATE(created_at) = ?;";
@@ -134,7 +139,7 @@ public class Post implements Model{
 	
 	public int getLastsTasktPublic(){
 		int idTask = 0;
-		
+		date = c.getTime();
 		
 		try (Connection conexion = conn.conectar();){
 			String queryExce = "SELECT * FROM tasks_model tm " + 
@@ -161,7 +166,7 @@ public class Post implements Model{
 		Post po = new Post();
 		c.add(Calendar.DAY_OF_MONTH, -1);
 		Date date1 = c.getTime();
-		
+		date = c.getTime();
 		String query = "SELECT * FROM posts po WHERE DATE(created_at) BETWEEN ? AND ? AND po.groups = ?;";
 		try (Connection conexion = conn.conectar();){
 			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(query);
@@ -239,6 +244,14 @@ public class Post implements Model{
 
 	public void setLink_post(String link_post) {
 		this.link_post = link_post;
+	}
+
+	public boolean isFanPage() {
+		return isFanPage;
+	}
+
+	public void setFanPage(boolean isFanPage) {
+		this.isFanPage = isFanPage;
 	}
 
 	public String getGroups() {
