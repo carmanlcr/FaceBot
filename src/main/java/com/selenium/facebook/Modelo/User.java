@@ -30,41 +30,37 @@ public class User implements Model{
 	private int categories_id;
 	private int sim_card_number;
 	private int vpn_id;
-	private boolean activo;
+	private boolean active;
+	private boolean isTrash;
 	private static Conexion conn = new Conexion();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	private String created = dateFormat.format(date);
 	
 	
-	public String[] getUser() throws SQLException{
-		String[] list = null;
+	public User getUser() throws SQLException{
+		User user = null;
 		String query = "SELECT * FROM "+TABLE_NAME+" us "
-				+ "INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id "
-				+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "
-				+ "INNER JOIN categories ca ON ca.categories_id = uc.categories_id "
 				+ "WHERE us.email = '"+getEmail()+"' OR us.username= '"+getUsername()+"';";
 		try (Connection conexion = conn.conectar();
 				Statement st = conexion.createStatement();
 				ResultSet rs = st.executeQuery(query);){
-			list = new String[8];
 			while (rs.next() ) {
-               list[0] =  rs.getString("us.users_id");
-               list[1] = rs.getString("us.username");
-               list[2] = rs.getString("us.phone");
-               list[3] = rs.getString("us.password");
-               list[4] = rs.getString("vp.name");
-               list[5] = rs.getString("us.email");
-               list[6] = rs.getString("uc.categories_id");
-               list[7] = rs.getString("ca.name");
-               
+               user = new User();
+               user.setUsers_id(rs.getInt("us.users_id"));
+               user.setUsername(rs.getString("us.username"));
+               user.setPassword(rs.getString("us.password"));
+               user.setVpn_id(rs.getInt("us.vpn_id"));
+               user.setEmail(rs.getString("us.email"));
+               user.setActive(rs.getBoolean("us.active"));
+               user.setTrash(rs.getBoolean("us.isTrash"));
 			}
 			
 		}catch(Exception e) {
 			System.err.println(e);
 		}
 		
-		return list;
+		return user;
  	}
 	
 	/**
@@ -376,14 +372,21 @@ public class User implements Model{
 		this.vpn_id = vpn_id;
 	}
 	
-	public boolean isActivo() {
-		return activo;
+	public boolean isActive() {
+		return active;
 	}
 
-	public void setActivo(boolean activo) {
-		this.activo = activo;
+	public void setActive(boolean activo) {
+		this.active = activo;
 	}
 
+	public boolean isTrash() {
+		return isTrash;
+	}
+
+	public void setTrash(boolean isTrash) {
+		this.isTrash = isTrash;
+	}
 	
 	
 

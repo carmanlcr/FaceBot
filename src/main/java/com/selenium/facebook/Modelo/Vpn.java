@@ -14,8 +14,9 @@ import com.selenium.facebook.Interface.Model;
 public class Vpn implements Model{
 	
 	private final String TABLE_NAME = "vpn";
+	private int vpn_id;
 	private String name;
-	private boolean activo;
+	private boolean active;
 	private static Conexion conn = new Conexion();
 	
 	public List<String> getAllActive() throws SQLException {
@@ -115,11 +116,44 @@ public class Vpn implements Model{
 		
 	}
 	
+	public Vpn getVpn() throws SQLException {
+		Vpn v = null;
+		String sql = "SELECT  * FROM "+TABLE_NAME+" WHERE vpn_id = ?;";
+		
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pre = conexion.prepareStatement(sql);){
+		
+			pre.setInt(1, getVpn_id());
+			
+			ResultSet rs = pre.executeQuery();
+			
+			if(rs.next()) {
+				v = new Vpn();
+				v.setVpn_id(rs.getInt("vpn_id"));
+				v.setName(rs.getString("name"));
+				v.setActive(rs.getBoolean("active"));
+			}
+		}catch (SQLException e) {
+			e.getStackTrace();
+		}
+		
+		return v;
+		
+	}
+	
 	@Override
 	public void update() throws SQLException {
 		
 	}
 	
+	public int getVpn_id() {
+		return vpn_id;
+	}
+
+	public void setVpn_id(int vpn_id) {
+		this.vpn_id = vpn_id;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -128,12 +162,12 @@ public class Vpn implements Model{
 		this.name = name;
 	}
 	
-	public boolean isActivo() {
-		return activo;
+	public boolean isActive() {
+		return active;
 	}
 
-	public void setActivo(boolean activo) {
-		this.activo = activo;
+	public void setActive(boolean activo) {
+		this.active = activo;
 	}
 
 	

@@ -163,6 +163,41 @@ public class Group implements Model {
 		
 		return listG;
 	}
+	
+	public List<Group> getGroupNotPublication(int quantityGroups) {
+		List<Group> listG = new ArrayList<Group>();
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DAY_OF_MONTH, -4);
+		Date date1 = cal.getTime();
+		Group gp = null;
+		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, gp.users_id "
+				+TABLE_NAME+" gp"
+				+"WHERE gp.groups_id NOT IN (SELECT pt.groups FROM posts pt WHERE DATE(pt.created_at) BETWEEN ? AND ?) "  
+				+"AND gp.users_id = ? "
+				+ "ORDER BY RAND() LIMIT ?; ";
+		try(Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(query);
+				){
+			exe.setString(1, dateFormat1.format(date1));
+			exe.setString(2, dateFormat1.format(date));
+			exe.setInt(3, getUsers_id());
+			exe.setInt(4, quantityGroups);
+			ResultSet rs = exe.executeQuery();
+			while(rs.next()) {
+				gp = new Group();
+				gp.setName(rs.getString("gp.name"));
+				gp.setActive(rs.getBoolean("gp.active"));
+				gp.setGroups_id(rs.getString("gp.groups_id"));
+				gp.setCreated_at(rs.getString("gp.created_at"));
+				gp.setUsers_id(rs.getInt("gp.users_id"));
+				listG.add(gp);
+			}
+		}catch (SQLException e) {
+			e.getStackTrace();
+		}
+		
+		return listG;
+	}
 
 	public String getGroups_id() {
 		return groups_id;
