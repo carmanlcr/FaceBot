@@ -97,7 +97,7 @@ public class Ejecucion extends JFrame {
 		setTitle("Validacion");
 		this.categoria_id = id;
 		setResizable(false);
-		setBounds(100, 100, 665, 733);
+		setBounds(100, 100, 744, 733);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -249,28 +249,29 @@ public class Ejecucion extends JFrame {
 		lblTotal.setFont(new Font("Arial", Font.PLAIN, 12));
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
-			gl_contentPane.createParallelGroup(Alignment.LEADING)
+			gl_contentPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addContainerGap(469, Short.MAX_VALUE)
 					.addComponent(btnAgregar)
 					.addGap(109))
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addGap(25)
-					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(chckbxNewCheckBox_1)
-							.addPreferredGap(ComponentPlacement.RELATED, 380, Short.MAX_VALUE)
-							.addComponent(lblTotal)
-							.addGap(83))
-						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
-								.addComponent(scrollPane_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 614, Short.MAX_VALUE)
-								.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 614, Short.MAX_VALUE))
-							.addContainerGap())))
-				.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
+					.addComponent(chckbxNewCheckBox_1)
+					.addPreferredGap(ComponentPlacement.RELATED, 380, Short.MAX_VALUE)
+					.addComponent(lblTotal)
+					.addGap(83))
+				.addGroup(gl_contentPane.createSequentialGroup()
 					.addContainerGap(302, Short.MAX_VALUE)
 					.addComponent(btnEmpezar)
 					.addGap(274))
+				.addGroup(Alignment.LEADING, gl_contentPane.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 708, Short.MAX_VALUE)
+					.addContainerGap())
+				.addGroup(gl_contentPane.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(scrollPane_1, GroupLayout.DEFAULT_SIZE, 708, Short.MAX_VALUE)
+					.addContainerGap())
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.TRAILING)
@@ -284,7 +285,7 @@ public class Ejecucion extends JFrame {
 					.addGap(37)
 					.addComponent(btnAgregar)
 					.addGap(18)
-					.addComponent(scrollPane_1, GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
+					.addComponent(scrollPane_1, GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btnEmpezar)
 					.addGap(6))
