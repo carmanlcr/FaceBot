@@ -966,7 +966,8 @@ public class InicioController {
 						System.out.println("No hay grupos a publicar para la categoria "+group.getName());
 					}else {
 						for(Group g : listG) {
-							String urlGroup = PAGE+"groups/"+g.getGroups_id();
+							groups_id = g.getGroups_id();
+							String urlGroup = PAGE+"groups/"+groups_id;
 							System.out.println("Publicar en el grupo "+g.getName());
 							drive.goPage(urlGroup);
 							
