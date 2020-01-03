@@ -25,7 +25,6 @@ import com.selenium.facebook.Controlador.RobotController;
 public class InicioController {
 	private final String PAGE = "https://mbasic.facebook.com/";
 	private static DriverController drive;
-	private static String[] user;
 	private static User users;
 	private static RobotController robot;
 	private static VpnController vpn;
@@ -39,7 +38,6 @@ public class InicioController {
 	private static int idGenere;
 	private static int ini = 0;
 	private int count = 0;
-	private String groups_id;
 	private boolean banderaVpn = false;
 	private boolean banderaBlockeo = true;
 	private Post po = new Post();
@@ -63,8 +61,8 @@ public class InicioController {
 			users = new User();
 			users.setUsername(jCheckBox.getText());
 			users.setEmail(jCheckBox.getText());
-			user = users.getUser();
-			idUser = Integer.parseInt(user[0]);
+			users = users.getUser();
+			idUser = users.getUsers_id();
 			po.setUsers_id(idUser);
 			
 			
@@ -83,25 +81,28 @@ public class InicioController {
 				String ip = validateIP();
 				robot = new RobotController();
 				vpn = new VpnController(robot);
-				vpn.iniciarVpn(user[4], banderaVpn);
+				Vpn v = new Vpn();
+				v.setVpn_id(users.getVpn_id());
+				v = v.getVpn();
+				vpn.iniciarVpn(v.getName(), banderaVpn);
 				String ipActual = validateIP();
 				
 				System.out.println(usuariosAProcesar + " usuario(s) de " + usuarios.size() + " usuario(s)");
 				// Valida si la vpn conecto
 				if (ip.equals(ipActual)) {
-					System.err.println("El usuario " + user[1] + " no se puedo conectar a la vpn");
+					System.err.println("El usuario " + users.getUsername() + " no se puedo conectar a la vpn");
 				} else {
 					// Setear valores a google Chrome
 					drive = new DriverController();
 					drive.optionsChrome();
-
-					IniciaSesion sesion = new IniciaSesion(drive, user[1], user[3]);
+					System.out.println("*********************" + users.getUsername() + "***********************");
+					IniciaSesion sesion = new IniciaSesion(drive, users.getUsername(), users.getPassword());
 					sesion.init();
 
 					// Esperar que cargue la pagina para que cargue el dom completamente
 					Thread.sleep(getNumberRandomForSecond(5250, 5650));
 
-					System.out.println("*********************" + user[1] + "***********************");
+					
 
 					if (!validateBlockOUserIncorrect()) {
 						if (drive.searchElement(1, "/html/body/div/div/div/div/table/tbody/tr/td/div/div[3]/a") != 0) {
@@ -217,7 +218,13 @@ public class InicioController {
 		tmd.setTasks_model_id(listTask_id);
 		List<Integer> listTask = tmd.getTaskModelDetailDiferent();
 		System.out.println("Buscando tarea para que el usuario realice");
-		random(listTask, listTask_id);
+		if(users.isTrash()) {
+			random(listTask, listTask_id);
+		}else {
+			reviewGroups();
+			publicGroupTrash(listTask_id);
+		}
+		
 		
 		if (banderaBlockeo) {
 			// Darle al panel de opciones
@@ -236,8 +243,82 @@ public class InicioController {
 			}
 		}
 
-		System.out.println("Se cerro la sesión del usuario " + user[1]);
+		System.out.println("Se cerro la sesión del usuario " + users.getUsername());
 	}
+	
+	private void publicGroupTrash(int listTask_id) throws InterruptedException, SQLException {
+		Group gro = new Group();
+		gro.setUsers_id(idUser);
+		int cantGrupo = gro.getCountGroups();
+		
+		if(cantGrupo < 1) {
+			System.out.println("El usuario no tiene grupos agregados en la base de datos ");
+		}else {
+			int groupsPublication = 0;
+			if(cantGrupo > 5 && cantGrupo < 10) {
+				groupsPublication = getNumberRandomForSecond(6, 9);
+			}else if(cantGrupo > 10) {
+				groupsPublication = getNumberRandomForSecond(9, 15);
+			}
+			
+			List<Group> listGroups = gro.getGroupNotPublication(groupsPublication);
+			
+			if(listGroups.size() < 1) {
+				System.out.println("NO HAY GRUPOS PARA PUBLICAR");
+			}else{
+				for(Group g : listGroups) {
+					String urlGroup = PAGE+"groups/"+g.getGroups_id();
+					String idGroups = g.getGroups_id();
+					System.out.println("Publicar en el grupo "+g.getName()+ " id: "+idGroups);
+					drive.goPage(urlGroup);
+					
+					Thread.sleep(getNumberRandomForSecond(1234, 1456));
+					int quantityPublicationsNormal = getNumberRandomForSecond(2, 3);
+					for(int i = 1; i <= quantityPublicationsNormal; i++) {
+						uploadImage();
+						Thread.sleep(getNumberRandomForSecond(2456, 3478));
+						drive.goPage(urlGroup);
+						Thread.sleep(getNumberRandomForSecond(2456, 3478));
+					}
+					String hash = uploadImageFinal();
+					ini++;
+					if (ini >= count) {
+						ini = 0;
+					}
+					if(!hash.isEmpty()) {
+						String[] ha = hash.split(" ");
+						System.out.println("Registrando post");
+						
+						po.setCategories_id(categoria_id);
+						po.setTasks_model_id(listTask_id);
+						po.setUsers_id(idUser);
+						po.setGroups(idGroups);
+						po.setFanPage(false);
+						po.insert();
+
+						Post_Detail poDe = new Post_Detail();
+						poDe.setPosts_id(po.getLast());
+						HashTag ht = new HashTag();
+						ht.setCategories_id(categoria_id);
+						ht.setGeneres_id(idGenere);
+						System.out.println("Registrando HashTag");
+						for (int j = 0; j < ha.length; j++) {
+
+							ht.setName(ha[j]);
+
+							poDe.setHashtag_id(ht.getIdCategorieHashTag());
+
+							poDe.insert();
+						}
+						System.out.println("El usuario publico correctamente");
+					}else {
+						System.out.println("El usuario no publico");
+					}//Fin del if para validar si se publicaron hashtag
+				}
+			}
+		}
+	}
+	
 	
 	private void random(List<Integer> listTask, int listTask_id) throws InterruptedException, SQLException {
 		// int valueScroll = (int) (Math.random() * 15) + 1;
@@ -966,9 +1047,9 @@ public class InicioController {
 						System.out.println("No hay grupos a publicar para la categoria "+group.getName());
 					}else {
 						for(Group g : listG) {
-							groups_id = g.getGroups_id();
-							String urlGroup = PAGE+"groups/"+groups_id;
-							System.out.println("Publicar en el grupo "+g.getName());
+							String urlGroup = PAGE+"groups/"+g.getGroups_id();
+							String idGroups = g.getGroups_id();
+							System.out.println("Publicar en el grupo "+g.getName()+ " id: "+idGroups);
 							drive.goPage(urlGroup);
 							
 							Thread.sleep(getNumberRandomForSecond(1234, 1456));
@@ -985,7 +1066,7 @@ public class InicioController {
 								po.setCategories_id(categoria_id);
 								po.setTasks_model_id(taskModelId);
 								po.setUsers_id(idUser);
-								po.setGroups(groups_id);
+								po.setGroups(idGroups);
 								po.setFanPage(false);
 								po.insert();
 
