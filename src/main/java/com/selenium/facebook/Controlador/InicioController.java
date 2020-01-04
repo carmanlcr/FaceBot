@@ -218,12 +218,8 @@ public class InicioController {
 		tmd.setTasks_model_id(listTask_id);
 		List<Integer> listTask = tmd.getTaskModelDetailDiferent();
 		System.out.println("Buscando tarea para que el usuario realice");
-		if(users.isTrash()) {
-			random(listTask, listTask_id);
-		}else {
-			reviewGroups();
-			publicGroupTrash(listTask_id);
-		}
+		random(listTask, listTask_id);
+
 		
 		
 		if (banderaBlockeo) {
@@ -244,6 +240,124 @@ public class InicioController {
 		}
 
 		System.out.println("Se cerro la sesión del usuario " + users.getUsername());
+	}
+	
+	
+	
+	
+	private void random(List<Integer> listTask, int listTask_id) throws InterruptedException, SQLException {
+		// int valueScroll = (int) (Math.random() * 15) + 1;
+		int taskModelId = listTask_id;
+		for (Integer li : listTask) {
+			Thread.sleep(getNumberRandomForSecond(2501, 2654));
+			robot.mouseScroll(25);
+			Thread.sleep(getNumberRandom(940, 1130));
+			robot.mouseScroll(-25);
+			Thread.sleep(getNumberRandom(940, 1130));
+			switch (li) {
+			case 1:
+				// Entrar en Editar Perfil
+				System.out.println("ENTRAR EN PERFIL Y DAR LIKE A FOTO");
+				likeUsers();
+
+				break;
+			case 2:
+				System.out.println("SUBIR IMAGEN NORMAL TIPO COMIDA, MEME, BEBIDA");
+				uploadImage();
+				break;
+			case 3:
+				// Revisar los grupos
+				// Ingresar en la seccion de grupos
+				System.out.println("BUSCAR GRUPO Y AGREGARSE");
+				addGroup();
+				break;
+			case 4:
+				// Publicar en Grupo
+				// Ingresar en la seccion de grupos
+				if(categoria_id != 3) {
+					Genere ge = new Genere();
+					ge.setGeneres_id(idGenere);
+					ge = ge.getFanPage();
+					if(ge != null) {
+						System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
+						goFanPage(ge.getFan_page());
+						publicGroup(ge,taskModelId);
+					}
+					System.out.println("INGRESAR EN GRUPO Y PUBLICAR");
+					if(users.isTrash()) {
+						publicGroupTrash(listTask_id);
+					}else {
+						
+						publicGroupPublicity(taskModelId);
+					}
+					
+					
+				}
+				break;
+			case 5:
+				// Publicacion final
+				if(categoria_id != 3) {
+					System.out.println("HACER PUBLICACION FINAL");
+					publicFinal(taskModelId);
+				}
+				
+				break;
+			case 6:
+				// Revisar los mensajes
+				System.out.println("REVISAR LOS MENSAJES");
+				reviewMessage();
+				break;
+			case 7:
+				// Revisar notificaciones
+				// html/body/div/div/div[1]/div/div/a[4]
+				System.out.println("REVISAR NOTIFICACIONES");
+				reviewNotifaction();
+				break;
+			case 8:
+				if(categoria_id != 3) {
+					reviewGroups();
+				}
+				break;
+			default:
+				break;
+			}
+		} // Fin del For
+
+	}
+
+	private String uploadImageFinal() throws InterruptedException, SQLException {
+
+		System.out.println("Darle click a la opción de fotos");
+		String hashTag = "";
+		if (drive.searchElement(2, "view_photo") != 0) {
+			drive.clickButton(2, "view_photo","view_photo para subir foto");
+			hashTag = publicIfExistElementFoto();
+			return hashTag;
+		} else if (drive.searchElement(1, "//*[text()[contains(.,'Foto')]]") != 0) {
+			drive.clickButton(2, "//*[text()[contains(.,'Foto')]]","Subir foto");
+			hashTag = publicIfExistElementFoto();
+			return hashTag;
+		}else {
+			System.out.println("No se puede publicar en este grupo");
+			
+		}
+		
+		return hashTag;
+	}
+	
+	private String getIdGroup() {
+		String urlImage = drive.getCurrentUrl();
+		String idGroup = "";
+		urlImage = urlImage.substring(35);
+		for(int j = 0; j<urlImage.length(); j++) {
+			if(urlImage.substring(j,j+1).equals("?")) {
+				break;
+			}else {
+				idGroup += urlImage.substring(j,j+1);
+			}
+		}
+		
+		return idGroup;
 	}
 	
 	private void publicGroupTrash(int listTask_id) throws InterruptedException, SQLException {
@@ -317,116 +431,6 @@ public class InicioController {
 				}
 			}
 		}
-	}
-	
-	
-	private void random(List<Integer> listTask, int listTask_id) throws InterruptedException, SQLException {
-		// int valueScroll = (int) (Math.random() * 15) + 1;
-		int taskModelId = listTask_id;
-		for (Integer li : listTask) {
-			Thread.sleep(getNumberRandomForSecond(2501, 2654));
-			robot.mouseScroll(25);
-			Thread.sleep(getNumberRandom(940, 1130));
-			robot.mouseScroll(-25);
-			Thread.sleep(getNumberRandom(940, 1130));
-			switch (li) {
-			case 1:
-				// Entrar en Editar Perfil
-				System.out.println("ENTRAR EN PERFIL Y DAR LIKE A FOTO");
-				likeUsers();
-
-				break;
-			case 2:
-				System.out.println("SUBIR IMAGEN NORMAL TIPO COMIDA, MEME, BEBIDA");
-				uploadImage();
-				break;
-			case 3:
-				// Revisar los grupos
-				// Ingresar en la seccion de grupos
-				System.out.println("BUSCAR GRUPO Y AGREGARSE");
-				addGroup();
-				break;
-			case 4:
-				// Publicar en Grupo
-				// Ingresar en la seccion de grupos
-				if(categoria_id != 3) {
-					Genere ge = new Genere();
-					ge.setGeneres_id(idGenere);
-					ge = ge.getFanPage();
-					if(ge != null) {
-						System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
-						goFanPage(ge.getFan_page());
-						publicGroup(ge,taskModelId);
-					}
-					System.out.println("INGRESAR EN GRUPO Y PUBLICAR");
-					publicGroupPublicity(taskModelId);
-				}
-				break;
-			case 5:
-				// Publicacion final
-				if(categoria_id != 3) {
-					System.out.println("HACER PUBLICACION FINAL");
-					publicFinal(taskModelId);
-				}
-				
-				break;
-			case 6:
-				// Revisar los mensajes
-				System.out.println("REVISAR LOS MENSAJES");
-				reviewMessage();
-				break;
-			case 7:
-				// Revisar notificaciones
-				// html/body/div/div/div[1]/div/div/a[4]
-				System.out.println("REVISAR NOTIFICACIONES");
-				reviewNotifaction();
-				break;
-			case 8:
-				if(categoria_id != 3) {
-					reviewGroups();
-				}
-				break;
-			default:
-				break;
-			}
-		} // Fin del For
-
-	}
-
-
-	private String uploadImageFinal() throws InterruptedException, SQLException {
-
-		System.out.println("Darle click a la opción de fotos");
-		String hashTag = "";
-		if (drive.searchElement(2, "view_photo") != 0) {
-			drive.clickButton(2, "view_photo","view_photo para subir foto");
-			hashTag = publicIfExistElementFoto();
-			return hashTag;
-		} else if (drive.searchElement(1, "//*[text()[contains(.,'Foto')]]") != 0) {
-			drive.clickButton(2, "//*[text()[contains(.,'Foto')]]","Subir foto");
-			hashTag = publicIfExistElementFoto();
-			return hashTag;
-		}else {
-			System.out.println("No se puede publicar en este grupo");
-			
-		}
-		
-		return hashTag;
-	}
-	
-	private String getIdGroup() {
-		String urlImage = drive.getCurrentUrl();
-		String idGroup = "";
-		urlImage = urlImage.substring(35);
-		for(int j = 0; j<urlImage.length(); j++) {
-			if(urlImage.substring(j,j+1).equals("?")) {
-				break;
-			}else {
-				idGroup += urlImage.substring(j,j+1);
-			}
-		}
-		
-		return idGroup;
 	}
 
 	private void uploadImage() throws InterruptedException, SQLException {
