@@ -38,7 +38,7 @@ public class User_Block extends User implements Model{
 			PreparedStatement exe = conexion.prepareStatement(insert);
 			exe.setInt(1, getUsers_id());
 			exe.setString(2, getComentario());
-			exe.setString(3, getCreated());
+			exe.setString(3, getCreated_at());
 			exe.setString(4, getUpdated_at());
 			exe.executeUpdate();
 		}catch(SQLException e) {

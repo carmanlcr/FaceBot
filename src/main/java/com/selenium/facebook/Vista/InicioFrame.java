@@ -44,6 +44,7 @@ public class InicioFrame extends JFrame {
 	private final JMenuItem importarUsuarios = new JMenuItem("Importar Usuarios");
 	private final JMenuItem buscarUsuario = new JMenuItem("Buscar");
 	private final JMenuItem actualizarUsuario = new JMenuItem("Actualizar Usuarios");
+	private final JMenuItem actualizarUser = new JMenuItem("Actualizar Usuario");
 	private final JMenu mnVpn = new JMenu("Vpn");
 	private final JMenuItem registrarVpn = new JMenuItem("Registrar");
 	private final JMenuItem actualizarVpn = new JMenuItem("Actualizar");
@@ -149,7 +150,20 @@ public class InicioFrame extends JFrame {
 		});
 		
 		
+		
+		
 		mnUsuarios.add(actualizarUsuario);
+		
+		mnUsuarios.add(actualizarUser);
+		actualizarUser.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				UpdateUser update = new UpdateUser();
+				update.init();
+			}
+		});
 		mnVpn.setFont(new Font("Arial", Font.BOLD, 12));
 		
 		menuBar.add(mnVpn);

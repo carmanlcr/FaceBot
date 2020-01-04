@@ -859,9 +859,9 @@ public class InicioController {
 		System.out.println("Compartir en un grupo");
 		if(drive.searchElement(1, "//*[text()[contains(.,'Compartir…')]]") != 0) {
 			drive.clickButton(1, "//*[text()[contains(.,'Compartir…')]]", "Compartir ");
-			Thread.sleep(getNumberRandomForSecond(1245, 2348));
+			Thread.sleep(getNumberRandomForSecond(2245, 2348));
 			robot.enter();
-			Thread.sleep(getNumberRandomForSecond(1245, 2348));
+			Thread.sleep(getNumberRandomForSecond(2245, 2348));
 			robot.pressDown();
 			Thread.sleep(getNumberRandomForSecond(478,645));
 			robot.pressDown();
@@ -902,6 +902,8 @@ public class InicioController {
 				if(group_c != null) {
 					System.out.println("se consiguio grupo "+group_c.getName());
 					break;
+				}else {
+					System.out.println("No se consiguio grupo para esta categoria");
 				}
 			}
 			

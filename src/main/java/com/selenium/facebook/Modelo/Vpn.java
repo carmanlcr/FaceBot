@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
@@ -139,6 +140,26 @@ public class Vpn implements Model{
 		
 		return v;
 		
+	}
+	
+	public HashMap<String,Integer> getAllVpn(){
+		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+		
+		String query = "SELECT * FROM "+TABLE_NAME+" v WHERE active = 1;";
+		
+		try (Connection conexion = conn.conectar();){
+			PreparedStatement pst = conexion.prepareStatement(query);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next() ) {
+				mapGe.put(rs.getString("v.name"), rs.getInt("v.vpn_id"));
+			}
+		}catch(SQLException e) {
+			System.err.println(e);
+		}
+		
+		
+		
+		return mapGe;
 	}
 	
 	@Override
