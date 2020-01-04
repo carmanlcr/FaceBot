@@ -36,7 +36,7 @@ public class Post implements Model{
 	ResultSet rs;
 
 	public void insert() {
-		date = c.getTime();
+		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		
 		try (Connection conexion = conn.conectar();){
