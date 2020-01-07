@@ -199,7 +199,7 @@ public class User implements Model{
 	public List<String[]> getUserCategorie(int id) throws SQLException{
 		String[] list ;
 		ArrayList<String[]> lista = new ArrayList<String[]>();
-		
+		dateFormat = new SimpleDateFormat("yyy-MM-dd");
 		String query = "SELECT us.users_id,us.username,us.phone,us.password,vp.name,us.email,uc.categories_id,ub.users_block_id, count(*) as canpost "
 				+ "FROM "+TABLE_NAME+" us "
 				+ "INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id "
