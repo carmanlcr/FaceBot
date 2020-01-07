@@ -314,7 +314,7 @@ public class Ejecucion extends JFrame {
 			JCheckBox chckbxNewCheckBox = new JCheckBox(usuarios[1]);
 			listCheckBoxUsers.add(chckbxNewCheckBox);
 			//Si el usuario esta bloqueado o en el d�a tiene mas de 3 publicaciones mostrar el checkbox disable
-			if(usuarios[7] != null || (chckbxNewCheckBox.isEnabled() && Integer.parseInt(usuarios[8]) >= 6 )) {
+			if(usuarios[7] != null || (chckbxNewCheckBox.isEnabled() && Integer.parseInt(usuarios[8]) >= 12)) {
 				chckbxNewCheckBox.setEnabled(false);
 			}
 			
