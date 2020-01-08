@@ -31,7 +31,6 @@ public class User implements Model{
 	private int sim_card_number;
 	private int vpn_id;
 	private boolean active;
-	private boolean isTrash;
 	private static Conexion conn = new Conexion();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -54,7 +53,6 @@ public class User implements Model{
                user.setVpn_id(rs.getInt("us.vpn_id"));
                user.setEmail(rs.getString("us.email"));
                user.setActive(rs.getBoolean("us.active"));
-               user.setTrash(rs.getBoolean("us.isTrash"));
 			}
 			
 		}catch(Exception e) {
@@ -163,7 +161,6 @@ public class User implements Model{
 			pre.setString(2, getEmail());
 			pre.setString(3, getPassword());
 			pre.setBoolean(4, isActive());
-			pre.setBoolean(5, isTrash);
 			pre.setInt(6, getVpn_id());
 			pre.setString(7, getUpdated_at());
 			pre.setInt(8, getUsers_id());
@@ -200,7 +197,7 @@ public class User implements Model{
 		String[] list ;
 		ArrayList<String[]> lista = new ArrayList<String[]>();
 		dateFormat = new SimpleDateFormat("yyy-MM-dd");
-		String query = "SELECT us.users_id,us.username,us.phone,us.password,vp.name,us.email,uc.categories_id,ub.users_block_id, count(*) as canpost "
+		String query = "SELECT us.users_id,us.username,us.phone,us.password,vp.name,us.email,uc.categories_id,ub.users_block_id, count(DISTINCT(po.groups)) as canpost "
 				+ "FROM "+TABLE_NAME+" us "
 				+ "INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id "
 				+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "
@@ -408,14 +405,6 @@ public class User implements Model{
 
 	public void setActive(boolean activo) {
 		this.active = activo;
-	}
-
-	public boolean isTrash() {
-		return isTrash;
-	}
-
-	public void setTrash(boolean isTrash) {
-		this.isTrash = isTrash;
 	}
 	
 	
