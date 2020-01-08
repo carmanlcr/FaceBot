@@ -56,6 +56,7 @@ public class InicioFrame extends JFrame {
 	private final JMenuItem registrarHashTag = new JMenuItem("Registrar Hashtag"); 
 	private final JMenu mnGenero = new JMenu("Genero");
 	private final JMenuItem registrarGenero = new JMenuItem("Registrar Genero");
+	private final JMenuItem actualizarGenero = new JMenuItem("Actualizar Genero");
 	private final JMenu mnTask = new JMenu("Tarea");
 	private final JMenuItem registrarTarea = new JMenuItem("Registrar Tarea");
 	private final JMenuItem registerTaskGrid = new JMenuItem("Crear Parrilla De Tarea");
@@ -254,6 +255,17 @@ public class InicioFrame extends JFrame {
 				registrar.inicio();
 			}
 			
+		});
+		
+		mnGenero.add(actualizarGenero);
+		
+		actualizarGenero.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				UpdateGeneres upG = new UpdateGeneres();
+				upG.init();
+			}
 		});
 		
 		mnTask.add(registrarTarea);
