@@ -120,11 +120,12 @@ public class InicioController {
 							
 							System.out.println("El usuario pide agregar a otros usuarios, saltar");
 							try {
-								drive.clickButton(1, "html/body/div/div/div/div/div[1]/table/tbody/tr/td[3]/a", "Siguiente xPath");
+								drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "Siguiente");
 							}catch(ElementClickInterceptedException e) {
 								System.out.println("No se puede hacer click en el elemento Siguiente xPath");
 								try {
-									drive.clickButton(1, "//a[text()[contains(.,'Siguiente')]]", "Siguiente elemento a");
+									drive.clickButton(1, "html/body/div/div/div/div/div[1]/table/tbody/tr/td[3]/a", "Siguiente elemento a");
+									drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "");
 								}catch(ElementClickInterceptedException ex) {
 									System.out.println("No se puede hacer click en el elemento Siguiente elemento a");	
 									try {
@@ -275,19 +276,25 @@ public class InicioController {
 				// Publicar en Grupo
 				// Ingresar en la seccion de grupos
 				if(categoria_id != 3) {
-					Genere ge = new Genere();
-					ge.setGeneres_id(idGenere);
-					ge = ge.getFanPage();
-					if(ge != null) {
-						System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
-						goFanPage(ge.getFan_page());
-						publicGroup(ge,taskModelId);
-					}
 					System.out.println("INGRESAR EN GRUPO Y PUBLICAR");
-					if(users.isTrash()) {
+					Genere gene = new Genere();
+					gene.setGeneres_id(idGenere);
+					gene = gene.getFanPage();
+					if(gene != null) {
+						System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
+						goFanPage(gene.getFan_page());
+						publicGroup(gene,taskModelId);
+					}
+					gene.setGeneres_id(idGenere);
+					gene = gene.getGenere();
+					if(gene != null && gene.isTrash()) {
+						System.out.println("PUBLICAR EN GRUPOS RANDOM");
 						publicGroupTrash(listTask_id);
 					}else {
+						Genere ge = new Genere();
+						ge.setGeneres_id(idGenere);
 						
+						System.out.println("PUBLICAR EN GRUPOS SEGUN CATEGORIA");
 						publicGroupPublicity(taskModelId);
 					}
 					
@@ -315,6 +322,7 @@ public class InicioController {
 				break;
 			case 8:
 				if(categoria_id != 3) {
+					System.out.println("LEER TODOS LOS GRUPOS DEL USUARIO");
 					reviewGroups();
 				}
 				break;
@@ -368,15 +376,17 @@ public class InicioController {
 		if(cantGrupo < 1) {
 			System.out.println("El usuario no tiene grupos agregados en la base de datos ");
 		}else {
+			System.out.println("El usuario tiene "+cantGrupo+" registrados.");
 			int groupsPublication = 0;
 			if(cantGrupo > 5 && cantGrupo < 10) {
 				groupsPublication = getNumberRandomForSecond(6, 9);
 			}else if(cantGrupo > 10) {
-				groupsPublication = getNumberRandomForSecond(9, 15);
+				groupsPublication = getNumberRandomForSecond(9, 13);
 			}
 			
+			System.out.println("Buscando "+groupsPublication+" para publicar ");
 			List<Group> listGroups = gro.getGroupNotPublication(groupsPublication);
-			
+			System.out.println("La cantidad de grupos son "+listGroups.size());
 			if(listGroups.size() < 1) {
 				System.out.println("NO HAY GRUPOS PARA PUBLICAR");
 			}else{
@@ -387,7 +397,7 @@ public class InicioController {
 					drive.goPage(urlGroup);
 					
 					Thread.sleep(getNumberRandomForSecond(1234, 1456));
-					int quantityPublicationsNormal = getNumberRandomForSecond(2, 3);
+					int quantityPublicationsNormal = getNumberRandomForSecond(1, 2);
 					for(int i = 1; i <= quantityPublicationsNormal; i++) {
 						uploadImage();
 						Thread.sleep(getNumberRandomForSecond(2456, 3478));
@@ -854,11 +864,11 @@ public class InicioController {
 		Thread.sleep(getNumberRandomForSecond(1245, 1456));
 		
 		robot.pressEsc();
-		Thread.sleep(getNumberRandomForSecond(445, 987));
+		Thread.sleep(getNumberRandomForSecond(1445, 1987));
 		robot.pulsarShiftTabulador();
-		Thread.sleep(getNumberRandomForSecond(445, 987));
+		Thread.sleep(getNumberRandomForSecond(1445, 1987));
 		robot.enter();
-		Thread.sleep(getNumberRandom(2345, 3126));
+		Thread.sleep(getNumberRandom(3345, 4126));
 		
 		System.out.println("Compartir en un grupo");
 		if(drive.searchElement(1, "//*[text()[contains(.,'Compartir…')]]") != 0) {
@@ -871,6 +881,7 @@ public class InicioController {
 			robot.pressDown();
 			Thread.sleep(getNumberRandomForSecond(478,645));
 			robot.enter();
+			Thread.sleep(getNumberRandomForSecond(478,645));
 		}else if(drive.searchElement(1, "//*[text()[contains(.,'Compartir en un grupo')]]") != 0) {
 			drive.clickButton(1, "//*[text()[contains(.,'Compartir en un grupo')]]", "Compartir en un grupo");
 			
@@ -1023,7 +1034,8 @@ public class InicioController {
 		Group gro = new Group();
 		gro.setUsers_id(idUser);
 		int cantGrupo = gro.getCountGroups();
-		
+		int cantMaxPublications = 12;
+		int cantiPublications = 0;
 		if(cantGrupo < 1) {
 			System.out.println("El usuario no tiene grupos agregados en la base de datos ");
 		}else {
@@ -1036,66 +1048,71 @@ public class InicioController {
 				List<Group> listG = new ArrayList<Group>();
 				Group gr = new Group();
 				for(Group_Categorie group : list) {
-					String[] values = group.getName().trim().split(" ");
-					String string1 = "";
-					String string2 = "";
-					for(int j = 0; j<values.length; j++) {
-						if(j == 0) {
-							string1 = values[j];
-						}else if(j == 1) {
-							string2 = values[j];
+					if(cantiPublications <= cantMaxPublications) {
+						String[] values = group.getName().trim().split(" ");
+						String string1 = "";
+						String string2 = "";
+						for(int j = 0; j<values.length; j++) {
+							if(j == 0) {
+								string1 = values[j];
+							}else if(j == 1) {
+								string2 = values[j];
+							}
+						}
+						
+						System.out.println("Buscando grupo por categoria "+string1+" "+string2);
+						listG = gr.getGroupNotPublication(string1, string2, idUser);
+						if(listG.size() < 1) {
+							System.out.println("No hay grupos a publicar para la categoria "+group.getName());
+						}else {
+							for(Group g : listG) {
+								String urlGroup = PAGE+"groups/"+g.getGroups_id();
+								String idGroups = g.getGroups_id();
+								System.out.println("Publicar en el grupo "+g.getName()+ " id: "+idGroups);
+								drive.goPage(urlGroup);
+								
+								Thread.sleep(getNumberRandomForSecond(1234, 1456));
+								
+								String hash = uploadImageFinal();
+								cantiPublications++;
+								System.out.println("El usuario hizo su publicación "+cantiPublications);
+								ini++;
+								if (ini >= count) {
+									ini = 0;
+								}
+								if(!hash.isEmpty()) {
+									String[] ha = hash.split(" ");
+									System.out.println("Registrando post");
+									
+									po.setCategories_id(categoria_id);
+									po.setTasks_model_id(taskModelId);
+									po.setUsers_id(idUser);
+									po.setGroups(idGroups);
+									po.setFanPage(false);
+									po.insert();
+
+									Post_Detail poDe = new Post_Detail();
+									poDe.setPosts_id(po.getLast());
+									HashTag ht = new HashTag();
+									ht.setCategories_id(categoria_id);
+									ht.setGeneres_id(idGenere);
+									System.out.println("Registrando HashTag");
+									for (int j = 0; j < ha.length; j++) {
+
+										ht.setName(ha[j]);
+
+										poDe.setHashtag_id(ht.getIdCategorieHashTag());
+
+										poDe.insert();
+									}
+									System.out.println("El usuario publico correctamente");
+								}else {
+									System.out.println("El usuario no publico");
+								}//Fin del if para validar si se publicaron hashtag
+							}
 						}
 					}
 					
-					System.out.println("Buscando grupo por categoria "+string1+" "+string2);
-					listG = gr.getGroupNotPublication(string1, string2, idUser);
-					if(listG.size() < 1) {
-						System.out.println("No hay grupos a publicar para la categoria "+group.getName());
-					}else {
-						for(Group g : listG) {
-							String urlGroup = PAGE+"groups/"+g.getGroups_id();
-							String idGroups = g.getGroups_id();
-							System.out.println("Publicar en el grupo "+g.getName()+ " id: "+idGroups);
-							drive.goPage(urlGroup);
-							
-							Thread.sleep(getNumberRandomForSecond(1234, 1456));
-							
-							String hash = uploadImageFinal();
-							ini++;
-							if (ini >= count) {
-								ini = 0;
-							}
-							if(!hash.isEmpty()) {
-								String[] ha = hash.split(" ");
-								System.out.println("Registrando post");
-								
-								po.setCategories_id(categoria_id);
-								po.setTasks_model_id(taskModelId);
-								po.setUsers_id(idUser);
-								po.setGroups(idGroups);
-								po.setFanPage(false);
-								po.insert();
-
-								Post_Detail poDe = new Post_Detail();
-								poDe.setPosts_id(po.getLast());
-								HashTag ht = new HashTag();
-								ht.setCategories_id(categoria_id);
-								ht.setGeneres_id(idGenere);
-								System.out.println("Registrando HashTag");
-								for (int j = 0; j < ha.length; j++) {
-
-									ht.setName(ha[j]);
-
-									poDe.setHashtag_id(ht.getIdCategorieHashTag());
-
-									poDe.insert();
-								}
-								System.out.println("El usuario publico correctamente");
-							}else {
-								System.out.println("El usuario no publico");
-							}//Fin del if para validar si se publicaron hashtag
-						}
-					}
 				}
 			}
 		}
