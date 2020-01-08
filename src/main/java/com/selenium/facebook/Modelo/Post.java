@@ -65,8 +65,8 @@ public class Post implements Model{
 		int increment = 0;
 		date = c.getTime();
 		String created_at = dateFormat1.format(date);
-		String query = " SELECT c.username usuario, COUNT(*) cuenta FROM "
-				+ " (SELECT us.username, pt.created_at "
+		String query = " SELECT c.username usuario, COUNT(DISTINCT(c.groups)) cuenta FROM "
+				+ " (SELECT us.username, pt.created_at, pt.groups "
 				+ " FROM users us "
 				+ " LEFT JOIN "+TABLE_NAME+" pt ON pt.users_id = us.users_id AND categories_id =  ? "
 				+ " WHERE DATE(pt.created_at) = ?) AS c "
