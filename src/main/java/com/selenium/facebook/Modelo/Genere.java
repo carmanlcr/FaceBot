@@ -21,8 +21,10 @@ public class Genere implements Model{
 	private String name;
 	private String fan_page;
 	private String created_at;
+	private String updated_at;
 	private int categories_id;
 	private boolean active;
+	private boolean isTrash;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private static Conexion conn = new Conexion();
@@ -30,16 +32,19 @@ public class Genere implements Model{
 	ResultSet rs;
 	
 	public void insert() {
-		
+		date = new Date();
 		setCreated_at(dateFormatDateTime.format(date));
-		String insert = "INSERT INTO "+TABLE_NAME+"(name,fan_page,created_at,categories_id) VALUE "
-				+ " (?,?,?,?);";
+		setUpdated_at(dateFormatDateTime.format(date));
+		String insert = "INSERT INTO "+TABLE_NAME+"(name,fan_page,created_at,updated_at,categories_id) VALUE "
+				+ " (?,?,?,?,?);";
 		try (Connection conexion = conn.conectar();
 				PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);){
 			exe.setString(1, getName());
 			exe.setString(2, getFan_page());
 			exe.setString(3, getCreated_at());
-			exe.setInt(4, getCategories_id());
+			exe.setString(4, getUpdated_at());
+			exe.setInt(5, getCategories_id());
+			
 			exe.executeUpdate();
 			
 		}catch(SQLException e) {
@@ -50,6 +55,24 @@ public class Genere implements Model{
 	
 	@Override
 	public void update() throws SQLException {
+		date = new Date();
+		setUpdated_at(dateFormatDateTime.format(date));
+		String update = "UPDATE "+TABLE_NAME+" SET name = ?, fan_page = ?, categories_id = ?,"
+				+ " isTrash = ?, active = ?, updated_at = ? WHERE generes_id = ?;";
+		try(Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(update);){
+			pst.setString(1, getName());
+			pst.setString(2, getFan_page());
+			pst.setInt(3, getCategories_id());
+			pst.setBoolean(4, isTrash());
+			pst.setBoolean(5, isActive());
+			pst.setString(6, getUpdated_at());
+			pst.setInt(7, getGeneres_id());
+			
+			pst.executeUpdate();
+		}catch (SQLException e) {
+			System.err.println(e);
+		}
 		
 	}
 	
@@ -178,6 +201,30 @@ public class Genere implements Model{
 		
 	}
 	
+	public Genere getGenere() {
+		Genere genero =null;
+		String query = "SELECT * FROM "+TABLE_NAME+" tb WHERE tb.generes_id = ?;";
+		try(Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			pst.setInt(1, getGeneres_id());
+			
+			ResultSet rs = pst.executeQuery();
+			
+			if(rs.next()) {
+				genero = new Genere();
+				genero.setGeneres_id(rs.getInt("tb.generes_id"));
+				genero.setCategories_id(rs.getInt("tb.categories_id"));
+				genero.setName(rs.getString("tb.name"));
+				genero.setFan_page(rs.getString("tb.fan_page"));
+				genero.setTrash(rs.getBoolean("tb.isTrash"));
+				genero.setActive(rs.getBoolean("tb.active"));
+			}
+		}catch (SQLException e) {
+			e.getStackTrace();
+		}
+		return genero;
+	}
+	
 	public int getGeneres_id() {
 		return generes_id;
 	}
@@ -206,11 +253,27 @@ public class Genere implements Model{
 	public void setCreated_at(String created_id) {
 		this.created_at = created_id;
 	}
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
+	}
+
 	public boolean isActive() {
 		return active;
 	}
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	public boolean isTrash() {
+		return isTrash;
+	}
+
+	public void setTrash(boolean isTrash) {
+		this.isTrash = isTrash;
 	}
 
 	public int getCategories_id() {
