@@ -131,19 +131,13 @@ public class Ejecucion extends JFrame {
 					}
 				}
 				
-				int indiceComboBoxDelete = 0;
 				
 				for(List<JCheckBox> lis : listCheckBoxHashTah) {
 					listCheckBoxhashTagSelected = new ArrayList<String>();
 					for(JCheckBox ch : lis) if(ch.isSelected()) listCheckBoxhashTagSelected.add(ch.getText());
 					if(!listCheckBoxhashTagSelected.isEmpty()) {
 						listChechBoxSelected.add(listCheckBoxhashTagSelected);
-					}else {
-						listTextARea.remove(indiceComboBoxDelete);
-						listTextFieldUser.remove(indiceComboBoxDelete);
-						listJComboBoxGenere.remove(indiceComboBoxDelete);
 					}
-					indiceComboBoxDelete++;
 				}
 				if(listCheckBoxUsersSend.size() == 0) {
 					JOptionPane.showMessageDialog(null,"Debe seleccionar al menos un usuario");
@@ -178,7 +172,7 @@ public class Ejecucion extends JFrame {
 		//Crear los pies de foto de manera dinamica
 		JButton btnAgregar = new JButton("Agregar");
 		genero.setCategories_id(categoria_id);
-		final List<String> map = genero.getGeneresActiveWithPhrasesHashTagPhoto(); 
+		final List<String> map = genero.getGeneresForCategories(); 
 		btnAgregar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JTextArea textA = new JTextArea("Pie De Foto: "+indice);
