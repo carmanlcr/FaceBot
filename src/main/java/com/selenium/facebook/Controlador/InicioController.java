@@ -282,12 +282,18 @@ public class InicioController {
 					//Si el genero seleccionado no tiene frase o foto o hashtag 
 					//Solo debe publicar desde la fan page
 					if(gene == null) {
+						System.out.println("SOLO PUBLICAR EN FAN PAGE");
 						System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
 						gene = new Genere();
 						gene.setGeneres_id(idGenere);
 						gene = gene.getFanPage();
-						goFanPage(gene.getFan_page());
-						publicGroup(gene,taskModelId);
+						if(gene != null) {
+							goFanPage(gene.getFan_page());
+							publicGroup(gene,taskModelId);
+						}else {
+							System.out.println("El genero seleccionado no tiene fan page");
+						}
+						
 					}else {
 						//Si el genero tiene frase, foto y hashtag validar si tiene fan page
 						gene = new Genere();
