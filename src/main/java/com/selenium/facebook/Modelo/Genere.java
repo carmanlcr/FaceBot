@@ -102,12 +102,11 @@ public class Genere implements Model{
 		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
 		
 		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
-				       "WHERE categories_id = ? AND active = ?;";
+				       "WHERE categories_id = ?;";
 		
 		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			pst.setInt(1, getCategories_id());
-			pst.setInt(2, 1);
 			rs = pst.executeQuery();
 			while (rs.next() ) {
 				mapGe.put(rs.getString("g.name"), rs.getInt("g.generes_id"));
