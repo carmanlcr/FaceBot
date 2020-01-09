@@ -237,7 +237,7 @@ public class UpdateGeneres {
 				
 				
 				if(comboBox_Genero.getSelectedItem() == null) {
-					JOptionPane.showMessageDialog(null, "Debe seleccionar un genero");
+					JOptionPane.showMessageDialog(null, "Debe seleccionar un genero ");
 				}else {
 					gene = new Genere();
 					gene.setGeneres_id(Integer.parseInt(hashGenere.get(comboBox_Genero.getSelectedItem().toString()).toString()));
