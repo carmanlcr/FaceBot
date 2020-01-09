@@ -276,29 +276,43 @@ public class InicioController {
 				// Publicar en Grupo
 				// Ingresar en la seccion de grupos
 				if(categoria_id != 3) {
-					System.out.println("INGRESAR EN GRUPO Y PUBLICAR");
 					Genere gene = new Genere();
 					gene.setGeneres_id(idGenere);
-					gene = gene.getFanPage();
-					if(gene != null) {
+					gene = gene.getGenereWithPhrasesPhotosHashtag();
+					//Si el genero seleccionado no tiene frase o foto o hashtag 
+					//Solo debe publicar desde la fan page
+					if(gene == null) {
 						System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
+						gene = new Genere();
+						gene.setGeneres_id(idGenere);
+						gene = gene.getFanPage();
 						goFanPage(gene.getFan_page());
 						publicGroup(gene,taskModelId);
-					}
-					gene.setGeneres_id(idGenere);
-					gene = gene.getGenere();
-					if(gene != null && gene.isTrash()) {
-						System.out.println("PUBLICAR EN GRUPOS RANDOM");
-						publicGroupTrash(listTask_id);
 					}else {
-						Genere ge = new Genere();
-						ge.setGeneres_id(idGenere);
-						
-						System.out.println("PUBLICAR EN GRUPOS SEGUN CATEGORIA");
-						publicGroupPublicity(taskModelId);
+						//Si el genero tiene frase, foto y hashtag validar si tiene fan page
+						gene = new Genere();
+						gene.setGeneres_id(idGenere);
+						gene = gene.getFanPage();
+						//Si el genero tiene fan page ingresar en la fan page y publicar
+						if(gene != null) {
+							System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
+							goFanPage(gene.getFan_page());
+							publicGroup(gene,taskModelId);
+						}
+						gene = new Genere();
+						gene.setGeneres_id(idGenere);
+						gene = gene.getGenere();
+						//Si el genero esta clasificado como basura ingresar entre 9 y 14 
+						//grupos y publicar
+						if(gene != null && gene.isTrash()) {
+							System.out.println("PUBLICAR EN GRUPOS RANDOM");
+							publicGroupTrash(listTask_id);
+						}else {
+							
+							System.out.println("PUBLICAR EN GRUPOS SEGUN CATEGORIA");
+							publicGroupPublicity(taskModelId);
+						}
 					}
-					
-					
 				}
 				break;
 			case 5:
