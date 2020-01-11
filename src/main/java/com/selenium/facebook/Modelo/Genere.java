@@ -144,6 +144,33 @@ public class Genere implements Model{
 		return mapGe;
 	}
 	
+	public HashMap<String,Integer> getGeneresForCategorieActives(){
+		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+		
+		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
+				"LEFT JOIN path_photos pp ON pp.generes_id = g.generes_id AND pp.active = 1 " + 
+				"LEFT JOIN phrases ph ON ph.generes_id = g.generes_id AND ph.active = 1 " + 
+				"LEFT JOIN hashtag ht ON ht.generes_id = g.generes_id AND ht.active = 1 " + 
+				"WHERE g.categories_id = ? AND g.active = ? " +
+				"GROUP BY g.generes_id, g.name; ";
+		
+		try (Connection conexion = conn.conectar();){
+			PreparedStatement pst = conexion.prepareStatement(query);
+			pst.setInt(1, getCategories_id());
+			pst.setInt(2, 1);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next() ) {
+				mapGe.put(rs.getString("g.name"), rs.getInt("g.generes_id"));
+			}
+		}catch(SQLException e) {
+			System.err.println(e);
+		}
+		
+		
+		
+		return mapGe;
+	}
+	
 	public List<String> getGeneresForCategories(){
 		List<String> list = new ArrayList<String>();
 		
@@ -255,7 +282,7 @@ public class Genere implements Model{
 		try(Connection conexion = conn.conectar();
 				PreparedStatement pst = conexion.prepareStatement(query)){
 			pst.setInt(1, 1);
-			pst.setInt(2, 2);
+			pst.setInt(2, 1);
 			pst.setInt(3, 1);
 			pst.setInt(4, getGeneres_id());
 			pst.setInt(5, 1);
