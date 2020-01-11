@@ -30,15 +30,14 @@ public class Group implements Model {
 	public void insert() throws SQLException {
 		date = new Date();
 		setCreated_at(dateFormatDateTime.format(date));
-		String insert = "INSERT INTO "+TABLE_NAME+"(groups_id,name,cant_miembros,created_at,users_id) "
-				+ "VALUES (?,?,?,?,?);";
+		String insert = "INSERT INTO "+TABLE_NAME+"(groups_id,name,cant_miembros,created_at) "
+				+ "VALUES (?,?,?,?);";
 			try (Connection conexion = conn.conectar();
 				PreparedStatement exe = conexion.prepareStatement(insert);){
 				exe.setString(1, getGroups_id());
 				exe.setString(2, getName());
 				exe.setInt(3, getCant_miembros());
 				exe.setString(4, getCreated_at());
-				exe.setInt(5, getUsers_id());
 				exe.executeUpdate();
 				
 			} catch(SQLException e)  {
@@ -54,53 +53,6 @@ public class Group implements Model {
 
 	}
 	
-	public void deleteGroups() {
-		String insert = "DELETE FROM "+TABLE_NAME+" WHERE users_id = ?";
-			try (Connection conexion = conn.conectar();
-				PreparedStatement exe = conexion.prepareStatement(insert);){
-				exe.setInt(1, getUsers_id());
-				exe.executeUpdate();
-			} catch(SQLException e)  {
-				System.err.println(e);
-			} catch(Exception e){
-				System.err.println(e);
-			}
-	}
-	
-	public Group getOneGroupNotPublication(String string1, String string2, int users_id) {
-		Group gp = null;
-		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, gp.users_id "
-				+ "FROM (select * from "+TABLE_NAME+" where name like ?) gp  "
-				+ "INNER JOIN (select * from "+TABLE_NAME+" where name like ?) C " + 
-				"ON C.groups_id = gp.groups_id " + 
-				"WHERE gp.groups_id NOT IN (SELECT pt.groups FROM posts pt "
-				+"WHERE pt.groups IS NOT NULL AND DATE(pt.created_at) = ? ) " + 
-				"AND gp.users_id = ? "
-				+ "GROUP BY gp.name, gp.active, gp.groups_id, gp.created_at, gp.users_id "
-				+ "ORDER BY RAND(); ";
-		try(Connection conexion = conn.conectar();
-				PreparedStatement exe = conexion.prepareStatement(query);
-				){
-			exe.setString(1, "%"+string1+"%");
-			exe.setString(2, "%"+string2+"%");
-			exe.setString(3, dateFormat1.format(date));
-			exe.setInt(4, users_id);
-			ResultSet rs = exe.executeQuery();
-			
-			if(rs.next()) {
-				gp = new Group();
-				gp.setName(rs.getString("gp.name"));
-				gp.setActive(rs.getBoolean("gp.active"));
-				gp.setGroups_id(rs.getString("gp.groups_id"));
-				gp.setCreated_at(rs.getString("gp.created_at"));
-				gp.setUsers_id(rs.getInt("gp.users_id"));
-			}
-		}catch (SQLException e) {
-			e.getStackTrace();
-		}
-		
-		return gp;
-	}
 	
 	public int getCountGroups() {
 		int cant = 0;
@@ -126,14 +78,15 @@ public class Group implements Model {
 	public List<Group> getGroupNotPublication(String string1, String string2, int users_id) {
 		List<Group> listG = new ArrayList<Group>();
 		Group gp = null;
-		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, gp.users_id "
-				+ "FROM (select * from "+TABLE_NAME+" where name like ?) gp  "
+		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id "
+				+ "FROM users_groups ug "
+				+ "INNER JOIN (select * from "+TABLE_NAME+" where name like ?) gp ON gp.groups_id = ug.groups_id " 
 				+ "INNER JOIN (select * from "+TABLE_NAME+" where name like ?) C "  
 				+ "ON C.groups_id = gp.groups_id "  
-				+ "WHERE gp.users_id = ? "
+				+ "WHERE ug.users_id = ? "
 				+ "AND gp.groups_id NOT IN (SELECT pt.groups FROM posts pt WHERE pt.groups IS NOT NULL "
 				+ "AND DATE(pt.created_at) = ?) "
-				+ "GROUP BY gp.name, gp.active, gp.groups_id, gp.created_at, gp.users_id "
+				+ "GROUP BY gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id "
 				+ "ORDER BY RAND(); ";
 		try(Connection conexion = conn.conectar();
 				PreparedStatement exe = conexion.prepareStatement(query);
@@ -191,6 +144,29 @@ public class Group implements Model {
 		}
 		
 		return listG;
+	}
+	
+	public Group find() {
+		Group gro = null;
+		String query = "SELECT * FROM "+TABLE_NAME+" gr "
+				+ "WHERE gr.groups_id = ?;" ;
+		try(Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(query);){
+			exe.setString(1, getGroups_id());
+			ResultSet rs = exe.executeQuery();
+			
+			if(rs.next()) {
+				gro = new Group();
+				gro.setGroups_id(rs.getString("gr.groups_id"));
+				gro.setName(rs.getString("gr.name"));
+				gro.setActive(rs.getBoolean("gr.active"));
+				gro.setCant_miembros(rs.getInt("gr.cant_miembros"));
+			}
+			
+		}catch (SQLException e) {
+			System.err.println(e);
+		}
+		return gro;
 	}
 
 	public String getGroups_id() {
