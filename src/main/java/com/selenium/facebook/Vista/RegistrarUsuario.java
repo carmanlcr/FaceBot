@@ -298,19 +298,24 @@ public class RegistrarUsuario extends JFrame {
 					usuario.setVpn_id(id);
 					usuario.setCategories_id(comboBoxCategori.getSelectedIndex()+1);
 					contentPane.setEnabled(false);
-					usuario.insert();
-					JOptionPane.showMessageDialog(null,"Usuario agregado con exito");
-					NameField.setText("");
-					NameField.setFocusable(true);
-					telefonoField.setText("");
-					usernameField.setText("");
-					emailField.setText("");
-					passwordField.setText("");
-					creadorField.setText("");
-					fdnField.setText("");
-					simCardField.setText("");
-					comboBoxvPN.setSelectedIndex(0);
-					comboBoxCategori.setSelectedIndex(0);
+					try {
+						usuario.insert();
+						JOptionPane.showMessageDialog(null,"Usuario agregado con exito");
+						NameField.setText("");
+						NameField.setFocusable(true);
+						telefonoField.setText("");
+						usernameField.setText("");
+						emailField.setText("");
+						passwordField.setText("");
+						creadorField.setText("");
+						fdnField.setText("");
+						simCardField.setText("");
+						comboBoxvPN.setSelectedIndex(0);
+						comboBoxCategori.setSelectedIndex(0);
+					} catch (SQLException e1) {
+						JOptionPane.showMessageDialog(null, "Error al ingresar usuario, por favor validar los campos","Failed",JOptionPane.ERROR_MESSAGE);
+					}
+					
 				}
 				
 			}
