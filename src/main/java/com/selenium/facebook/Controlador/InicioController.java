@@ -75,7 +75,7 @@ public class InicioController {
 			
 			if(idlistTask == 0) {
 				System.out.println("El usuario no tiene mas tareas por publicar");
-			}else if(po.getCountPostUser() >= 2) {
+			}else if(po.getCountPostUser() >= 9) {
 				System.out.println("El usuario ya hizo las dos publicaciones del día");
 			}else {
 				String ip = validateIP();
@@ -1375,18 +1375,21 @@ public class InicioController {
 				Thread.sleep(getNumberRandomForSecond(1250, 2654));
 
 				// Escribir mensaje
-				System.out.println("Escribir Hola a usuario");
-				if (drive.searchElement(2, "body") != 0) {
-					drive.inputWrite(2, "body", "Hola",120);
-				} else if (drive.searchElement(1, "composerInput") != 0) {
-					drive.inputWrite(1, "composerInput", "Hola",120);
+				if(drive.searchElement(1, "//*[text()[contains(.,'No puedes responder a esta conversación.')]]") == 0) {
+					System.out.println("Escribir Hola a usuario");
+					if (drive.searchElement(2, "body") != 0) {
+						drive.inputWrite(2, "body", "Hola",120);
+					} else if (drive.searchElement(1, "composerInput") != 0) {
+						drive.inputWrite(1, "composerInput", "Hola",120);
+					}
+
+					Thread.sleep(getNumberRandom(150, 980));
+					System.out.println("Enviar Mensajes");
+					drive.clickButton(2, "send","Enviar mensaje");
+
+					Thread.sleep(getNumberRandomForSecond(1520, 2560));
 				}
-
-				Thread.sleep(getNumberRandom(150, 980));
-				System.out.println("Enviar Mensajes");
-				drive.clickButton(2, "send","Enviar mensaje");
-
-				Thread.sleep(getNumberRandomForSecond(1520, 2560));
+				
 
 			}
 		} else {
@@ -1399,14 +1402,21 @@ public class InicioController {
 
 			Thread.sleep(getNumberRandom(2540, 3001));
 			// Escribir mensaje
-			System.out.println("Escribir Hola Random");
-			drive.inputWrite(2, "body", "Hola",120);
+			if(drive.searchElement(1, "//*[text()[contains(.,'No puedes responder a esta conversación.')]]") == 0) {
+				System.out.println("Escribir Hola a usuario");
+				if (drive.searchElement(2, "body") != 0) {
+					drive.inputWrite(2, "body", "Hola",120);
+				} else if (drive.searchElement(1, "composerInput") != 0) {
+					drive.inputWrite(1, "composerInput", "Hola",120);
+				}
 
-			Thread.sleep(getNumberRandom(150, 980));
-			System.out.println("Pulsar Enviar");
-			drive.clickButton(2, "send","Enviar mensaje");
+				Thread.sleep(getNumberRandom(150, 980));
+				System.out.println("Enviar Mensajes");
+				drive.clickButton(2, "send","Enviar mensaje");
 
-			Thread.sleep(getNumberRandomForSecond(1520, 2560));
+				Thread.sleep(getNumberRandomForSecond(1520, 2560));
+			}
+			
 
 		}
 	}
