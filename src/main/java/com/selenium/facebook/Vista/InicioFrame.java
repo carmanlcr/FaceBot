@@ -66,7 +66,7 @@ public class InicioFrame extends JFrame {
 	private static Categorie cate = new Categorie();
 	private static JComboBox<String> comboBox;
 	private JButton empezar = new JButton("Comenzar");
-	private static Inicio_Aplicacion iniApli = new Inicio_Aplicacion();
+	private Inicio_Aplicacion iniApli = new Inicio_Aplicacion();
 	
 	/**
 	 * Launch the application.
@@ -324,13 +324,13 @@ public class InicioFrame extends JFrame {
 		contentPane.setLayout(gl_contentPane);
 		
 		iniApli.setVersion("1.0.0");
-		iniApli.insert();
+		
 		empezar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
 				try {
 					int id = cate.getIdCategories((String) comboBox.getSelectedItem());
-					Ejecucion eje = new Ejecucion(id);
+					Ejecucion eje = new Ejecucion(id,iniApli);
 					setExtendedState(ICONIFIED);
 					eje.inicio();
 				} catch (SQLException e1) {
