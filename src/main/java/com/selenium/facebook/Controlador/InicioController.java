@@ -412,13 +412,7 @@ public class InicioController {
 			System.out.println("El usuario no tiene grupos agregados en la base de datos ");
 		}else {
 			System.out.println("El usuario tiene "+cantGrupo+" registrados.");
-			int groupsPublication = 0;
-			if(cantGrupo > 5 && cantGrupo < 10) {
-				groupsPublication = getNumberRandomForSecond(6, 9);
-			}else if(cantGrupo > 10) {
-				groupsPublication = getNumberRandomForSecond(9, 13);
-			}
-			
+			int groupsPublication = getNumberRandomForSecond(9, 13);
 			System.out.println("Buscando "+groupsPublication+" para publicar ");
 			List<Group> listGroups = gro.getGroupNotPublication(groupsPublication);
 			System.out.println("La cantidad de grupos son "+listGroups.size());
