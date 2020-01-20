@@ -68,7 +68,7 @@ public class Ejecucion extends JFrame {
 	private static JCheckBox check ;
 	private int totalUser = 0;
 	private Categorie categories = new Categorie();
-	
+	private Inicio_Aplicacion inicio;
 	
 	/**
 	 * Launch the application.
@@ -77,7 +77,7 @@ public class Ejecucion extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Ejecucion frame = new Ejecucion(categoria_id);
+					Ejecucion frame = new Ejecucion(categoria_id, inicio);
 					frame.setTitle(categories.getNameCategories(categoria_id));
 					frame.setVisible(true);
 					
@@ -91,11 +91,15 @@ public class Ejecucion extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @param iniApli 
 	 * @throws SQLException 
 	 */
-	public Ejecucion(int id) throws SQLException {
+	public Ejecucion(int id, Inicio_Aplicacion iniApli) throws SQLException {
 		setTitle("Validacion");
+		inicio = iniApli;
+		
 		this.categoria_id = id;
+		inicio.setCategories_id(categoria_id);
 		setResizable(false);
 		setBounds(100, 100, 744, 733);
 		contentPane = new JPanel();
@@ -144,6 +148,12 @@ public class Ejecucion extends JFrame {
 				} else if(listTextARea.size() == 0) {
 					JOptionPane.showMessageDialog(null,"Debe escribir al menos un pie para la foto");
 				}else {
+					for(JComboBox<String> st : listJComboBoxGenere) {
+						Genere gene = new Genere();
+						gene.setName(st.getSelectedItem().toString());
+						inicio.setGeneres_id(gene.getIdGenere());
+						inicio.insert();
+					}
 					InicioController init = new InicioController(categoria_id,listCheckBoxUsersSend, listTextARea,listChechBoxSelected,listTextFieldUser,listJComboBoxGenere);
 					setExtendedState(ICONIFIED);
 					try {
