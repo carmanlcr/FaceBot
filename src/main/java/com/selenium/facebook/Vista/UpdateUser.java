@@ -20,6 +20,8 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.awt.event.ActionEvent;
 
 public class UpdateUser {
@@ -62,7 +64,7 @@ public class UpdateUser {
 		frmActualizarUsuario = new JFrame();
 		frmActualizarUsuario.setTitle("Actualizar Usuario");
 		frmActualizarUsuario.setResizable(false);
-		frmActualizarUsuario.setBounds(100, 100, 395, 493);
+		frmActualizarUsuario.setBounds(100, 100, 418, 522);
 		
 		JLabel lblNewLabel = new JLabel("Usuario o Email");
 		
@@ -135,7 +137,8 @@ public class UpdateUser {
 						activo.setEnabled(true);
 						if(us.isActive()) activo.setSelected(true);
 						vpn.setEnabled(true);
-						for(String st: mapVpn.keySet()) {
+						SortedSet<String> keys = new TreeSet<>(mapVpn.keySet());
+						for(String st: keys) {
 							vpn.addItem(st);
 						}
 						for(Entry<String, Integer> in : mapVpn.entrySet()) {
@@ -229,7 +232,7 @@ public class UpdateUser {
 										.addComponent(lblContrasea, GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
 										.addComponent(lblUsername, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 									.addComponent(lblVpn, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE)
-									.addComponent(lblBloqueado, GroupLayout.DEFAULT_SIZE, 87, Short.MAX_VALUE))
+									.addComponent(lblBloqueado, GroupLayout.DEFAULT_SIZE, 93, Short.MAX_VALUE))
 								.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE))
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 								.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
@@ -238,9 +241,9 @@ public class UpdateUser {
 										.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
 											.addComponent(searchUser, GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE)
 											.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-												.addComponent(username, GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
-												.addComponent(password, GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
-												.addComponent(email, GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE))))
+												.addComponent(username, GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+												.addComponent(password, GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+												.addComponent(email, GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))))
 									.addGroup(groupLayout.createSequentialGroup()
 										.addGap(61)
 										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
@@ -250,10 +253,10 @@ public class UpdateUser {
 									.addGap(69)
 									.addComponent(vpn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))))
 					.addGap(45))
-				.addGroup(groupLayout.createSequentialGroup()
-					.addGap(155)
+				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+					.addContainerGap(181, Short.MAX_VALUE)
 					.addComponent(btnNewButton)
-					.addContainerGap(276, Short.MAX_VALUE))
+					.addGap(152))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -293,9 +296,9 @@ public class UpdateUser {
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGap(18)
 							.addComponent(vpn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addGap(34)
+					.addGap(48)
 					.addComponent(btnNewButton)
-					.addGap(21))
+					.addGap(36))
 		);
 		frmActualizarUsuario.getContentPane().setLayout(groupLayout);
 	}
