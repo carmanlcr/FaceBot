@@ -161,7 +161,7 @@ public class User implements Model{
 	public void update() throws SQLException {
 		date = new Date();
 		setUpdated_at(dateFormat.format(date));
-		String query = "UPDATE "+TABLE_NAME+" SET username = ?, email = ?, password = ?, active = ?, isTrash = ?, vpn_id = ?, updated_at = ? "
+		String query = "UPDATE "+TABLE_NAME+" SET username = ?, email = ?, password = ?, active = ?, vpn_id = ?, updated_at = ? "
 				+ "WHERE users_id = ?";
 		try(Connection conexion = conn.conectar();
 				PreparedStatement pre = conexion.prepareStatement(query);){
@@ -169,9 +169,9 @@ public class User implements Model{
 			pre.setString(2, getEmail());
 			pre.setString(3, getPassword());
 			pre.setBoolean(4, isActive());
-			pre.setInt(6, getVpn_id());
-			pre.setString(7, getUpdated_at());
-			pre.setInt(8, getUsers_id());
+			pre.setInt(5, getVpn_id());
+			pre.setString(6, getUpdated_at());
+			pre.setInt(7, getUsers_id());
 			
 			pre.executeUpdate();
 		}catch (SQLException e) {
