@@ -20,6 +20,7 @@ public class Group implements Model {
 	private int cant_miembros;
 	private boolean active;
 	private String created_at;
+	private String updated_at;
 	private int users_id;
 	private static Conexion conn = new Conexion();
 	private Date date = new Date();
@@ -30,14 +31,16 @@ public class Group implements Model {
 	public void insert() throws SQLException {
 		date = new Date();
 		setCreated_at(dateFormatDateTime.format(date));
-		String insert = "INSERT INTO "+TABLE_NAME+"(groups_id,name,cant_miembros,created_at) "
-				+ "VALUES (?,?,?,?);";
+		setUpdated_at(dateFormatDateTime.format(date));
+		String insert = "INSERT INTO "+TABLE_NAME+"(groups_id,name,cant_miembros,created_at,updated_at) "
+				+ "VALUES (?,?,?,?,?);";
 			try (Connection conexion = conn.conectar();
 				PreparedStatement exe = conexion.prepareStatement(insert);){
 				exe.setString(1, getGroups_id());
 				exe.setString(2, getName());
 				exe.setInt(3, getCant_miembros());
 				exe.setString(4, getCreated_at());
+				exe.setString(5, getUpdated_at());
 				exe.executeUpdate();
 				
 			} catch(SQLException e)  {
@@ -207,6 +210,14 @@ public class Group implements Model {
 
 	public void setCreated_at(String created_at) {
 		this.created_at = created_at;
+	}
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
 	}
 
 	public int getUsers_id() {
