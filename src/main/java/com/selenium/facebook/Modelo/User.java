@@ -31,6 +31,7 @@ public class User implements Model{
 	private int sim_card_number;
 	private int vpn_id;
 	private boolean active;
+	private boolean isBlock;
 	private static Conexion conn = new Conexion();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -40,19 +41,26 @@ public class User implements Model{
 	
 	public User getUser() throws SQLException{
 		User user = null;
-		String query = "SELECT * FROM "+TABLE_NAME+" us "
-				+ "WHERE us.email = '"+getEmail()+"' OR us.username= '"+getUsername()+"';";
+		String query = "SELECT u.users_id, u.username, u.email, u.full_name, u.phone, "
+				+ "u.password, u.creator, u.date_of_birth, u.active, u.sim_card_number, "
+				+ "u.vpn_id, IFNULL(ub.users_block_id,0) as user_blo_null "
+				+ "FROM "+TABLE_NAME+" u "
+				+ "LEFT JOIN users_block ub ON ub.users_id = u.users_id AND ub.active = 1 "
+				+ "WHERE u.email = '"+getEmail()+"' OR u.username= '"+getUsername()+"';";
 		try (Connection conexion = conn.conectar();
 				Statement st = conexion.createStatement();
 				ResultSet rs = st.executeQuery(query);){
 			while (rs.next() ) {
                user = new User();
-               user.setUsers_id(rs.getInt("us.users_id"));
-               user.setUsername(rs.getString("us.username"));
-               user.setPassword(rs.getString("us.password"));
-               user.setVpn_id(rs.getInt("us.vpn_id"));
-               user.setEmail(rs.getString("us.email"));
-               user.setActive(rs.getBoolean("us.active"));
+               user.setUsers_id(rs.getInt("u.users_id"));
+               user.setUsername(rs.getString("u.username"));
+               user.setPassword(rs.getString("u.password"));
+               user.setVpn_id(rs.getInt("u.vpn_id"));
+               user.setEmail(rs.getString("u.email"));
+               user.setActive(rs.getBoolean("u.active"));
+               user.setCreator(rs.getString("u.creator"));
+               boolean block = rs.getInt("user_blo_null")  == 0 ? false : true; 
+               user.setBlock(block);
 			}
 			
 		}catch(Exception e) {
@@ -115,7 +123,7 @@ public class User implements Model{
 		
 	}
 	
-	public void insert() {
+	public void insert() throws SQLException{
 		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
@@ -153,7 +161,7 @@ public class User implements Model{
 	public void update() throws SQLException {
 		date = new Date();
 		setUpdated_at(dateFormat.format(date));
-		String query = "UPDATE "+TABLE_NAME+" SET username = ?, email = ?, password = ?, active = ?, isTrash = ?, vpn_id = ?, updated_at = ? "
+		String query = "UPDATE "+TABLE_NAME+" SET username = ?, email = ?, password = ?, active = ?, vpn_id = ?, updated_at = ? "
 				+ "WHERE users_id = ?";
 		try(Connection conexion = conn.conectar();
 				PreparedStatement pre = conexion.prepareStatement(query);){
@@ -161,9 +169,9 @@ public class User implements Model{
 			pre.setString(2, getEmail());
 			pre.setString(3, getPassword());
 			pre.setBoolean(4, isActive());
-			pre.setInt(6, getVpn_id());
-			pre.setString(7, getUpdated_at());
-			pre.setInt(8, getUsers_id());
+			pre.setInt(5, getVpn_id());
+			pre.setString(6, getUpdated_at());
+			pre.setInt(7, getUsers_id());
 			
 			pre.executeUpdate();
 		}catch (SQLException e) {
@@ -405,6 +413,14 @@ public class User implements Model{
 
 	public void setActive(boolean activo) {
 		this.active = activo;
+	}
+
+	public boolean isBlock() {
+		return isBlock;
+	}
+
+	public void setBlock(boolean isBlock) {
+		this.isBlock = isBlock;
 	}
 	
 	

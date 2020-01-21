@@ -18,6 +18,7 @@ import java.awt.Font;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -80,12 +81,18 @@ public class RegistrarGenero extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				String generoTextField = textField.getText();
 				if(generoTextField.equals("")) {
-					JOptionPane.showMessageDialog(null, "El campo de genero no debe estar vacio ");
+					JOptionPane.showMessageDialog(null, "El campo de genero no debe estar vacio");
 				}else {
 					btnRegistrar.setEnabled(false);
 					Genere gene = new Genere();
 					gene.setName(generoTextField.trim());
-					gene.setCategories_id(comboBox.getSelectedIndex()+1);
+					Categorie cate = new Categorie();
+					
+					try {
+						gene.setCategories_id(cate.getIdCategories((String)comboBox.getSelectedItem()));
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 					if(textArea.getText().isEmpty()) {
 						gene.setFan_page(null);
 					}else {

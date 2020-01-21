@@ -15,6 +15,7 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JScrollPane;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JComboBox;
@@ -43,6 +44,7 @@ public class UpdateUsers extends JFrame {
 	private Categorie cate = new Categorie();
 	private List<JCheckBox> listCheck;
 	private List<String> listUsersSelected = new ArrayList<String>();
+	private HashMap<String, Integer> list;
 	/**
 	 * Launch the application.
 	 */
@@ -70,9 +72,9 @@ public class UpdateUsers extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		
-		List<String> list = cate.getAllActive();
-		for(String st : list) comboBox.addItem(st);
-		for(String sta : list) comboBox_1.addItem(sta);
+		list = cate.getComboBox();
+		for(String st : list.keySet()) comboBox.addItem(st);
+		for(String sta : list.keySet()) comboBox_1.addItem(sta);
 		
 		JLabel lblNewLabel = new JLabel("Cambio de Categoria");
 		
@@ -94,7 +96,7 @@ public class UpdateUsers extends JFrame {
 						User us = new User();
 						us.setUsername(l);
 						User_Categorie usc = new User_Categorie();
-						usc.setCategories_id(comboBox_1.getSelectedIndex()+1);
+						usc.setCategories_id(Integer.parseInt(list.get(comboBox_1.getSelectedItem().toString()).toString()));
 						usc.setUsers_id(us.getIdUser());
 						try {
 							usc.updateCategories();
@@ -157,7 +159,7 @@ public class UpdateUsers extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				panel.removeAll();
 				panel.updateUI();
-				int idCategoria = comboBox.getSelectedIndex() +1 ;
+				int idCategoria = Integer.parseInt(list.get(comboBox.getSelectedItem().toString()).toString()) ;
 				User us = new User();
 				us.setCategories_id(idCategoria);
 				try {

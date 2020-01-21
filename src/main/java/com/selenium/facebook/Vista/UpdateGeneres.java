@@ -93,7 +93,7 @@ public class UpdateGeneres {
 				comboBox_Genero.removeAllItems();
 				Genere gene = new Genere();
 				gene.setCategories_id(Integer.parseInt(hashCampana.get(comboBox_Campana.getSelectedItem().toString()).toString()));
-				hashGenere = gene.getGeneresForCategorieActive();
+				hashGenere = gene.getGeneresActiveForCategorie();
 				for(String string : hashGenere.keySet()) comboBox_Genero.addItem(string);
 			}
 		});
@@ -177,9 +177,9 @@ public class UpdateGeneres {
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addComponent(lblNewLabel)
 						.addComponent(lblNewLabel_2)
-						.addComponent(label, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblNewLabel_3))
-					.addGap(33)
+						.addComponent(lblNewLabel_3)
+						.addComponent(label, GroupLayout.PREFERRED_SIZE, 60, GroupLayout.PREFERRED_SIZE))
+					.addGap(18)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addComponent(fanpage, GroupLayout.PREFERRED_SIZE, 265, GroupLayout.PREFERRED_SIZE)
 						.addGroup(groupLayout.createSequentialGroup()
@@ -234,21 +234,22 @@ public class UpdateGeneres {
 		frmActualizarCampaa.getContentPane().setLayout(groupLayout);
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				gene = new Genere();
-				gene.setGeneres_id(Integer.parseInt(hashGenere.get(comboBox_Genero.getSelectedItem().toString()).toString()));
-				gene = gene.getGenere();
 				
-				if(gene == null) {
-					JOptionPane.showMessageDialog(null, "Debe seleccionar un genero");
+				
+				if(comboBox_Genero.getSelectedItem() == null) {
+					JOptionPane.showMessageDialog(null, "Debe seleccionar un genero ");
 				}else {
+					gene = new Genere();
+					gene.setGeneres_id(Integer.parseInt(hashGenere.get(comboBox_Genero.getSelectedItem().toString()).toString()));
+					gene = gene.getGenere();
 					genero_Text.setEditable(true);
 					genero_Text.setEnabled(true);
 					genero_Text.setText(gene.getName());
-					for(String s : hashCampana.keySet()) comboBox_Campana.addItem(s);
-					comboBox_CampanaChange.setEditable(true);
+					comboBox_CampanaChange.removeAllItems();
+					for(String s : hashCampana.keySet()) comboBox_CampanaChange.addItem(s);
 					comboBox_CampanaChange.setEnabled(true);
 					for(Entry<String, Integer> entry : hashCampana.entrySet()) 
-						if(entry.getValue() == gene.getCategories_id()) comboBox_CampanaChange.addItem(entry.getKey());;
+						if(entry.getValue() == gene.getCategories_id()) comboBox_CampanaChange.setSelectedItem(entry.getKey());;
 					fanpage.setEditable(true);
 					fanpage.setEnabled(true);
 					fanpage.setText(gene.getFan_page());

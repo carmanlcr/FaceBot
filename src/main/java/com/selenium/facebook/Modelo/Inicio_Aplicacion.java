@@ -14,20 +14,27 @@ public class Inicio_Aplicacion implements Model{
 	
 	private final String TABLE_NAME = "inicio_aplicacion";
 	private String created_at;
+	private String updated_at;
 	private String version;
+	private int categories_id;
+	private int generes_id;
 	private static Conexion conn = new Conexion();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	public void insert() {
-		
+		date = new Date();
 		setCreated_at(dateFormat.format(date));
+		setUpdated_at(dateFormat.format(date));
 		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(version,created_at) "
-					+ " VALUE (?,?);";
+			String insert = "INSERT INTO "+TABLE_NAME+"(version,created_at,updated_at,categories_id,generes_id) "
+					+ " VALUE (?,?,?,?,?);";
 			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
 			exe.setString(1, getVersion());
 			exe.setString(2, getCreated_at());
+			exe.setString(3, getUpdated_at());
+			exe.setInt(4, getCategories_id());
+			exe.setInt(5, getGeneres_id());
 			exe.executeUpdate();
 		}catch(SQLException e) {
 			System.err.println(e);
@@ -54,5 +61,29 @@ public class Inicio_Aplicacion implements Model{
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
+	}
+
+	public int getCategories_id() {
+		return categories_id;
+	}
+
+	public void setCategories_id(int categories_id) {
+		this.categories_id = categories_id;
+	}
+
+	public int getGeneres_id() {
+		return generes_id;
+	}
+
+	public void setGeneres_id(int generes_id) {
+		this.generes_id = generes_id;
 	}
 }

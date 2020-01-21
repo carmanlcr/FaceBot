@@ -66,7 +66,7 @@ public class User_Block extends User implements Model{
 	
 	public boolean desblockUser(String username) {
 		String query = "UPDATE "+TABLE_NAME+" SET active = ?, updated_at = ?  WHERE users_id = ? ";
-		
+		date = new Date();
 		setUpdated_at(dateFormatDateTime.format(date));
 		User user = new User();
 		user.setUsername(username);

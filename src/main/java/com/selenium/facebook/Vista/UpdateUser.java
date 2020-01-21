@@ -11,15 +11,17 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.LayoutStyle.ComponentPlacement;
 
 import com.selenium.facebook.Modelo.User;
+import com.selenium.facebook.Modelo.User_Block;
 import com.selenium.facebook.Modelo.Vpn;
 
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.awt.event.ActionEvent;
 
 public class UpdateUser {
@@ -62,7 +64,7 @@ public class UpdateUser {
 		frmActualizarUsuario = new JFrame();
 		frmActualizarUsuario.setTitle("Actualizar Usuario");
 		frmActualizarUsuario.setResizable(false);
-		frmActualizarUsuario.setBounds(100, 100, 395, 477);
+		frmActualizarUsuario.setBounds(100, 100, 418, 522);
 		
 		JLabel lblNewLabel = new JLabel("Usuario o Email");
 		
@@ -94,9 +96,11 @@ public class UpdateUser {
 		JLabel lblActivo = new JLabel("Activo");
 		
 		final JCheckBox activo = new JCheckBox("");
+		activo.setEnabled(false);
 		
 		JLabel lblVpn = new JLabel("Vpn");
-		
+		final JCheckBox block = new JCheckBox("");
+		block.setEnabled(false);
 		
 		vpn.setEnabled(false);
 		
@@ -113,8 +117,13 @@ public class UpdateUser {
 					User us = new User();
 					us.setUsername(usuario);
 					us.setEmail(usuario);
+					
 					try {
 						us = us.getUser();
+					} catch (SQLException e1) {
+						System.err.println(e1);
+					}
+					if(us != null) {
 						users_id = us.getUsers_id();
 						username.setText(us.getUsername());
 						username.setEditable(true);
@@ -125,9 +134,11 @@ public class UpdateUser {
 						password.setText(us.getPassword());
 						password.setEditable(true);
 						password.setEnabled(true);
+						activo.setEnabled(true);
 						if(us.isActive()) activo.setSelected(true);
 						vpn.setEnabled(true);
-						for(String st: mapVpn.keySet()) {
+						SortedSet<String> keys = new TreeSet<>(mapVpn.keySet());
+						for(String st: keys) {
 							vpn.addItem(st);
 						}
 						for(Entry<String, Integer> in : mapVpn.entrySet()) {
@@ -135,10 +146,13 @@ public class UpdateUser {
 								vpn.setSelectedItem(in.getKey());
 							}
 						}
+						block.setEnabled(true);
+						block.setSelected(us.isBlock());
 						btnNewButton.setEnabled(true);
-					} catch (SQLException e) {
-						e.printStackTrace();
+					}else {
+						JOptionPane.showMessageDialog(null, "Este usuario o correo no se encuentra en la base de datos");
 					}
+						
 				}
 			}
 		});
@@ -164,9 +178,12 @@ public class UpdateUser {
 					us.setEmail(email.getText());
 					us.setActive(active);
 					us.setVpn_id(vpn_id);
-					
 					try {
 						us.update();
+						if(!block.isSelected()) {
+							User_Block usB = new User_Block();
+							usB.desblockUser(username.getText());
+						}
 						email.setText("");
 						email.setEditable(false);
 						email.setEnabled(false);
@@ -178,6 +195,9 @@ public class UpdateUser {
 						password.setEnabled(false);
 						users_id = 0;
 						activo.setSelected(false);
+						activo.setEnabled(false);
+						block.setSelected(false);
+						block.setEnabled(false);
 						vpn.removeAllItems();
 						vpn.setEnabled(false);
 						btnNewButton.setEnabled(false);
@@ -190,6 +210,10 @@ public class UpdateUser {
 				
 			}
 		});
+		
+		JLabel lblBloqueado = new JLabel("Bloqueado");
+		
+		
 		GroupLayout groupLayout = new GroupLayout(frmActualizarUsuario.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -201,37 +225,38 @@ public class UpdateUser {
 						.addGroup(groupLayout.createSequentialGroup()
 							.addGap(30)
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-								.addGroup(groupLayout.createSequentialGroup()
-									.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE)
-									.addGap(62)
-									.addComponent(searchUser, GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE))
-								.addGroup(groupLayout.createSequentialGroup()
+								.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING, false)
 										.addComponent(lblNewLabel_1, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
 										.addComponent(lblActivo, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE)
 										.addComponent(lblContrasea, GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
-										.addComponent(lblUsername, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(lblVpn, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE))
-									.addPreferredGap(ComponentPlacement.RELATED)
-									.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+										.addComponent(lblUsername, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+									.addComponent(lblVpn, GroupLayout.PREFERRED_SIZE, 58, GroupLayout.PREFERRED_SIZE)
+									.addComponent(lblBloqueado, GroupLayout.DEFAULT_SIZE, 93, Short.MAX_VALUE))
+								.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 87, GroupLayout.PREFERRED_SIZE))
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+									.addGroup(groupLayout.createSequentialGroup()
+										.addGap(25)
+										.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+											.addComponent(searchUser, GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE)
+											.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+												.addComponent(username, GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+												.addComponent(password, GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+												.addComponent(email, GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))))
+									.addGroup(groupLayout.createSequentialGroup()
+										.addGap(61)
 										.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-											.addGroup(groupLayout.createSequentialGroup()
-												.addGap(86)
-												.addComponent(activo))
-											.addGroup(groupLayout.createSequentialGroup()
-												.addGap(47)
-												.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-													.addComponent(username, GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
-													.addComponent(email, GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
-													.addComponent(password, GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE))))
-										.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-											.addComponent(vpn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-											.addGap(78)))))))
-					.addGap(67))
+											.addComponent(block, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+											.addComponent(activo))))
+								.addGroup(groupLayout.createSequentialGroup()
+									.addGap(69)
+									.addComponent(vpn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))))
+					.addGap(45))
 				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
-					.addContainerGap(156, Short.MAX_VALUE)
+					.addContainerGap(181, Short.MAX_VALUE)
 					.addComponent(btnNewButton)
-					.addGap(154))
+					.addGap(152))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -256,15 +281,24 @@ public class UpdateUser {
 						.addComponent(password, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(32)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(lblActivo)
-						.addComponent(activo, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
-					.addGap(28)
-					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblVpn)
-						.addComponent(vpn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(39)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(lblActivo)
+							.addGap(27)
+							.addComponent(lblBloqueado))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(activo, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addComponent(block, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)))
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(20)
+							.addComponent(lblVpn))
+						.addGroup(groupLayout.createSequentialGroup()
+							.addGap(18)
+							.addComponent(vpn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+					.addGap(48)
 					.addComponent(btnNewButton)
-					.addGap(67))
+					.addGap(36))
 		);
 		frmActualizarUsuario.getContentPane().setLayout(groupLayout);
 	}
