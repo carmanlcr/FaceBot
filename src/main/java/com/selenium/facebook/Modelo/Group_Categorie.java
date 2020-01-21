@@ -54,6 +54,28 @@ public class Group_Categorie implements Model {
 		return groCa;
 	}
 	
+	public Group_Categorie getGroupSearchRandom() {
+		Group_Categorie groCa = null;
+		String query = "SELECT * FROM "+TABLE_NAME+" ORDER BY RAND() LIMIT 1;";
+		
+		try (Connection conexion = conn.conectar();){
+			PreparedStatement  queryE = (PreparedStatement) conexion.prepareStatement(query);
+			
+			rs = queryE.executeQuery();
+			
+			if(rs.next()) {
+				groCa = new Group_Categorie();
+				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
+				groCa.setName(rs.getString("name"));
+				groCa.setCreated_at(rs.getString("created_at"));
+				groCa.setCategories_id(rs.getInt("categories_id"));
+			}
+		}catch(SQLException e) {
+			e.getStackTrace();
+		}
+		return groCa;
+	}
+	
 	public List<Group_Categorie> getGroupCategorie() {
 		List<Group_Categorie> listC = new ArrayList<Group_Categorie>();
 		Group_Categorie groCa = null;
