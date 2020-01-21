@@ -21,11 +21,13 @@ public class Post implements Model{
 	private int posts_id;
 	private int users_id;
 	private int categories_id;
+	private int tasks_model_id;
+	private int tasks_grid_id;
 	private String link_post;
 	private boolean isFanPage;
-	private String created_at; 
+	private String created_at;
+	private String updated_at; 
 	private String groups;
-	private int tasks_model_id;
 	private Calendar c = Calendar.getInstance();
 	private Date date;
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
@@ -38,18 +40,20 @@ public class Post implements Model{
 	public void insert() {
 		date = new Date();
 		setCreated_at(dateFormat.format(date));
-		
+		setUpdated_at(dateFormat.format(date));
 		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,link_post,isFanPage,groups,created_at) "
-					+ " VALUE (?,?,?,?,?,?,?);";
+			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,tasks_grid_id,link_post,isFanPage,groups,created_at,updated_at) "
+					+ " VALUE (?,?,?,?,?,?,?,?,?);";
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
 			query.setInt(1, getUsers_id());
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getTasks_model_id());
-			query.setString(4, getLink_post());
-			query.setBoolean(5, isFanPage());
-			query.setString(6, getGroups());
-			query.setString(7, getCreated_at());
+			query.setInt(4, getTasks_grid_id());
+			query.setString(5, getLink_post());
+			query.setBoolean(6, isFanPage());
+			query.setString(7, getGroups());
+			query.setString(8, getCreated_at());
+			query.setString(9, getUpdated_at());
 			query.executeUpdate();
 			
 		}catch(SQLException e) {
@@ -222,6 +226,14 @@ public class Post implements Model{
 		this.created_at = created;
 	}
 
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
+	}
+
 	public int getUsers_id() {
 		return users_id;
 	}
@@ -236,6 +248,14 @@ public class Post implements Model{
 
 	public void setTasks_model_id(int tasks_model_id) {
 		this.tasks_model_id = tasks_model_id;
+	}
+
+	public int getTasks_grid_id() {
+		return tasks_grid_id;
+	}
+
+	public void setTasks_grid_id(int tasks_grid_id) {
+		this.tasks_grid_id = tasks_grid_id;
 	}
 
 	public String getLink_post() {
