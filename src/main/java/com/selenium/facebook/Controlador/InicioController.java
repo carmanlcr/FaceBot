@@ -7,13 +7,11 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import org.openqa.selenium.ElementClickInterceptedException;
 
@@ -24,134 +22,154 @@ import com.selenium.facebook.Controlador.RobotController;
 
 public class InicioController {
 	private final String PAGE = "https://mbasic.facebook.com/";
+	protected final static String PATH_IMAGE_DOWNLOAD_FTP = "C:\\imagesSftp\\";
 	private static DriverController drive;
 	private static User users;
 	private static RobotController robot;
 	private static VpnController vpn;
-	private List<JCheckBox> usuarios;
-	private List<JTextArea> pieDeFoto = new ArrayList<JTextArea>();
-	private List<List<String>> checkBoxHashTag = new ArrayList<List<String>>();
-	private List<JComboBox<String>> comboBoxGenere = new ArrayList<JComboBox<String>>();
-	private List<JTextField> listUsers = new ArrayList<JTextField>();
+	private List<String> listCheckBoxUsers = new ArrayList<String>();
 	private int categoria_id;
 	private int idUser;
+	private int tasks_grid_id;
+	private String phrase;
+	private String image;
 	private static int idGenere;
 	private static int ini = 0;
 	private int count = 0;
+	private int quantity_min;
 	private boolean banderaVpn = false;
 	private boolean banderaBlockeo = true;
+	private boolean isFanPage;
+	private boolean isGroups;
 	private Post po = new Post();
+	private Date date = new Date();
+	private SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	public InicioController(int categoria_id, List<JCheckBox> listCheckBoxUsersSend, List<JTextArea> listTextARea,
-			List<List<String>> listChechBoxSelected, List<JTextField> listTextFieldUser,
-			List<JComboBox<String>> listJComboBoxGenere) {
+	public InicioController(int categoria_id, List<String> listCheckBoxUsers) {
+		this.listCheckBoxUsers = listCheckBoxUsers;
 		this.categoria_id = categoria_id;
-		this.usuarios = listCheckBoxUsersSend;
-		this.pieDeFoto = listTextARea;
-		this.checkBoxHashTag = listChechBoxSelected;
-		this.listUsers = listTextFieldUser;
-		this.comboBoxGenere = listJComboBoxGenere;
 	}
 
-	public void init() throws InterruptedException, AWTException, SQLException, IOException {
-		count = comboBoxGenere.size() - 1;
+	public void init() throws InterruptedException, AWTException, SQLException, IOException, ParseException {
+		count = listCheckBoxUsers.size() -1;
 		int usuariosAProcesar = 0;
-		for (JCheckBox jCheckBox : usuarios) {
-			usuariosAProcesar++;
-			users = new User();
-			users.setUsername(jCheckBox.getText());
-			users.setEmail(jCheckBox.getText());
-			users = users.getUser();
-			idUser = users.getUsers_id();
-			po.setUsers_id(idUser);
-			
-			
-			String generes = (String) comboBoxGenere.get(ini).getSelectedItem();
-			Genere gene = new Genere();
-			gene.setName(generes);
-			idGenere = gene.getIdGenere();
-			
-			int idlistTask = po.getLastsTasktPublic();
-			
-			if(idlistTask == 0) {
-				System.out.println("El usuario no tiene mas tareas por publicar");
-			}else if(po.getCountPostUser() >= 9) {
-				System.out.println("El usuario ya hizo las dos publicaciones del día");
-			}else {
-				String ip = validateIP();
-				robot = new RobotController();
-				vpn = new VpnController(robot);
-				Vpn v = new Vpn();
-				v.setVpn_id(users.getVpn_id());
-				v = v.getVpn();
-				vpn.iniciarVpn(v.getName(), banderaVpn);
-				String ipActual = validateIP();
-				
-				System.out.println(usuariosAProcesar + " usuario(s) de " + usuarios.size() + " usuario(s)");
-				// Valida si la vpn conecto
-				if (ip.equals(ipActual)) {
-					System.err.println("El usuario " + users.getUsername() + " no se puedo conectar a la vpn");
-				} else {
-					// Setear valores a google Chrome
-					drive = new DriverController();
-					drive.optionsChrome();
-					System.out.println("*********************" + users.getUsername() + "***********************");
-					IniciaSesion sesion = new IniciaSesion(drive, users.getUsername(), users.getPassword());
-					sesion.init();
-
-					// Esperar que cargue la pagina para que cargue el dom completamente
-					Thread.sleep(getNumberRandomForSecond(5250, 5650));
-
+		Task_Grid taskG = new Task_Grid();
+		taskG.setCategories_id(this.categoria_id);
+		List<Task_Grid> listTask = taskG.getTaskGridToday();
+		if(listTask.size() < 1) {
+			JOptionPane.showMessageDialog(null, "Ya no quedan tareas para hoy");
+		}else {
+			for (String list : listCheckBoxUsers) {
+				usuariosAProcesar++;
+				users = new User();
+				users.setUsername(list);
+				users.setEmail(list);
+				users = users.getUser();
+				if(!users.isBlock()) {
+					idUser = users.getUsers_id();
+					po.setUsers_id(idUser);
+					taskG = taskG.getTaskForUser(idUser);
 					
-
-					if (!validateBlockOUserIncorrect()) {
-						if (drive.searchElement(1, "/html/body/div/div/div/div/table/tbody/tr/td/div/div[3]/a") != 0) {
-							drive.clickButton(1, "/html/body/div/div/div/div/table/tbody/tr/td/div/div[3]/a","Ahora no");
-						}
-
-						if (drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div/div[3]/a") != 0) {
-							drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div/div[3]/a","Ahora no");
+					if(taskG != null) {
+						String dateCu = simpleFormat.format(date);
+						while(dateCu.compareTo(taskG.getDate_publication()) < 0) {
+							Thread.sleep(5000);
+							date = new Date();
+							dateCu = simpleFormat.format(date);
 						}
 						
-						if(drive.searchElement(1, "/html/body/div/div/div/div/div[1]/table/tbody/tr/td[2]/table/tbody/tr/td/h3/a") != 0
-						  || drive.searchElement(1, "//h3[text()[contains(.,'Siguiente')]]") != 0
-						  || drive.searchElement(1, "//a[text()[contains(.,'Siguiente')]]") != 0
-						  || drive.searchElement(1, "//*[text()[contains(.,'Siguiente')]]") != 0) {
+						
+						idGenere = taskG.getGeneres_id();
+						phrase = taskG.getPhrase();
+						image = taskG.getImage();
+						isFanPage = taskG.isFanPage();
+						isGroups = taskG.isGroups();
+						quantity_min = taskG.getQuantity_min();
+						tasks_grid_id = taskG.getTasks_grid_id();
+						
+						int idlistTask = po.getLastsTasktPublic();
+						
+						if(idlistTask == 0) {
+							System.out.println("El usuario no tiene mas tareas por publicar");
+						}else {
+							String ip = validateIP();
+							robot = new RobotController();
+							vpn = new VpnController(robot);
+							Vpn v = new Vpn();
+							v.setVpn_id(users.getVpn_id());
+							v = v.getVpn();
+							vpn.iniciarVpn(v.getName(), banderaVpn);
+							String ipActual = validateIP();
 							
-							System.out.println("El usuario pide agregar a otros usuarios, saltar");
-							try {
-								drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "Siguiente");
-							}catch(ElementClickInterceptedException e) {
-								System.out.println("No se puede hacer click en el elemento Siguiente xPath");
-								try {
-									drive.clickButton(1, "html/body/div/div/div/div/div[1]/table/tbody/tr/td[3]/a", "Siguiente elemento a");
-									drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "");
-								}catch(ElementClickInterceptedException ex) {
-									System.out.println("No se puede hacer click en el elemento Siguiente elemento a");	
-									try {
-										drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "Siguiente elemento a");
-									}catch(ElementClickInterceptedException ea) {
-										System.out.println("No se puede hacer click en el elemento Siguiente elemento general");	
+							System.out.println(usuariosAProcesar + " usuario(s) de " + listTask.size() + " usuario(s)");
+							// Valida si la vpn conecto
+							if (ip.equals(ipActual)) {
+								System.err.println("El usuario " + users.getUsername() + " no se puedo conectar a la vpn");
+							} else {
+								// Setear valores a google Chrome
+								drive = new DriverController();
+								drive.optionsChrome();
+								System.out.println("*********************" + users.getUsername() + "***********************");
+								IniciaSesion sesion = new IniciaSesion(drive, users.getUsername(), users.getPassword());
+								sesion.init();
+
+								// Esperar que cargue la pagina para que cargue el dom completamente
+								Thread.sleep(getNumberRandomForSecond(5250, 5650));
+
+								
+
+								if (!validateBlockOUserIncorrect()) {
+									if (drive.searchElement(1, "/html/body/div/div/div/div/table/tbody/tr/td/div/div[3]/a") != 0) {
+										drive.clickButton(1, "/html/body/div/div/div/div/table/tbody/tr/td/div/div[3]/a","Ahora no");
 									}
+
+									if (drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div/div[3]/a") != 0) {
+										drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div/div[3]/a","Ahora no");
+									}
+									
+									if(drive.searchElement(1, "/html/body/div/div/div/div/div[1]/table/tbody/tr/td[2]/table/tbody/tr/td/h3/a") != 0
+									  || drive.searchElement(1, "//h3[text()[contains(.,'Siguiente')]]") != 0
+									  || drive.searchElement(1, "//a[text()[contains(.,'Siguiente')]]") != 0
+									  || drive.searchElement(1, "//*[text()[contains(.,'Siguiente')]]") != 0) {
+										
+										System.out.println("El usuario pide agregar a otros usuarios, saltar");
+										try {
+											drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "Siguiente");
+										}catch(ElementClickInterceptedException e) {
+											System.out.println("No se puede hacer click en el elemento Siguiente xPath");
+											try {
+												drive.clickButton(1, "html/body/div/div/div/div/div[1]/table/tbody/tr/td[3]/a", "Siguiente elemento a");
+												drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "");
+											}catch(ElementClickInterceptedException ex) {
+												System.out.println("No se puede hacer click en el elemento Siguiente elemento a");	
+												try {
+													drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "Siguiente elemento a");
+												}catch(ElementClickInterceptedException ea) {
+													System.out.println("No se puede hacer click en el elemento Siguiente elemento general");	
+												}
+											}
+										}
+									}
+									startProgram(idlistTask);
 								}
+
+							} // fin del else
+
+							// Desconectar la vpn para el siguiente usuario
+							if (drive != null) {
+								drive.quit();
 							}
-						}
-						startProgram(idlistTask);
-					}
+							vpn.desconectVpn();
+							banderaVpn = true;
+							Thread.sleep(getNumberRandomForSecond(1999, 2125));
 
-				} // fin del else
-
-				// Desconectar la vpn para el siguiente usuario
-				if (drive != null) {
-					drive.quit();
-				}
-				vpn.desconectVpn();
-				banderaVpn = true;
-				Thread.sleep(getNumberRandomForSecond(1999, 2125));
-
-			} // Fin del for
-			
+							}//El usuario tiene tareas por hacer
+					}//Si el usuario tienes tarea por publicar
+				}//Fin del if si el usuario no esta bloqueado
+				
 			}
+		}
+		
 		System.out.println("Finalizo con exito el programa");
 		System.exit(1);
 			
@@ -284,12 +302,7 @@ public class InicioController {
 				// Ingresar en la seccion de grupos
 				if(categoria_id != 3) {
 					Genere gene = new Genere();
-					gene.setGeneres_id(idGenere);
-					gene = gene.getGenereWithPhrasesPhotosHashtag();
-					//Si el genero seleccionado no tiene frase o foto o hashtag 
-					//Solo debe publicar desde la fan page
-					if(gene == null) {
-						System.out.println("SOLO PUBLICAR EN FAN PAGE");
+					if(isFanPage) {
 						System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
 						gene = new Genere();
 						gene.setGeneres_id(idGenere);
@@ -300,19 +313,9 @@ public class InicioController {
 						}else {
 							System.out.println("El genero seleccionado no tiene fan page");
 						}
-						
-					}else {
-						//Si el genero tiene frase, foto y hashtag validar si tiene fan page
-						gene = new Genere();
-						gene.setGeneres_id(idGenere);
-						gene = gene.getFanPage();
-						//Si el genero tiene fan page ingresar en la fan page y publicar
-						if(gene != null) {
-							System.out.println("INGRESAR EN FAN PAGE Y COMPARTIR");
-							goFanPage(gene.getFan_page());
-							publicGroup(gene,taskModelId);
-						}
-						gene = new Genere();
+					}
+					
+					if(isGroups) {
 						gene.setGeneres_id(idGenere);
 						gene = gene.getGenere();
 						//Si el genero esta clasificado como basura ingresar entre 9 y 14 
@@ -321,11 +324,11 @@ public class InicioController {
 							System.out.println("PUBLICAR EN GRUPOS RANDOM");
 							publicGroupTrash(listTask_id);
 						}else {
-							
 							System.out.println("PUBLICAR EN GRUPOS SEGUN CATEGORIA");
 							publicGroupPublicity(taskModelId);
 						}
 					}
+					
 				}
 				break;
 			case 5:
@@ -368,24 +371,20 @@ public class InicioController {
 
 	}
 
-	private String uploadImageFinal() throws InterruptedException, SQLException {
+	private void uploadImageFinal() throws InterruptedException, SQLException {
 
 		System.out.println("Darle click a la opción de fotos");
-		String hashTag = "";
 		if (drive.searchElement(2, "view_photo") != 0) {
 			drive.clickButton(2, "view_photo","view_photo para subir foto");
-			hashTag = publicIfExistElementFoto();
-			return hashTag;
+			publicIfExistElementFoto();
 		} else if (drive.searchElement(1, "//*[text()[contains(.,'Foto')]]") != 0) {
 			drive.clickButton(2, "//*[text()[contains(.,'Foto')]]","Subir foto");
-			hashTag = publicIfExistElementFoto();
-			return hashTag;
+			publicIfExistElementFoto();
 		}else {
 			System.out.println("No se puede publicar en este grupo");
 			
 		}
 		
-		return hashTag;
 	}
 	
 	private String getIdGroup() {
@@ -433,40 +432,24 @@ public class InicioController {
 						drive.goPage(urlGroup);
 						Thread.sleep(getNumberRandomForSecond(2456, 3478));
 					}
-					String hash = uploadImageFinal();
-					ini++;
-					if (ini >= count) {
-						ini = 0;
-					}
-					if(!hash.isEmpty()) {
-						String[] ha = hash.split(" ");
-						System.out.println("Registrando post");
-						
-						po.setCategories_id(categoria_id);
-						po.setTasks_model_id(listTask_id);
-						po.setUsers_id(idUser);
-						po.setGroups(idGroups);
-						po.setFanPage(false);
-						po.insert();
+					uploadImageFinal();
+					System.out.println("Registrando post");
+					
+					po.setCategories_id(categoria_id);
+					po.setTasks_model_id(listTask_id);
+					po.setTasks_grid_id(tasks_grid_id);
+					po.setUsers_id(idUser);
+					po.setGroups(idGroups);
+					po.setFanPage(false);
+					po.insert();
 
-						Post_Detail poDe = new Post_Detail();
-						poDe.setPosts_id(po.getLast());
-						HashTag ht = new HashTag();
-						ht.setCategories_id(categoria_id);
-						ht.setGeneres_id(idGenere);
-						System.out.println("Registrando HashTag");
-						for (int j = 0; j < ha.length; j++) {
-
-							ht.setName(ha[j]);
-
-							poDe.setHashtag_id(ht.getIdCategorieHashTag());
-
-							poDe.insert();
-						}
+					Post_Detail poDe = new Post_Detail();
+					poDe.setPosts_id(po.getLast());
+					HashTag ht = new HashTag();
+					ht.setCategories_id(categoria_id);
+					ht.setGeneres_id(idGenere);
+					System.out.println("Registrando HashTag");
 						System.out.println("El usuario publico correctamente");
-					}else {
-						System.out.println("El usuario no publico");
-					}//Fin del if para validar si se publicaron hashtag
 				}
 			}
 		}
@@ -545,13 +528,12 @@ public class InicioController {
 		return false;
 	}
 	
-	private String publicIfExistElementFoto() throws InterruptedException, SQLException {
-		Thread.sleep(getNumberRandom(2562, 4979));
-		Path_Photo pa_ph = new Path_Photo();
-		pa_ph.setCategories_id(categoria_id);
-		pa_ph.setGeneres_id(idGenere);
+	private void publicIfExistElementFoto() throws InterruptedException, SQLException {
+		Thread.sleep(getNumberRandom(2562, 3279));
 		System.out.println("Extraer el path de la foto");
-		String path = pa_ph.getPathPhotos();
+		SftpController sftp = new SftpController();
+		sftp.downloadFileSftp(image);
+		String path = PATH_IMAGE_DOWNLOAD_FTP+image;
 		System.out.println("Colocar el path de la foto en el file");
 		drive.inputWriteFile(2, "file1", path);
 		Thread.sleep(getNumberRandomForSecond(1201, 1899));
@@ -559,35 +541,10 @@ public class InicioController {
 		drive.clickButton(2, "add_photo_done","Darle click a siguiente para subir foto");
 
 		// Esperar que aparezca el boton de publicar
-		while (drive.searchElement(2, "view_post") == 0)
-			;
+		while (drive.searchElement(2, "view_post") == 0);
 
-		Phrases ph = new Phrases();
-		ph.setCategories_id(categoria_id);
-		ph.setGeneres_id(idGenere);
-		System.out.println("Extraer frase random");
-		ph = ph.getPhraseRandom();
-		List<String> copia = checkBoxHashTag.get(ini);
-		String hash = "";
-		System.out.println("Elegir HashTag");
-		
-		if (copia.size() > 2) {
-			Collections.shuffle(copia);
-			
-			hash += copia.get(0) +  " ";
-			hash += copia.get(1) +  " ";
-			hash += copia.get(2) +  " ";
-			
-		} else if (copia.size() > 0 && copia.size() < 2) {
-			Collections.shuffle(copia);
-			
-			hash += copia.get(0) +  " ";
-		}
-
-		String pieDe = pieDeFoto.get(ini).getText();
-		String usuario = listUsers.get(ini).getText();
 		System.out.println("Escribir el pie de la foto");
-		drive.inputWrite(2, "xc_message", ph.getPhrase() + " " + pieDe + " " + usuario + " " + hash,150);
+		drive.inputWrite(2, "xc_message", phrase,150);
 
 		Thread.sleep(getNumberRandomForSecond(1250, 2000));
 		System.out.println("Darle a postear imagen");
@@ -618,8 +575,6 @@ public class InicioController {
 		}
 		
 		Thread.sleep(getNumberRandomForSecond(2250, 3100));
-
-		return hash;
 	}
 		
 	private void likeUsers() throws InterruptedException {
@@ -711,11 +666,9 @@ public class InicioController {
 		if(gp != null) {
 			name = gp.getName();
 		}else {
-			name = JOptionPane.showInputDialog("INGRESE LA BUSQUEDA DEL GRUPO Y PULSE ACEPTAR");
-			
-			while(name == null || name.isEmpty()) {
-				name = JOptionPane.showInputDialog("INGRESE LA BUSQUEDA DEL GRUPO Y PULSE ACEPTAR");
-			}
+			gp = new Group_Categorie();
+			gp = gp.getGroupSearchRandom();
+			name = gp.getName();
 		}
 		
 		searchGroup(name);
@@ -754,107 +707,130 @@ public class InicioController {
 
 		} else {
 			System.out.println("Elegir un grupo random");
-			int ramdonGroups = getNumberRandomForSecond(1, quantityGroups);
-			
-				if(drive.searchElement(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+4+"]/table/tbody/tr/td[3]/div/div/table/tbody/tr/td[2]/a") != 0) {
-					System.out.println("Darle click a unirse");
-					drive.clickButton(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+4+"]/table/tbody/tr/td[3]/div/div/table/tbody/tr/td[2]/a", "Unirse xPath "+ramdonGroups);
-					Thread.sleep(getNumberRandomForSecond(1806, 2450));
-					
-					if(drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[1]/span") != 0) {
-						System.out.println("Contando cantidad de preguntas");
-						int quantiQuestion = drive.getQuantityElements(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div");
-						System.out.println("Hay "+quantiQuestion+" pregunta(s)");
-						if(quantiQuestion <2) {
-							String pregunta = drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[1]/span");
-							String preguntaModificada = "";
-							for(int j = 0;j<pregunta.length();j++) {
-								if(pregunta.substring(j, j+1).equals("­")) {
-									preguntaModificada += ""; 
-								}else {
-									preguntaModificada += pregunta.subSequence(j, j+1);
-								}
-							}	
-							Question question = new Question();
-							question.setQuestion(preguntaModificada);
-							String answerB = question.getAnswerQuestion();
-							if(answerB.isEmpty()) {
-								System.out.println("La pregunta no se encuentra en la base de datos, se debe responder manual");
-								String respuesta = JOptionPane.showInputDialog("Ingrese la respuesta para la pregunta 1 y pulse aceptar");
-								
-								while(respuesta == null || respuesta.isEmpty()) respuesta = JOptionPane.showInputDialog("Ingrese la respuesta para la pregunta 1 y pulse aceptar");
-								
-								System.out.println("Se ingresará la respuesta ingresada en el cuadro de texto");
-								drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[2]/div/textarea", respuesta,150);
-								
-								question.setAnswer(respuesta);
-								try {
-									question.insert();
-									System.out.println("Se agrego el usuario y la respuesta a la base de datos");
-								} catch (SQLException e) {
-									e.printStackTrace();
-								}
-							}else {
-								System.out.println("Se ingresará la respuesta ingresada en el cuadro de texto");
-								drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[2]/div/textarea", answerB,150);
-								
-							}
-							System.out.println(preguntaModificada);
-						}else {
-							for(int i = 1; i<= quantiQuestion;i++) {
-								String pregunta = drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div["+i+"]/div[1]/span");
-								String preguntaModificada = "";
-								for(int j = 0;j<pregunta.length();j++) {
-									if(pregunta.substring(j, j+1).equals("­")) {
-										preguntaModificada += ""; 
-									}else {
-										preguntaModificada += pregunta.subSequence(j, j+1);
-									}
-								}	
-								
-								Question question = new Question();
-								question.setQuestion(preguntaModificada);
-								String answerB = question.getAnswerQuestion();
-								if(answerB.isEmpty()) {
-									System.out.println("La pregunta no se encuentra en la base de datos, se debe responder manual");
-									String respuesta = JOptionPane.showInputDialog("Ingrese la respuesta para la pregunta "+i+" y pulse aceptar");
-									
-									while(respuesta == null || respuesta.isEmpty()) respuesta = JOptionPane.showInputDialog("Ingrese la respuesta para la pregunta "+i+" y pulse aceptar");
-									
-									System.out.println("Se ingresará la respuesta ingresada en el cuadro de texto");
-									drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div["+i+"]/div[2]/div/textarea", respuesta,150);
-									
-									question.setAnswer(respuesta);
-									try {
-										question.insert();
-										System.out.println("Se agrego el usuario y la respuesta a la base de datos");
-									} catch (SQLException e) {
-										e.printStackTrace();
-									}
-								}else {
-									System.out.println("Se ingresará la respuesta ingresada en el cuadro de texto");
-									drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div["+i+"]/div[2]/div/textarea", answerB,150);
-									
-								}
-							}	
-							System.out.println("Darle click al boton de enviar solicitud");	
-							drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[4]/input", "Boton de enviar solicitud");
-						}
+			int quantityGroupsAdd = 0;
+			int addGroup = 0;
+			for(int i = 1; i <= quantityGroups; i++) {
+				//Si hay mas resultados en la busqueda de grupos
+				if(i == quantityGroups - 2) {
+					if(drive.searchElement(1,"//*[text()[contains(.,'Ver más resultados')]]") != 0) {
+						pressSeeAll("//*[text()[contains(.,'Ver más resultados')]]");
+						quantityGroups = drive.getQuantityElements(1,"/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div") - 1;
+						i = 1;
+					}else if(drive.searchElement(1, "//*[text()[contains(.,'See all')]]") != 0) {
+						pressSeeAll("//*[text()[contains(.,'See all')]]");
+						quantityGroups = drive.getQuantityElements(1,"/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div") - 1;
+						i = 1;
 					}
-					if(drive.searchElement(1, "html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[1]") != 0) {
-					}else if(drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div/div[1]") != 0) {
-					}else {
-						if(drive.searchElement(1, "//*[text()[contains(.,'Cancelar solicitud')]]")!= 0) {
-							System.out.println("Se unío al grupo: "+drive.getText(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/table/tbody/tr/td[1]/a/table/tbody/tr/td[2]/h1/div"));
-						}else {
-							System.out.println("Se unío al grupo");
-						}
-					}
-					drive.back();
-				}else {
-					System.out.println("No existe el boton unirse en la posición aleatoria");
 				}
 				
+				String urlCurrent = drive.getCurrentUrl();
+				//Si tiene un boton el grupo
+				if(drive.searchElement(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[3]/div/div/table/tbody/tr/td[2]/a") != 0) {
+					//Si dice Cancelar solicitud volver atras
+					if(drive.getText(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[3]/div/div/table/tbody/tr/td[2]/a/span").equals("Cancelar solicitud para unirte")) {
+						
+					}else {
+						drive.clickButton(1, "/html/body/div/div/div[2]/div[2]/div[1]/div[2]/div[1]/div/div/div["+i+"]/table/tbody/tr/td[2]/a", "Entrar a grupo "+i);
+						//Si la cantidad de miembros es mayor o igual a la minima solicitada
+						if(countQuantityMembers(addGroup) >= quantity_min) {
+							//Si existe el boton de Unirse agrupo
+							if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/form/input[3]") != 0) {
+								drive.clickButton(1, "//html/body/div/div/div[2]/div/div[1]/form/input[3]", "Unirse grupo xPath");
+								Thread.sleep(1450);
+								//Si existen preguntas 
+								if(drive.searchElement(1, "//*[text()[contains(.,'Error al agregar el miembro')]]") !=0) {
+									drive.goPage(urlCurrent);
+								}
+								if(drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[1]/span") != 0) {
+									System.out.println("Contando cantidad de preguntas");
+									int quantiQuestion = drive.getQuantityElements(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div");
+									System.out.println("Hay "+quantiQuestion+" pregunta(s)");
+									//Si es solo una pregunta
+									if(quantiQuestion <2) {
+										String pregunta = drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[1]/span");
+										String preguntaModificada = modifyQuestion(pregunta);
+											
+										Question question = new Question();
+										question.setQuestion(preguntaModificada);
+										String answerB = question.getAnswerQuestion();
+										if(answerB.isEmpty()) {
+											System.out.println("La pregunta no se encuentra en la base de datos, se debe responder manual");
+											String respuesta = JOptionPane.showInputDialog("Ingrese la respuesta para la pregunta 1 y pulse aceptar");
+											
+											while(respuesta == null || respuesta.isEmpty()) respuesta = JOptionPane.showInputDialog("Ingrese la respuesta para la pregunta 1 y pulse aceptar");
+											
+											System.out.println("Se ingresará la respuesta ingresada en el cuadro de texto");
+											drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[2]/div/textarea", respuesta,150);
+											
+											question.setAnswer(respuesta);
+											try {
+												question.insert();
+												System.out.println("Se agrego el usuario y la respuesta a la base de datos");
+											} catch (SQLException e) {
+												e.printStackTrace();
+											}
+										}else {
+											System.out.println("Se ingresará la respuesta ingresada en el cuadro de texto");
+											drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div[1]/div[2]/div/textarea", answerB,150);
+											
+										}
+										System.out.println("Darle click al boton de enviar solicitud");	
+										drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[4]/input", "Boton de enviar solicitud");
+										quantityGroupsAdd++;
+									//Si es mas de una pregunta
+									}else {
+										for(int i1 = 1; i1<= quantiQuestion;i1++) {
+											String pregunta = drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div["+i1+"]/div[1]/span");
+											String preguntaModificada = modifyQuestion(pregunta);	
+											
+											Question question = new Question();
+											question.setQuestion(preguntaModificada);
+											String answerB = question.getAnswerQuestion();
+											if(answerB.isEmpty()) {
+												System.out.println("La pregunta no se encuentra en la base de datos, se debe responder manual");
+												String respuesta = JOptionPane.showInputDialog("Ingrese la respuesta para la pregunta "+i1+" y pulse aceptar");
+												
+												while(respuesta == null || respuesta.isEmpty()) respuesta = JOptionPane.showInputDialog("Ingrese la respuesta para la pregunta "+i1+" y pulse aceptar");
+												
+												System.out.println("Se ingresará la respuesta ingresada en el cuadro de texto");
+												drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div["+i1+"]/div[2]/div/textarea", respuesta,150);
+												
+												question.setAnswer(respuesta);
+												try {
+													question.insert();
+													System.out.println("Se agrego el usuario y la respuesta a la base de datos");
+												} catch (SQLException e) {
+													e.printStackTrace();
+												}
+											}else {
+												System.out.println("Se ingresará la respuesta ingresada en el cuadro de texto");
+												drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[3]/div["+i1+"]/div[2]/div/textarea", answerB,150);
+												
+											}
+										}	
+										System.out.println("Darle click al boton de enviar solicitud");	
+										drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[2]/div[4]/input", "Boton de enviar solicitud");
+										quantityGroupsAdd++;
+									}
+								//Si no hay preguntas por responder
+								}else {
+									quantityGroupsAdd++;
+									drive.goPage(urlCurrent);
+								}
+							//Si no existe el boton de unirse a grupo
+							}else {
+								drive.goPage(urlCurrent);
+							}	
+						//Si la cantidad de miembros es menor que la solicitada
+						}else {
+							drive.goPage(urlCurrent);
+						}
+					}
+				}
+				if(quantityGroupsAdd >= 2) {
+					break;
+				}
+			}//Fin del for quantity de grupos
 				
 				
 			
@@ -862,6 +838,33 @@ public class InicioController {
 		}
 	}
 	
+	private String modifyQuestion(String question) {
+		String preguntaModificada = "";
+		for(int j = 0;j<question.length();j++) {
+			if(question.substring(j, j+1).equals("­")) {
+				preguntaModificada += ""; 
+			}else {
+				preguntaModificada += question.subSequence(j, j+1);
+			}
+		}
+		
+		return preguntaModificada;
+	}
+	
+	private int countQuantityMembers(int modeGroup) {
+		if(modeGroup == 0) {
+			if(drive.searchElement(3, "u_0_0") != 0) {
+				return Integer.parseInt(drive.getText(3, "u_0_0"));
+			}else if(drive.searchElement(3, "u_0_1") != 0) {
+				return Integer.parseInt(drive.getText(3, "u_0_1"));
+			}
+		}else if(modeGroup == 1){
+			if(drive.searchElement(3, "u_0_2") != 0){
+				return Integer.parseInt(drive.getText(3, "u_0_2"));
+			}
+		}
+		return 0;
+	}
 	private void goFanPage(String urlFanPage) throws InterruptedException {
 		System.out.println("Ingresar en la fan page "+urlFanPage);
 		drive.goPage(urlFanPage);
@@ -1016,6 +1019,7 @@ public class InicioController {
 					po.setGroups(group_c.getGroups_id());
 					po.setTasks_model_id(taskModelId);
 					po.setCategories_id(categoria_id);
+					po.setTasks_grid_id(tasks_grid_id);
 					po.setUsers_id(idUser);
 					po.setFanPage(true);
 					po.insert();
@@ -1109,42 +1113,26 @@ public class InicioController {
 								
 								Thread.sleep(getNumberRandomForSecond(1234, 1456));
 								
-								String hash = uploadImageFinal();
+								uploadImageFinal();
 								cantiPublications++;
 								System.out.println("El usuario hizo su publicación "+cantiPublications);
-								ini++;
-								if (ini >= count) {
-									ini = 0;
-								}
-								if(!hash.isEmpty()) {
-									String[] ha = hash.split(" ");
-									System.out.println("Registrando post");
-									
-									po.setCategories_id(categoria_id);
-									po.setTasks_model_id(taskModelId);
-									po.setUsers_id(idUser);
-									po.setGroups(idGroups);
-									po.setFanPage(false);
-									po.insert();
+								System.out.println("Registrando post");
+								
+								po.setCategories_id(categoria_id);
+								po.setTasks_model_id(taskModelId);
+								po.setUsers_id(idUser);
+								po.setGroups(idGroups);
+								po.setFanPage(false);
+								po.insert();
 
-									Post_Detail poDe = new Post_Detail();
-									poDe.setPosts_id(po.getLast());
-									HashTag ht = new HashTag();
-									ht.setCategories_id(categoria_id);
-									ht.setGeneres_id(idGenere);
-									System.out.println("Registrando HashTag");
-									for (int j = 0; j < ha.length; j++) {
+								Post_Detail poDe = new Post_Detail();
+								poDe.setPosts_id(po.getLast());
+								HashTag ht = new HashTag();
+								ht.setCategories_id(categoria_id);
+								ht.setGeneres_id(idGenere);
 
-										ht.setName(ha[j]);
+								System.out.println("El usuario publico correctamente");
 
-										poDe.setHashtag_id(ht.getIdCategorieHashTag());
-
-										poDe.insert();
-									}
-									System.out.println("El usuario publico correctamente");
-								}else {
-									System.out.println("El usuario no publico");
-								}//Fin del if para validar si se publicaron hashtag
 							}
 						}
 					}
@@ -1213,7 +1201,7 @@ public class InicioController {
 				}
 				String nameGroup = drive.getText(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li["+i+"]/table/tbody/tr/td[1]/a");
 				drive.clickButton(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li["+i+"]/table/tbody/tr/td[1]/a", "Entrar en grupo xPath");
-				Thread.sleep(1250);
+				Thread.sleep(890);
 				if(validateElementViewPost()) {
 					System.out.println("Grupo a guardar " +nameGroup);
 					String idGroup = getIdGroup();
@@ -1226,8 +1214,8 @@ public class InicioController {
 						gp.setGroups_id(idGroup);
 						System.out.println("Ingresar en los miembros");
 						int cantMiembros = 0;
-
-						if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/table/tbody/tr/td[2]/a") != 0) {
+						cantMiembros = countQuantityMembers(1);
+						if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/table/tbody/tr/td[2]/a") != 0 && cantMiembros != 0) {
 							drive.clickButton(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/table/tbody/tr/td[2]/a", "Miembro xPath");
 							Thread.sleep(getNumberRandomForSecond(1250, 1456));
 							if(drive.getText(3, "u_0_0").equals("")) {
@@ -1243,9 +1231,8 @@ public class InicioController {
 								}
 							}
 							System.out.println("La cantidad de miembros son: "+cantMiembros);
-							gp.setCant_miembros(cantMiembros);
 							drive.back();
-						}else if(drive.searchElement(1, "//*[text()[contains(.,'Miembro')]]") != 0) {
+						}else if(drive.searchElement(1, "//*[text()[contains(.,'Miembro')]]") != 0  && cantMiembros != 0) {
 							drive.clickButton(1, "//*[text()[contains(.,'Miembro')]]", "Miembro");
 							Thread.sleep(getNumberRandomForSecond(1250, 1456));
 							if(drive.getText(3, "u_0_0").equals("")) {
@@ -1262,9 +1249,9 @@ public class InicioController {
 								}
 							}
 							System.out.println("La cantidad de miembros son: "+cantMiembros);
-							gp.setCant_miembros(cantMiembros);
 							drive.back();
 						}
+						gp.setCant_miembros(cantMiembros);
 						gp.setName(nameGroup);
 						try {
 							gp.insert();
