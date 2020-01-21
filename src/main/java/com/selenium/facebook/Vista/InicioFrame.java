@@ -17,7 +17,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuBar;
 import java.awt.Color;
@@ -59,22 +59,26 @@ public class InicioFrame extends JFrame {
 	private final JMenuItem actualizarGenero = new JMenuItem("Actualizar Genero");
 	private final JMenu mnTask = new JMenu("Tarea");
 	private final JMenuItem registrarTarea = new JMenuItem("Registrar Tarea");
-	private final JMenuItem registerTaskGrid = new JMenuItem("Crear Parrilla De Tarea");
+	//private final JMenuItem registerTaskGrid = new JMenuItem("Crear Parrilla De Tarea");
 	private final JMenu mnPhotos = new JMenu("Fotos");
 	private final JMenuItem registrarDireccionDeFotos = new JMenuItem("Registrar Fotos"); 
 	public ArrayList<JTextArea> textA = new ArrayList<JTextArea>();
-	private static Categorie cate = new Categorie();
 	private static JComboBox<String> comboBox;
-	private JButton empezar = new JButton("Comenzar");
+	private static JButton empezar = new JButton("Comenzar");
 	private Inicio_Aplicacion iniApli = new Inicio_Aplicacion();
+	private static HashMap<String, Integer> hash;
 	
 	/**
 	 * Launch the application.
 	 * @throws SQLException 
 	 */
 	public static void main(String[] args) throws SQLException {
-		List<String> list = cate.getAllActive();
-		comboBox = setComboBox(list);
+		Task_Grid task_G = new Task_Grid();
+		hash = task_G.getCategoriesToday();
+		if(hash.size() < 1) {
+			empezar.setEnabled(false);
+		}
+		setComboBox(hash);
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -160,7 +164,6 @@ public class InicioFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				UpdateUser update = new UpdateUser();
 				update.init();
 			}
@@ -236,7 +239,6 @@ public class InicioFrame extends JFrame {
 					registrar = new RegistrarHashTag();
 					registrar.inicio();
 				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				
@@ -278,7 +280,7 @@ public class InicioFrame extends JFrame {
 			}
 		});
 		
-		mnTask.add(registerTaskGrid);
+		/*mnTask.add(registerTaskGrid);
 		
 		registerTaskGrid.addActionListener(new ActionListener() {
 			
@@ -288,7 +290,7 @@ public class InicioFrame extends JFrame {
 				regis_T.init();
 				
 			}
-		});
+		});*/
 		
 		mnPhotos.add(registrarDireccionDeFotos);
 		menuBar.add(mnPhotos);
@@ -323,13 +325,13 @@ public class InicioFrame extends JFrame {
 		);
 		contentPane.setLayout(gl_contentPane);
 		
-		iniApli.setVersion("1.0.0");
+		iniApli.setVersion("2.0.0");
 		
 		empezar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
 				try {
-					int id = cate.getIdCategories((String) comboBox.getSelectedItem());
+					int id = Integer.parseInt(hash.get(comboBox.getSelectedItem().toString()).toString());
 					Ejecucion eje = new Ejecucion(id,iniApli);
 					setExtendedState(ICONIFIED);
 					eje.inicio();
@@ -342,67 +344,13 @@ public class InicioFrame extends JFrame {
 		});
 	}
 	
-	private static JComboBox<String> setComboBox(List<String> map) {
+	private static JComboBox<String> setComboBox(HashMap<String, Integer> map) {
 		comboBox = new JComboBox<String>();
 		
-		for (String string : map) {
+		for (String string : map.keySet()) {
 			comboBox.addItem(string);
 		}
 	    return comboBox;
 	}
 
-//	private void scrapping() {
-//		try {
-//			
-//			
-//		      // Here we create a document object and use JSoup to fetch the website
-//			Connection.Response res = Jsoup.connect("https://mbasic.facebook.com/notifications.php")
-//		    		  .data("email","luis.andres.carman@gmail.com","pass","Facebookl4ms","lsd","AVptuGRS")
-//		    		  .method(Method.POST)
-//		    		  .execute();
-//
-//			System.out.println("Respuesta code: "+res.statusCode());
-//			
-//			Document doc = res.parse();
-//		      // With the document fetched, we use JSoup's title() method to fetch the title
-//		      System.out.printf("Title: %s\n", doc.title());
-//
-//		      // Get the list of repositories
-//		      Elements repositories = doc.getElementsByClass("repo-iem");
-//
-//		      /**
-//		       * For each repository, extract the following information:
-//		       * 1. Title
-//		       * 2. Number of issues
-//		       * 3. Description
-//		       * 4. Full name on github
-//		       */
-//		      for (Element repository : repositories) {
-//		        // Extract the title
-//		        String repositoryTitle = repository.getElementsByClass("repo-item-title").text();
-//
-//		        // Extract the number of issues on the repository
-//		        String repositoryIssues = repository.getElementsByClass("repo-item-issues").text();
-//
-//		        // Extract the description of the repository
-//		        String repositoryDescription = repository.getElementsByClass("repo-item-description").text();
-//
-//		        // Get the full name of the repository
-//		        String repositoryGithubName = repository.getElementsByClass("repo-item-full-name").text();
-//
-//		        // The reposiory full name contains brackets that we remove first before generating the valid Github link.
-//		        String repositoryGithubLink = "https://github.com/" + repositoryGithubName.replaceAll("[()]", "");
-//
-//		        // Format and print the information to the console
-//		        System.out.println(repositoryTitle + " - " + repositoryIssues);
-//		        System.out.println("\t" + repositoryDescription);
-//		        System.out.println("\t" + repositoryGithubLink);
-//		        System.out.println("\n");
-//		      }
-//
-//		    // In case of any IO errors, we want the messages written to the console
-//		    } catch (IOException e) {
-//		      e.printStackTrace();
-//		    }
-//	}
 }
