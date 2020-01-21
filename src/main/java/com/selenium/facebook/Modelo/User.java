@@ -201,38 +201,24 @@ public class User implements Model{
 		
 	}
 	
-	public List<String[]> getUserCategorie(int id) throws SQLException{
-		String[] list ;
-		ArrayList<String[]> lista = new ArrayList<String[]>();
+	public List<String> getUserCategorie(int id) throws SQLException{
+		ArrayList<String> lista = new ArrayList<String>();
 		dateFormat = new SimpleDateFormat("yyy-MM-dd");
-		String query = "SELECT us.users_id,us.username,us.phone,us.password,vp.name,us.email,uc.categories_id,ub.users_block_id, count(DISTINCT(po.groups)) as canpost "
-				+ "FROM "+TABLE_NAME+" us "
-				+ "INNER JOIN vpn vp ON vp.vpn_id = us.vpn_id "
-				+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "
-				+ "LEFT JOIN users_block ub ON ub.users_id = us.users_id AND ub.active = 1 "
-				+ "LEFT JOIN posts po ON po.users_id = us.users_id AND po.created_at BETWEEN "
-				+ "'"+dateFormat.format(date) + " 00:00:00' AND '"+dateFormat.format(date) + " 23:59:59' "
-				+ "WHERE uc.categories_id = "+id+" "
-				+ "GROUP BY us.users_id,us.username,us.phone,us.password,vp.name,us.email,uc.categories_id,ub.users_block_id;";
-		
-		int io = 0;
+		String query = "SELECT u.username FROM tasks_grid tg " + 
+				"INNER JOIN tasks_grid_detail tgd ON tg.tasks_grid_id = tgd.tasks_grid_id " + 
+				"INNER JOIN "+TABLE_NAME+" u ON u.users_id = tgd.users_id " + 
+				"WHERE tg.tasks_grid_id NOT IN (SELECT pt.tasks_grid_id FROM posts pt) " + 
+				"AND tg.categories_id = ? AND tg.active = ? AND DATE(tg.date_publication) = ?" + 
+				"ORDER BY tg.date_publication ASC;";
+		date = new Date();
 		try (Connection conexion = conn.conectar();
-				Statement st = conexion.createStatement();
-				ResultSet rs = st.executeQuery(query)){
-			
+				PreparedStatement pre = conexion.prepareStatement(query);){
+			pre.setInt(1, id);
+			pre.setInt(2, 1);
+			pre.setString(3, dateFormat.format(date));
+			ResultSet rs = pre.executeQuery();
 			while (rs.next() ) {
-			   list = new String[9];
-               list[0] = rs.getString("us.users_id");
-               list[1] = rs.getString("us.username");
-               list[2] = rs.getString("us.phone");
-               list[3] = rs.getString("us.password");
-               list[4] = rs.getString("vp.name");
-               list[5] = rs.getString("us.email");
-               list[6] = rs.getString("uc.categories_id");
-               list[7] = rs.getString("ub.users_block_id");
-               list[8] = rs.getString("canpost");
-               lista.add(io, list);
-               io++;
+				lista.add(rs.getString("u.username"));
 			}
 			
 		}catch(Exception e) {
