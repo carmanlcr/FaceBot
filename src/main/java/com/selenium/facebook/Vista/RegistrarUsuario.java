@@ -7,6 +7,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
+import com.mysql.jdbc.MysqlDataTruncation;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.selenium.facebook.Modelo.*;
 
 import javax.swing.GroupLayout;
@@ -19,7 +21,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JComboBox;
@@ -32,20 +36,20 @@ public class RegistrarUsuario extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField NameField;
-	private JTextField usernameField;
-	private JTextField emailField;
-	private JTextField telefonoField;
-	private JTextField passwordField;
-	private JTextField creadorField;
-	private JTextField fdnField;
-	private JTextField simCardField;
+	private JTextField NameField = new JTextField();
+	private JTextField usernameField = new JTextField();
+	private JTextField emailField = new JTextField();
+	private JTextField telefonoField = new JTextField();
+	private JTextField passwordField = new JTextField();
+	private JTextField creadorField = new JTextField();
+	private JTextField fdnField = new JTextField();
+	private JTextField simCardField = new JTextField();
 	private Vpn v = new Vpn();
-	private List<String> vpn = v.getAllActive();
-	private JComboBox<String> comboBoxvPN = setComboBoxVpn(vpn);
+	private HashMap<String, Integer> vpn = v.getAllVpn();
+	private JComboBox<String> comboBoxvPN_1 = new JComboBox<String>();
 	private Categorie cate = new Categorie();
-	private List<String> list = cate.getAllActive();
-	private JComboBox<String> comboBoxCategori = setComboBoxCategorias(list);
+	private HashMap<String, Integer> list = cate.getComboBox();
+	private JComboBox<String> comboBoxCategori_1  = new JComboBox<String>();
 	private JButton btnRegistrar = new JButton("Registrar");
 	private RegistrarUsuario frame;
 	
@@ -81,44 +85,37 @@ public class RegistrarUsuario extends JFrame {
 		JLabel labelName = new JLabel("Nombre Completo");
 		labelName.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		NameField = new JTextField();
 		NameField.setColumns(10);
 		NameField.setFocusable(true);
 		
 		JLabel labelUsername = new JLabel("Username");
 		labelUsername.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		usernameField = new JTextField();
 		usernameField.setColumns(10);
 		
 		JLabel labelEmail = new JLabel("Email");
 		labelEmail.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		emailField = new JTextField();
 		emailField.setColumns(10);
 		
 		JLabel labelPhone = new JLabel("Telefono");
 		labelPhone.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		telefonoField = new JTextField();
 		telefonoField.setColumns(10);
 		
 		JLabel labelPassword = new JLabel("Password");
 		labelPassword.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		passwordField = new JTextField();
 		passwordField.setColumns(10);
 		
 		JLabel labelCreador = new JLabel("Creador");
 		labelCreador.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		creadorField = new JTextField();
 		creadorField.setColumns(10);
 		
 		JLabel labelFechaDeNacimiento = new JLabel("Fecha de Nacimiento");
 		labelFechaDeNacimiento.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		fdnField = new JTextField();
 		fdnField.setColumns(10);
 		
 		JLabel lblyyyymmdd = new JLabel("(YYYY-mm-dd)");
@@ -127,7 +124,6 @@ public class RegistrarUsuario extends JFrame {
 		JLabel lblNmeroDeSim = new JLabel("N\u00FAmero de Sim Card");
 		lblNmeroDeSim.setFont(new Font("Arial", Font.PLAIN, 12));
 		
-		simCardField = new JTextField();
 		simCardField.setColumns(10);
 		
 		JScrollPane scroll = new JScrollPane();
@@ -135,7 +131,10 @@ public class RegistrarUsuario extends JFrame {
 		
 		scroll.add(panel);
 		
-
+		SortedSet<String> keys = new TreeSet<>(list.keySet());
+		comboBoxCategori_1 = setComboBoxCategorias(keys);
+		SortedSet<String> keysVpn = new TreeSet<>(vpn.keySet());
+		comboBoxvPN_1 = setComboBoxVpn(keysVpn);
 		
 		JLabel lblVpn = new JLabel("VPN");
 		lblVpn.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -151,23 +150,23 @@ public class RegistrarUsuario extends JFrame {
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addComponent(lblNmeroDeSim)
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
 								.addGroup(gl_contentPane.createSequentialGroup()
 									.addComponent(labelFechaDeNacimiento)
 									.addGap(188))
-								.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
+								.addGroup(gl_contentPane.createSequentialGroup()
 									.addComponent(labelPassword)
 									.addPreferredGap(ComponentPlacement.RELATED, 102, Short.MAX_VALUE)
 									.addComponent(passwordField, GroupLayout.PREFERRED_SIZE, 147, GroupLayout.PREFERRED_SIZE))
-								.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
+								.addGroup(gl_contentPane.createSequentialGroup()
 									.addComponent(labelPhone)
 									.addPreferredGap(ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
 									.addComponent(telefonoField, GroupLayout.PREFERRED_SIZE, 147, GroupLayout.PREFERRED_SIZE))
-								.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
+								.addGroup(gl_contentPane.createSequentialGroup()
 									.addComponent(labelEmail)
 									.addPreferredGap(ComponentPlacement.RELATED, 126, Short.MAX_VALUE)
 									.addComponent(emailField, GroupLayout.PREFERRED_SIZE, 147, GroupLayout.PREFERRED_SIZE))
-								.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
+								.addGroup(gl_contentPane.createSequentialGroup()
 									.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 										.addGroup(gl_contentPane.createSequentialGroup()
 											.addComponent(labelName)
@@ -178,25 +177,25 @@ public class RegistrarUsuario extends JFrame {
 									.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
 										.addComponent(usernameField)
 										.addComponent(NameField, GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)))
-								.addGroup(Alignment.TRAILING, gl_contentPane.createSequentialGroup()
+								.addGroup(gl_contentPane.createSequentialGroup()
 									.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 										.addComponent(labelCreador)
 										.addComponent(lblVpn)
 										.addComponent(lblCategories))
-									.addPreferredGap(ComponentPlacement.RELATED, 112, Short.MAX_VALUE)
+									.addPreferredGap(ComponentPlacement.RELATED, 97, Short.MAX_VALUE)
 									.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
 										.addComponent(fdnField)
 										.addComponent(creadorField, GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
 										.addComponent(simCardField)
-										.addComponent(comboBoxvPN, GroupLayout.PREFERRED_SIZE, 141, GroupLayout.PREFERRED_SIZE)
-										.addComponent(comboBoxCategori))))
+										.addComponent(comboBoxCategori_1, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+										.addComponent(comboBoxvPN_1, 0, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
 							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addComponent(lblyyyymmdd)
 							.addGap(368))))
 				.addGroup(gl_contentPane.createSequentialGroup()
 					.addGap(163)
 					.addComponent(btnRegistrar)
-					.addContainerGap(552, Short.MAX_VALUE))
+					.addContainerGap(564, Short.MAX_VALUE))
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -236,13 +235,13 @@ public class RegistrarUsuario extends JFrame {
 						.addComponent(simCardField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(39)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-						.addComponent(comboBoxvPN, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(comboBoxvPN_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblVpn))
 					.addGap(22)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-							.addComponent(comboBoxCategori, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-							.addComponent(lblCategories))
-					.addPreferredGap(ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+						.addComponent(comboBoxCategori_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblCategories))
+					.addPreferredGap(ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
 					.addComponent(btnRegistrar)
 					.addGap(22))
 		);
@@ -252,51 +251,45 @@ public class RegistrarUsuario extends JFrame {
 	}
 	
 
-	private JComboBox<String> setComboBoxVpn(final List<String> vpn2) {
-		comboBoxvPN = new JComboBox<String>();
+	private JComboBox<String> setComboBoxVpn(final SortedSet<String> keysVpn) {
+		comboBoxvPN_1 = new JComboBox<String>();
 		
-		for (String jugador : vpn2){
+		for (String jugador : keysVpn){
 			
-			comboBoxvPN.addItem(jugador);
+			comboBoxvPN_1.addItem(jugador);
 		}
-	    return comboBoxvPN;
+	    return comboBoxvPN_1;
 	}
 	
-	private JComboBox<String> setComboBoxCategorias(List<String> map) {
-		comboBoxCategori = new JComboBox<String>();
+	private JComboBox<String> setComboBoxCategorias(SortedSet<String> keys) {
+		comboBoxCategori_1 = new JComboBox<String>();
 		
-		for (String string : map) {
-			comboBoxCategori.addItem(string);
+		for (String string : keys) {
+			comboBoxCategori_1.addItem(string);
 		}
-	    return comboBoxCategori;
+	    return comboBoxCategori_1;
 	}
 	
 	private void actionListenerRegister(){
 		btnRegistrar.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				String nameVpn = (String) comboBoxvPN.getSelectedItem();
-				int id = 0;
-				try {
-					id = v.getFind(nameVpn);
-				} catch (SQLException e2) {
-					e2.printStackTrace();
-				}
+
 				BigInteger telefono = new BigInteger(telefonoField.getText().trim());
-				if(id == 0) {
+				if(Integer.parseInt(vpn.get(comboBoxvPN_1.getSelectedItem().toString()).toString()) == 0) {
 					JOptionPane.showMessageDialog(null,"Debe seleccionar una VPN");
 				}else {
 					User usuario = new User();
-					usuario.setFull_name(NameField.getText());
-					usuario.setUsername(usernameField.getText());
-					usuario.setEmail(emailField.getText());
-					usuario.setPassword(passwordField.getText());
+					usuario.setFull_name(NameField.getText().trim());
+					usuario.setUsername(usernameField.getText().trim());
+					usuario.setEmail(emailField.getText().trim());
+					usuario.setPassword(passwordField.getText().trim());
 					usuario.setPhone(telefono);
-					usuario.setCreator(creadorField.getText());
-					usuario.setDate_of_birth(fdnField.getText());
-					usuario.setSim_card_number(Integer.parseInt(simCardField.getText()));
-					usuario.setVpn_id(id);
-					usuario.setCategories_id(comboBoxCategori.getSelectedIndex()+1);
+					usuario.setCreator(creadorField.getText().trim());
+					usuario.setDate_of_birth(fdnField.getText().trim());
+					usuario.setSim_card_number(Integer.parseInt(simCardField.getText().trim()));
+					usuario.setVpn_id(Integer.parseInt(vpn.get(comboBoxvPN_1.getSelectedItem().toString()).toString()));
+					usuario.setCategories_id(Integer.parseInt(list.get(comboBoxCategori_1.getSelectedItem().toString()).toString()));
 					contentPane.setEnabled(false);
 					try {
 						usuario.insert();
@@ -310,9 +303,13 @@ public class RegistrarUsuario extends JFrame {
 						creadorField.setText("");
 						fdnField.setText("");
 						simCardField.setText("");
-						comboBoxvPN.setSelectedIndex(0);
-						comboBoxCategori.setSelectedIndex(0);
-					} catch (SQLException e1) {
+						comboBoxvPN_1.setSelectedIndex(0);
+						comboBoxCategori_1.setSelectedIndex(0);
+					}catch(MysqlDataTruncation e3) {
+						JOptionPane.showMessageDialog(null, "Hay error en uno de los datos ingresados, por favor validar","Failed",JOptionPane.ERROR_MESSAGE);
+					}catch(MySQLIntegrityConstraintViolationException e2) {
+						JOptionPane.showMessageDialog(null, "Usuario o correo repetido, por favor validar","Failed",JOptionPane.ERROR_MESSAGE);
+					}catch (SQLException e1) {
 						JOptionPane.showMessageDialog(null, "Error al ingresar usuario, por favor validar los campos","Failed",JOptionPane.ERROR_MESSAGE);
 					}
 					
