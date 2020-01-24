@@ -149,10 +149,13 @@ public class Ejecucion extends JFrame {
 					JOptionPane.showMessageDialog(null,"Debe escribir al menos un pie para la foto");
 				}else {
 					for(JComboBox<String> st : listJComboBoxGenere) {
-						Genere gene = new Genere();
-						gene.setName(st.getSelectedItem().toString());
-						inicio.setGeneres_id(gene.getIdGenere());
-						inicio.insert();
+						if(st.getSelectedItem() != null) {
+							Genere gene = new Genere();
+							gene.setName(st.getSelectedItem().toString());
+							inicio.setGeneres_id(gene.getIdGenere());
+							inicio.insert();
+						}
+						
 					}
 					InicioController init = new InicioController(categoria_id,listCheckBoxUsersSend, listTextARea,listChechBoxSelected,listTextFieldUser,listJComboBoxGenere);
 					setExtendedState(ICONIFIED);
