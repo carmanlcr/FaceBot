@@ -125,13 +125,13 @@ public class UpdateUser {
 					}
 					if(us != null) {
 						users_id = us.getUsers_id();
-						username.setText(us.getUsername());
+						username.setText(us.getUsername().trim());
 						username.setEditable(true);
 						username.setEnabled(true);
-						email.setText(us.getEmail());
+						email.setText(us.getEmail().trim());
 						email.setEditable(true);
 						email.setEnabled(true);
-						password.setText(us.getPassword());
+						password.setText(us.getPassword().trim());
 						password.setEditable(true);
 						password.setEnabled(true);
 						activo.setEnabled(true);
