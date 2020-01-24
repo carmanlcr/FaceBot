@@ -59,7 +59,6 @@ public class InicioFrame extends JFrame {
 	private final JMenuItem actualizarGenero = new JMenuItem("Actualizar Genero");
 	private final JMenu mnTask = new JMenu("Tarea");
 	private final JMenuItem registrarTarea = new JMenuItem("Registrar Tarea");
-	private final JMenuItem registerTaskGrid = new JMenuItem("Crear Parrilla De Tarea");
 	private final JMenu mnPhotos = new JMenu("Fotos");
 	private final JMenuItem registrarDireccionDeFotos = new JMenuItem("Registrar Fotos"); 
 	public ArrayList<JTextArea> textA = new ArrayList<JTextArea>();
@@ -278,17 +277,7 @@ public class InicioFrame extends JFrame {
 			}
 		});
 		
-		mnTask.add(registerTaskGrid);
-		
-		registerTaskGrid.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				RegisterTaskGrid regis_T = new RegisterTaskGrid();
-				regis_T.init();
-				
-			}
-		});
+
 		
 		mnPhotos.add(registrarDireccionDeFotos);
 		menuBar.add(mnPhotos);
@@ -350,59 +339,4 @@ public class InicioFrame extends JFrame {
 		}
 	    return comboBox;
 	}
-
-//	private void scrapping() {
-//		try {
-//			
-//			
-//		      // Here we create a document object and use JSoup to fetch the website
-//			Connection.Response res = Jsoup.connect("https://mbasic.facebook.com/notifications.php")
-//		    		  .data("email","luis.andres.carman@gmail.com","pass","Facebookl4ms","lsd","AVptuGRS")
-//		    		  .method(Method.POST)
-//		    		  .execute();
-//
-//			System.out.println("Respuesta code: "+res.statusCode());
-//			
-//			Document doc = res.parse();
-//		      // With the document fetched, we use JSoup's title() method to fetch the title
-//		      System.out.printf("Title: %s\n", doc.title());
-//
-//		      // Get the list of repositories
-//		      Elements repositories = doc.getElementsByClass("repo-iem");
-//
-//		      /**
-//		       * For each repository, extract the following information:
-//		       * 1. Title
-//		       * 2. Number of issues
-//		       * 3. Description
-//		       * 4. Full name on github
-//		       */
-//		      for (Element repository : repositories) {
-//		        // Extract the title
-//		        String repositoryTitle = repository.getElementsByClass("repo-item-title").text();
-//
-//		        // Extract the number of issues on the repository
-//		        String repositoryIssues = repository.getElementsByClass("repo-item-issues").text();
-//
-//		        // Extract the description of the repository
-//		        String repositoryDescription = repository.getElementsByClass("repo-item-description").text();
-//
-//		        // Get the full name of the repository
-//		        String repositoryGithubName = repository.getElementsByClass("repo-item-full-name").text();
-//
-//		        // The reposiory full name contains brackets that we remove first before generating the valid Github link.
-//		        String repositoryGithubLink = "https://github.com/" + repositoryGithubName.replaceAll("[()]", "");
-//
-//		        // Format and print the information to the console
-//		        System.out.println(repositoryTitle + " - " + repositoryIssues);
-//		        System.out.println("\t" + repositoryDescription);
-//		        System.out.println("\t" + repositoryGithubLink);
-//		        System.out.println("\n");
-//		      }
-//
-//		    // In case of any IO errors, we want the messages written to the console
-//		    } catch (IOException e) {
-//		      e.printStackTrace();
-//		    }
-//	}
 }
