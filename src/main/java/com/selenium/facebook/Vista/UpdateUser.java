@@ -24,6 +24,14 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.awt.event.ActionEvent;
 
+/**
+ * 
+ * La actualización de usuario se movió a la app web
+ * 
+ * @deprecated
+ * @author Luis Morales
+ *
+ */
 public class UpdateUser {
 
 	private JFrame frmActualizarUsuario;
@@ -125,13 +133,13 @@ public class UpdateUser {
 					}
 					if(us != null) {
 						users_id = us.getUsers_id();
-						username.setText(us.getUsername());
+						username.setText(us.getUsername().trim());
 						username.setEditable(true);
 						username.setEnabled(true);
-						email.setText(us.getEmail());
+						email.setText(us.getEmail().trim());
 						email.setEditable(true);
 						email.setEnabled(true);
-						password.setText(us.getPassword());
+						password.setText(us.getPassword().trim());
 						password.setEditable(true);
 						password.setEnabled(true);
 						activo.setEnabled(true);
@@ -167,10 +175,10 @@ public class UpdateUser {
 				}else if(email.getText().isEmpty()) {
 					JOptionPane.showMessageDialog(null, "El campo de email no puede estar vacio");
 				}else {
-					boolean active = false;
+					
 					int vpn_id = Integer.parseInt(mapVpn.get(vpn.getSelectedItem().toString()).toString());
 					
-					if(activo.isSelected()) active = true;
+					boolean active = activo.isSelected() ? true : false;
 					User us = new User();
 					us.setUsers_id(users_id);
 					us.setUsername(username.getText());
@@ -204,7 +212,7 @@ public class UpdateUser {
 						JOptionPane.showMessageDialog(null, "Se actualizo con exito");
 						
 					} catch (SQLException e) {
-						e.printStackTrace();
+						JOptionPane.showMessageDialog(null, "Error al actualizar");
 					}
 				}
 				
