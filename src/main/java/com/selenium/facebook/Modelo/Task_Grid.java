@@ -23,6 +23,7 @@ public class Task_Grid implements Model {
 	private String date_publication;
 	private boolean isFanPage;
 	private boolean isGroups;
+	private int quantity_groups;
 	private int quantity_min;
 	private boolean active;
 	private String created_at;
@@ -91,6 +92,7 @@ public class Task_Grid implements Model {
 				taskG.setGroups(rs.getBoolean("tg.isGroups"));
 				taskG.setFanPage(rs.getBoolean("tg.isFanPage"));
 				taskG.setActive(rs.getBoolean("tg.active"));
+				taskG.setQuantity_groups(rs.getInt("tg.quantity_groups"));
 				taskG.setQuantity_min(rs.getInt("tg.quantity_min"));
 				taskG.setDate_publication(rs.getString("tg.date_publication"));
 				taskG.setDb_admin_tasks_id(rs.getInt("tg.db_admin_tasks_id"));
@@ -128,6 +130,7 @@ public class Task_Grid implements Model {
 				taskG.setGroups(rs.getBoolean("tg.isGroups"));
 				taskG.setFanPage(rs.getBoolean("tg.isFanPage"));
 				taskG.setActive(rs.getBoolean("tg.active"));
+				taskG.setQuantity_groups(rs.getInt("tg.quantity_groups"));
 				taskG.setQuantity_min(rs.getInt("tg.quantity_min"));
 				taskG.setDate_publication(rs.getString("tg.date_publication"));
 				taskG.setDb_admin_tasks_id(rs.getInt("tg.db_admin_tasks_id"));
@@ -202,6 +205,14 @@ public class Task_Grid implements Model {
 
 	public void setGroups(boolean isGroups) {
 		this.isGroups = isGroups;
+	}
+
+	public int getQuantity_groups() {
+		return quantity_groups;
+	}
+
+	public void setQuantity_groups(int quantity_groups) {
+		this.quantity_groups = quantity_groups;
 	}
 
 	public int getQuantity_min() {
