@@ -1,18 +1,17 @@
 package com.selenium.facebook.Controlador;
 
-import com.selenium.facebook.Controlador.DriverController;
 
 public class IniciaSesion {
 	
 	private String username;
 	private String password;
-	private DriverController dr;
+	private Controller.DriverController dr;
 	private String URL_LOGIN_FACEBOOK = "https://mbasic.facebook.com/";
 	
 	
 	
-	public IniciaSesion(DriverController dr,String username, String password) {
-		this.dr = dr;
+	public IniciaSesion(Controller.DriverController drive,String username, String password) {
+		this.dr = drive;
 		this.username = username;
 		this.password = password;
 	}
