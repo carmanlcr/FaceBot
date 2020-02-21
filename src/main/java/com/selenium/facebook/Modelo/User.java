@@ -201,21 +201,23 @@ public class User implements Model{
 		
 	}
 	
-	public List<String> getUserCategorie(int id) throws SQLException{
+	public List<String> getUserCategorie(int id, int id_genere) throws SQLException{
 		ArrayList<String> lista = new ArrayList<String>();
 		dateFormat = new SimpleDateFormat("yyy-MM-dd");
 		String query = "SELECT u.username FROM tasks_grid tg " + 
 				"INNER JOIN tasks_grid_detail tgd ON tg.tasks_grid_id = tgd.tasks_grid_id " + 
 				"INNER JOIN "+TABLE_NAME+" u ON u.users_id = tgd.users_id " + 
-				"WHERE tg.tasks_grid_id NOT IN (SELECT pt.tasks_grid_id FROM posts pt) " + 
-				"AND tg.categories_id = ? AND tg.active = ? AND DATE(tg.date_publication) = ?" + 
+				"WHERE tgd.users_id NOT IN (SELECT pt.users_id FROM posts pt WHERE DATE(pt.created_at) = ? AND pt.tasks_grid_id = tg.tasks_grid_id) " + 
+				"AND tg.categories_id = ? AND tg.generes_id = ? AND tg.active = ? AND DATE(tg.date_publication) = ? " + 
 				"ORDER BY tg.date_publication ASC;";
 		date = new Date();
 		try (Connection conexion = conn.conectar();
 				PreparedStatement pre = conexion.prepareStatement(query);){
-			pre.setInt(1, id);
-			pre.setInt(2, 1);
-			pre.setString(3, dateFormat.format(date));
+			pre.setString(1, dateFormat.format(date));
+			pre.setInt(2, id);
+			pre.setInt(3, id_genere);
+			pre.setInt(4, 1);
+			pre.setString(5, dateFormat.format(date));
 			ResultSet rs = pre.executeQuery();
 			while (rs.next() ) {
 				lista.add(rs.getString("u.username"));
