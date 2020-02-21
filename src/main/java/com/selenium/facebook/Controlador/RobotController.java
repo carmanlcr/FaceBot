@@ -7,7 +7,13 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
-
+/**
+ * Movido al proyecto Configurations
+ * 
+ * @author Luis Morales
+ * @version 1.0.0
+ * @deprecated
+ */
 public class RobotController {
 	
 	private static Robot robot;
@@ -35,6 +41,7 @@ public class RobotController {
 	 * @author Luis Morales
 	 * @version 1.0.0
 	 * @param vpn Nombre de la vpn
+	 * @deprecated
 	 */
 	public RobotController(String vpn) {
 		this.vpn = vpn;
@@ -232,7 +239,7 @@ public class RobotController {
 	 *  @author Luis Morales
 	 *  
 	 */
-	public void pulsarTabulador() {
+	public void pressTab() {
 		robot.keyPress(KeyEvent.VK_TAB);
 		robot.keyRelease(KeyEvent.VK_TAB);
 	}

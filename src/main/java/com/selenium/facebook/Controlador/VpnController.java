@@ -2,7 +2,14 @@ package com.selenium.facebook.Controlador;
 
 import java.io.IOException;
 
-
+/**
+ * 
+ * Se movio al proyecto Configurations
+ * 
+ * @deprecated
+ * @author Morales
+ *
+ */
 public class VpnController {
 	private RobotController robot;
 	
@@ -19,46 +26,46 @@ public class VpnController {
 			robot.maximizar();
 			//Seleccionar el buscador de la vpn
 			if(bandera) {
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
 			}else {
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
-				robot.pulsarTabulador();
+				robot.pressTab();
 				Thread.sleep(256);
 			}
 			//copiar la vpn en el portapapeles

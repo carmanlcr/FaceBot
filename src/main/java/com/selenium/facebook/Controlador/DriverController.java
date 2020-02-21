@@ -8,9 +8,11 @@ import org.openqa.selenium.chrome.ChromeOptions;
 /**
  * 
  * Clase donde se maneja todas las interaciones con el navegador
+ * Movida al proyecto Configuations 
  * 
- * @author Usuario
+ * @author Luis Morales
  * @vesion 1.0.0
+ * @deprecated
  */
 public class DriverController {
 	
