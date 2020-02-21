@@ -238,6 +238,7 @@ public class Genere implements Model{
 				gene.setName(rs.getString("g.name"));
 				gene.setFan_page(rs.getString("g.fan_page"));
 				gene.setActive(rs.getBoolean("g.active"));
+				gene.setTrash(rs.getBoolean("g.isTrash"));
 				gene.setCategories_id(rs.getInt("g.categories_id"));
 				gene.setCreated_at(rs.getString("g.created_at"));
 			}
