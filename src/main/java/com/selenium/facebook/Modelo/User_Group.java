@@ -169,6 +169,41 @@ public class User_Group implements Model {
 		return gp;
 	}
 	
+	public Group getOneGroupNotPublicationTrash(String string1, String string2) {
+		Group gp = null;
+		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id " + 
+				"FROM "+TABLE_NAME+" ug " + 
+				"INNER JOIN (select * from groups where name like ?) gp ON ug.groups_id = gp.groups_id " + 
+				"LEFT JOIN (select * from groups where name like ?) C ON C.groups_id = gp.groups_id " + 
+				"WHERE ug.groups_id NOT IN (SELECT pt.groups FROM posts pt WHERE pt.groups IS NOT NULL " + 
+				"AND DATE(pt.created_at) = ?) " + 
+				"AND ug.users_id = ? " + 
+				"GROUP BY gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id " + 
+				"ORDER BY RAND() LIMIT 1;";
+		date = new Date();
+		try(Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(query);
+				){
+			exe.setString(1, "%"+string1+"%");
+			exe.setString(2, "%"+string2+"%");
+			exe.setString(3, dateFormat1.format(date));
+			exe.setInt(4, getUsers_id());
+			ResultSet rs = exe.executeQuery();
+			
+			while(rs.next()) {
+				gp = new Group();
+				gp.setName(rs.getString("gp.name"));
+				gp.setActive(rs.getBoolean("gp.active"));
+				gp.setGroups_id(rs.getString("gp.groups_id"));
+				gp.setCreated_at(rs.getString("gp.created_at"));
+			}
+		}catch (SQLException e) {
+			e.getStackTrace();
+		}
+		
+		return gp;
+	}
+	
 	public List<Group> getGroupNotPublication(int quantityGroups) {
 		List<Group> listG = new ArrayList<Group>();
 		Group gp = null;
@@ -202,6 +237,17 @@ public class User_Group implements Model {
 		}
 		
 		return listG;
+	}
+	
+	public void deleteGroups() {
+		String query = "DELETE FROM "+TABLE_NAME+" WHERE users_id = ?";
+		try(Connection conexion = conn.conectar();
+				PreparedStatement e = conexion.prepareStatement(query)){
+			e.setInt(1, getUsers_id());
+			e.executeUpdate();
+		}catch(SQLException e) {
+			System.err.println("Error al eliminar");
+		}
 	}
 
 	public int getUsers_grouops_id() {
