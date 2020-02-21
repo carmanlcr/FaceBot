@@ -1,44 +1,39 @@
 package com.selenium.facebook.Vista;
 
-import java.awt.EventQueue;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 
 import com.selenium.facebook.Controlador.*;
 import com.selenium.facebook.Modelo.*;
 
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.JCheckBox;
-import javax.swing.JScrollPane;
-
-import java.awt.GridLayout;
 import java.sql.SQLException;
+
 import java.text.ParseException;
-
-import javax.swing.JButton;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.Font;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.JPopupMenu;
-
-import java.awt.Component;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
 
 import javax.swing.JMenuItem;
 import javax.swing.JLabel;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.JScrollPane;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JButton;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.JPopupMenu;
 
+import java.awt.EventQueue;
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Font;
 import java.awt.AWTException;
 import java.awt.Color;
+
+import java.io.IOException;
 
 public class Ejecucion extends JFrame {
 
@@ -48,6 +43,7 @@ public class Ejecucion extends JFrame {
 	private static final long serialVersionUID = -280322591820670686L;
 	private JPanel contentPane;
 	private int categoria_id = 0;
+	private int generes_id = 0;
 	private List<String> list = new ArrayList<String>();
 	private List<String[]> listPost = new ArrayList<String[]>(); 
 	private User user = new User();
@@ -55,7 +51,6 @@ public class Ejecucion extends JFrame {
 	private List<JLabel> listCheckBoxUsers = new ArrayList<JLabel>();
 	private List<String> listUsers = new ArrayList<String>();
 	public static int lengthString = 0;
-	private static JCheckBox check ;
 	private int totalUser = 0;
 	private Categorie categories = new Categorie();
 	private Inicio_Aplicacion inicio;
@@ -67,7 +62,7 @@ public class Ejecucion extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Ejecucion frame = new Ejecucion(categoria_id, inicio);
+					Ejecucion frame = new Ejecucion(categoria_id, generes_id, inicio);
 					frame.setTitle(categories.getNameCategories(categoria_id));
 					frame.setVisible(true);
 					
@@ -81,15 +76,18 @@ public class Ejecucion extends JFrame {
 
 	/**
 	 * Create the frame.
+	 * @param id_genere 
 	 * @param iniApli 
 	 * @throws SQLException 
 	 */
-	public Ejecucion(int id, final Inicio_Aplicacion iniApli) throws SQLException {
+	public Ejecucion(int id, int id_genere, final Inicio_Aplicacion iniApli) throws SQLException {
 		setTitle("Validacion");
 		inicio = iniApli;
 		
 		this.categoria_id = id;
+		this.generes_id = id_genere;
 		inicio.setCategories_id(categoria_id);
+		inicio.setGeneres_id(generes_id);
 		setResizable(false);
 		setBounds(100, 100, 795, 733);
 		contentPane = new JPanel();
@@ -126,6 +124,7 @@ public class Ejecucion extends JFrame {
 					JOptionPane.showMessageDialog(null, "NO HAY USUARIOS PARA ESTA CAMPAÑA PARA PUBLICAR");
 				}else {
 					iniApli.setCategories_id(categoria_id);
+					iniApli.setGeneres_id(generes_id);
 					iniApli.insert();
 					InicioController init = new InicioController(categoria_id,listUsers);
 					setExtendedState(ICONIFIED);
@@ -181,7 +180,7 @@ public class Ejecucion extends JFrame {
 					.addContainerGap(75, Short.MAX_VALUE))
 		);
 		
-		list = user.getUserCategorie(categoria_id);
+		list = user.getUserCategorie(categoria_id,generes_id);
 		if(list.size() < 1) {
 			JOptionPane.showMessageDialog(null, "YA NO HAY TAREAS PARA HOY PARA ESTA CAMPANA");
 		}else {
@@ -213,7 +212,6 @@ public class Ejecucion extends JFrame {
 				}
 			}
 			
-			addPopup(chckbxNewCheckBox, popMenu);
 			
 			panelUsuario.add(chckbxNewCheckBox);
 			totalUser++;
@@ -221,54 +219,7 @@ public class Ejecucion extends JFrame {
 		
 		lblTotal.setText(lblTotal.getText()+": "+totalUser);
 
-	    addListenerDesbloquear(mntmNewMenuItem);
 		contentPane.setLayout(gl_contentPane);
 	}
 	
-	//Mostrar menu contextual a los checkbox deshabilitados
-	private static void addPopup(Component component, final JPopupMenu popup) {
-		component.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				if(!e.getComponent().isEnabled()) {
-					if (e.isPopupTrigger()) {
-						showMenu(e);
-					}
-				}
-				
-			}
-			public void mouseReleased(MouseEvent e) {
-				if(!e.getComponent().isEnabled()) {
-					if (e.isPopupTrigger()) {
-						showMenu(e);
-					}
-				}
-			}
-			private void showMenu(MouseEvent e) {
-				if(!e.getComponent().isEnabled()) {
-					if (e.isPopupTrigger()) {
-						popup.show(e.getComponent(), e.getX(), e.getY());
-						check = (JCheckBox) e.getComponent();
-					}
-				}
-				
-			}
-		});
-	}
-	
-	private void addListenerDesbloquear(JMenuItem menu) {
-		menu.addMouseListener(new MouseAdapter() {
-			
-			public void mouseReleased(MouseEvent a) {
-				
-				User_Block userb = new User_Block();
-				if(userb.desblockUser(check.getText())) {
-					check.setEnabled(true);
-					JOptionPane.showMessageDialog(null,"Usuario desbloqueado correctamente");
-				}else {
-					JOptionPane.showMessageDialog(null,"Error al desbloquear");
-				}
-				
-			}
-		});
-	}
 }
