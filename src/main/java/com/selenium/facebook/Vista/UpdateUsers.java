@@ -164,6 +164,7 @@ public class UpdateUsers extends JFrame {
 				us.setCategories_id(idCategoria);
 				try {
 					listCheck = new ArrayList<JCheckBox>();
+					listCheck.removeAll(listCheck);
 					List<String> list = us.getUserCategories();
 					for(String li : list) {
 						JCheckBox che = new JCheckBox(li);
