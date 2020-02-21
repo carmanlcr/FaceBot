@@ -25,6 +25,7 @@ public class Post implements Model{
 	private int tasks_grid_id;
 	private String link_post;
 	private boolean isFanPage;
+	private boolean isMaduration;
 	private String created_at;
 	private String updated_at; 
 	private String groups;
@@ -42,8 +43,8 @@ public class Post implements Model{
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
 		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,tasks_grid_id,link_post,isFanPage,groups,created_at,updated_at) "
-					+ " VALUE (?,?,?,?,?,?,?,?,?);";
+			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,tasks_grid_id,link_post,isFanPage,isMaduration,groups,created_at,updated_at) "
+					+ " VALUE (?,?,?,?,?,?,?,?,?,?);";
 			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
 			query.setInt(1, getUsers_id());
 			query.setInt(2, getCategories_id());
@@ -51,9 +52,10 @@ public class Post implements Model{
 			query.setInt(4, getTasks_grid_id());
 			query.setString(5, getLink_post());
 			query.setBoolean(6, isFanPage());
-			query.setString(7, getGroups());
-			query.setString(8, getCreated_at());
-			query.setString(9, getUpdated_at());
+			query.setBoolean(7, isMaduration());
+			query.setString(8, getGroups());
+			query.setString(9, getCreated_at());
+			query.setString(10, getUpdated_at());
 			query.executeUpdate();
 			
 		}catch(SQLException e) {
@@ -272,6 +274,14 @@ public class Post implements Model{
 
 	public void setFanPage(boolean isFanPage) {
 		this.isFanPage = isFanPage;
+	}
+
+	public boolean isMaduration() {
+		return isMaduration;
+	}
+
+	public void setMaduration(boolean isMaduration) {
+		this.isMaduration = isMaduration;
 	}
 
 	public String getGroups() {
