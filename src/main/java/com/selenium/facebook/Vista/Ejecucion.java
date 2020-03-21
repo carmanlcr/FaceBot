@@ -9,7 +9,6 @@ import com.selenium.facebook.Modelo.*;
 
 import java.sql.SQLException;
 
-import java.text.ParseException;
 
 import javax.swing.JMenuItem;
 import javax.swing.JLabel;
@@ -21,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JPopupMenu;
@@ -30,7 +30,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
-import java.awt.AWTException;
 import java.awt.Color;
 
 import java.io.IOException;
@@ -44,17 +43,17 @@ public class Ejecucion extends JFrame {
 	private JPanel contentPane;
 	private int categoria_id = 0;
 	private int generes_id = 0;
-	private List<String> list = new ArrayList<String>();
-	private List<String[]> listPost = new ArrayList<String[]>(); 
+	private List<String> list = new ArrayList<>();
+	private List<String[]> listPost = new ArrayList<>(); 
 	private User user = new User();
 	private JPanel panelUsuario = new JPanel();
-	private List<JLabel> listCheckBoxUsers = new ArrayList<JLabel>();
-	private List<String> listUsers = new ArrayList<String>();
+	private List<JLabel> listCheckBoxUsers = new ArrayList<>();
+	private List<String> listUsers = new ArrayList<>();
 	public static int lengthString = 0;
 	private int totalUser = 0;
 	private Categorie categories = new Categorie();
 	private Inicio_Aplicacion inicio;
-	
+	private JCheckBox chchbxNewCheckBox;
 	/**
 	 * Launch the application.
 	 */
@@ -62,7 +61,7 @@ public class Ejecucion extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Ejecucion frame = new Ejecucion(categoria_id, generes_id, inicio);
+					Ejecucion frame = new Ejecucion(categoria_id, generes_id, inicio, chchbxNewCheckBox);
 					frame.setTitle(categories.getNameCategories(categoria_id));
 					frame.setVisible(true);
 					
@@ -78,14 +77,17 @@ public class Ejecucion extends JFrame {
 	 * Create the frame.
 	 * @param id_genere 
 	 * @param iniApli 
+	 * @param chckbxNewCheckBox2 
 	 * @throws SQLException 
 	 */
-	public Ejecucion(int id, int id_genere, final Inicio_Aplicacion iniApli) throws SQLException {
+	public Ejecucion(int id, int id_genere, final Inicio_Aplicacion iniApli, JCheckBox chckbxNewCheckBox2) throws SQLException {
 		setTitle("Validacion");
 		inicio = iniApli;
 		
 		this.categoria_id = id;
 		this.generes_id = id_genere;
+		this.chchbxNewCheckBox = chckbxNewCheckBox2;
+		final boolean isFanPage = chchbxNewCheckBox.isSelected() ? true : false;
 		inicio.setCategories_id(categoria_id);
 		inicio.setGeneres_id(generes_id);
 		setResizable(false);
@@ -120,30 +122,20 @@ public class Ejecucion extends JFrame {
 					listUsers.add(text.trim());
 				}
 
-				if(listCheckBoxUsers.size() < 1) {
+				if(listCheckBoxUsers.isEmpty()) {
 					JOptionPane.showMessageDialog(null, "NO HAY USUARIOS PARA ESTA CAMPAÑA PARA PUBLICAR");
 				}else {
 					iniApli.setCategories_id(categoria_id);
 					iniApli.setGeneres_id(generes_id);
 					iniApli.insert();
-					InicioController init = new InicioController(categoria_id,listUsers);
+					InicioController init = new InicioController(categoria_id,listUsers,isFanPage);
 					setExtendedState(ICONIFIED);
 					try {
-						try {
-							init.init();
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-					} catch (SQLException  e) {
+						init.init();
+					} catch (SQLException |IOException | InterruptedException e) {
 						e.printStackTrace();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} catch (AWTException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}					
+					} 	
+				}
 				
 			}
 		});
@@ -180,11 +172,9 @@ public class Ejecucion extends JFrame {
 					.addContainerGap(75, Short.MAX_VALUE))
 		);
 		
-		list = user.getUserCategorie(categoria_id,generes_id);
-		if(list.size() < 1) {
+		list = user.getUserCategorie(categoria_id,generes_id,isFanPage);
+		if(list.isEmpty()) {
 			JOptionPane.showMessageDialog(null, "YA NO HAY TAREAS PARA HOY PARA ESTA CAMPANA");
-		}else {
-			
 		}
 		scrollPane.setViewportView(panelUsuario);
 		

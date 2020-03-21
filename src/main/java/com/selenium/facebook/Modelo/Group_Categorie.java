@@ -11,32 +11,34 @@ import com.selenium.facebook.Interface.Model;
 
 public class Group_Categorie implements Model {
 
-	private final String TABLE_NAME = "groups_categories";
+	private static final String TABLE_NAME = "groups_categories";
 	private int groups_categories_id;
 	private String name;
+	private boolean isSpanish;
 	private String created_at;
+	private String updated_at;
 	private int categories_id;
 	
 	private Conexion conn = new Conexion();
 	ResultSet rs;
 	@Override
 	public void insert() throws SQLException {
-		// TODO Auto-generated method stub
-
+		//Not used
 	}
 
 	@Override
 	public void update() throws SQLException {
-		// TODO Auto-generated method stub
-
+		//Not used
 	}
 
 	public Group_Categorie getGroupSearch() {
 		Group_Categorie groCa = null;
-		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? ORDER BY RAND() LIMIT 1;";
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? "
+				+ " ORDER BY RAND() LIMIT 1;";
 		
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement  queryE = (PreparedStatement) conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  queryE = conexion.prepareStatement(query);){
+			
 			queryE.setInt(1, getCategories_id());
 			
 			rs = queryE.executeQuery();
@@ -45,7 +47,9 @@ public class Group_Categorie implements Model {
 				groCa = new Group_Categorie();
 				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
 				groCa.setName(rs.getString("name"));
+				groCa.setSpanish(rs.getBoolean("isSpanish"));
 				groCa.setCreated_at(rs.getString("created_at"));
+				groCa.setUpdated_at(rs.getString("updated_at"));
 				groCa.setCategories_id(rs.getInt("categories_id"));
 			}
 		}catch(SQLException e) {
@@ -58,8 +62,9 @@ public class Group_Categorie implements Model {
 		Group_Categorie groCa = null;
 		String query = "SELECT * FROM "+TABLE_NAME+" ORDER BY RAND() LIMIT 1;";
 		
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement  queryE = (PreparedStatement) conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  queryE = conexion.prepareStatement(query);){
+			
 			
 			rs = queryE.executeQuery();
 			
@@ -67,7 +72,9 @@ public class Group_Categorie implements Model {
 				groCa = new Group_Categorie();
 				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
 				groCa.setName(rs.getString("name"));
+				groCa.setSpanish(rs.getBoolean("isSpanish"));
 				groCa.setCreated_at(rs.getString("created_at"));
+				groCa.setUpdated_at(rs.getString("updated_at"));
 				groCa.setCategories_id(rs.getInt("categories_id"));
 			}
 		}catch(SQLException e) {
@@ -77,21 +84,25 @@ public class Group_Categorie implements Model {
 	}
 	
 	public List<Group_Categorie> getGroupCategorie() {
-		List<Group_Categorie> listC = new ArrayList<Group_Categorie>();
+		List<Group_Categorie> listC = new ArrayList<>();
 		Group_Categorie groCa = null;
-		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? ORDER BY RAND();";
+		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? "
+				+ " AND isSpanish = ? ORDER BY RAND();";
 		
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement  queryE = (PreparedStatement) conexion.prepareStatement(query);
-			queryE.setInt(1, getCategories_id());
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  queryE =  conexion.prepareStatement(query);){
 			
+			queryE.setInt(1, getCategories_id());
+			queryE.setBoolean(2, isSpanish());
 			rs = queryE.executeQuery();
 			
 			while(rs.next()) {
 				groCa = new Group_Categorie();
 				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
 				groCa.setName(rs.getString("name"));
+				groCa.setSpanish(rs.getBoolean("isSpanish"));
 				groCa.setCreated_at(rs.getString("created_at"));
+				groCa.setUpdated_at(rs.getString("updated_at"));
 				groCa.setCategories_id(rs.getInt("categories_id"));
 				listC.add(groCa);
 			}
@@ -116,12 +127,28 @@ public class Group_Categorie implements Model {
 		this.name = name;
 	}
 
+	public boolean isSpanish() {
+		return isSpanish;
+	}
+
+	public void setSpanish(boolean isSpanish) {
+		this.isSpanish = isSpanish;
+	}
+
 	public String getCreated_at() {
 		return created_at;
 	}
 
 	public void setCreated_at(String created_at) {
 		this.created_at = created_at;
+	}
+
+	public String getUpdated_at() {
+		return updated_at;
+	}
+
+	public void setUpdated_at(String updated_at) {
+		this.updated_at = updated_at;
 	}
 
 	public int getCategories_id() {

@@ -198,6 +198,42 @@ public class Post implements Model{
 		return po;
 	}
 	
+	public List<Post> getPostForComments() {
+		List<Post> listPost = new ArrayList<>();
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT p.* FROM posts p ");
+		query.append("INNER JOIN users_groups ug ON ug.groups_id = p.groups AND ug.users_id = ? ");
+		query.append("WHERE p.posts_id NOT IN (SELECT pc.posts_id FROM posts_comments pc WHERE pc.users_id = ?) ");
+		query.append("AND p.users_id <> ? AND p.link_post IS NOT NULL;");
+		
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(query.toString());){
+			exe.setInt(1, getUsers_id());
+			exe.setInt(2, getUsers_id());
+			exe.setInt(3, getUsers_id());
+			
+			ResultSet result = exe.executeQuery();
+			
+			while(result.next()){
+				Post post = new Post();
+				post.setPosts_id(result.getInt("p.posts_id"));
+				post.setUsers_id(result.getInt("p.users_id"));
+				post.setCategories_id(result.getInt("p.categories_id"));
+				post.setTasks_grid_id(result.getInt("p.tasks_grid_id"));
+				post.setLink_post(result.getString("p.link_post"));
+				post.setMaduration(result.getBoolean("p.isMaduration"));
+				post.setFanPage(result.getBoolean("p.isFanPage"));
+				post.setGroups(result.getString("p.groups"));
+				listPost.add(post);
+			}
+			
+			result.close();
+		}catch(SQLException e) {
+			e.getStackTrace();
+		}
+		return listPost;
+	}
+	
 	@Override
 	public void update() throws SQLException {
 		// TODO Auto-generated method stub

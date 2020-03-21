@@ -43,7 +43,7 @@ public class User implements Model{
 		User user = null;
 		String query = "SELECT u.users_id, u.username, u.email, u.full_name, u.phone, "
 				+ "u.password, u.creator, u.date_of_birth, u.active, u.sim_card_number, "
-				+ "u.vpn_id, IFNULL(ub.users_block_id,0) as user_blo_null "
+				+ "u.vpn_id, IFNULL(ub.users_block_id,0) as user_blo_null, u.created_at "
 				+ "FROM "+TABLE_NAME+" u "
 				+ "LEFT JOIN users_block ub ON ub.users_id = u.users_id AND ub.active = 1 "
 				+ "WHERE u.email = '"+getEmail()+"' OR u.username= '"+getUsername()+"';";
@@ -54,11 +54,14 @@ public class User implements Model{
                user = new User();
                user.setUsers_id(rs.getInt("u.users_id"));
                user.setUsername(rs.getString("u.username"));
+               user.setFull_name(rs.getString("u.full_name"));
                user.setPassword(rs.getString("u.password"));
                user.setVpn_id(rs.getInt("u.vpn_id"));
                user.setEmail(rs.getString("u.email"));
                user.setActive(rs.getBoolean("u.active"));
                user.setCreator(rs.getString("u.creator"));
+               user.setCreated_at(rs.getString("u.created_at"));
+               user.setDate_of_birth(rs.getString("u.date_of_birth"));
                boolean block = rs.getInt("user_blo_null")  == 0 ? false : true; 
                user.setBlock(block);
 			}
@@ -201,14 +204,15 @@ public class User implements Model{
 		
 	}
 	
-	public List<String> getUserCategorie(int id, int id_genere) throws SQLException{
-		ArrayList<String> lista = new ArrayList<String>();
+	public List<String> getUserCategorie(int id, int id_genere, boolean isFanPage) throws SQLException{
+		ArrayList<String> lista = new ArrayList<>();
 		dateFormat = new SimpleDateFormat("yyy-MM-dd");
 		String query = "SELECT u.username FROM tasks_grid tg " + 
 				"INNER JOIN tasks_grid_detail tgd ON tg.tasks_grid_id = tgd.tasks_grid_id " + 
 				"INNER JOIN "+TABLE_NAME+" u ON u.users_id = tgd.users_id " + 
 				"WHERE tgd.users_id NOT IN (SELECT pt.users_id FROM posts pt WHERE DATE(pt.created_at) = ? AND pt.tasks_grid_id = tg.tasks_grid_id) " + 
-				"AND tg.categories_id = ? AND tg.generes_id = ? AND tg.active = ? AND DATE(tg.date_publication) = ? " + 
+				"AND tg.categories_id = ? AND tg.generes_id = ? AND tg.active = ? AND DATE(tg.date_publication) = ? " +
+				"AND tg.isFanPage = ? "  +
 				"ORDER BY tg.date_publication ASC;";
 		date = new Date();
 		try (Connection conexion = conn.conectar();
@@ -218,6 +222,7 @@ public class User implements Model{
 			pre.setInt(3, id_genere);
 			pre.setInt(4, 1);
 			pre.setString(5, dateFormat.format(date));
+			pre.setBoolean(6, isFanPage);
 			ResultSet rs = pre.executeQuery();
 			while (rs.next() ) {
 				lista.add(rs.getString("u.username"));
@@ -231,7 +236,7 @@ public class User implements Model{
  	}
 	
 	public List<String> getUserCategories() throws SQLException{
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		String query = "SELECT us.username "
 				+ "FROM "+TABLE_NAME+" us "
 				+ "INNER JOIN users_categories uc ON uc.users_id = us.users_id "

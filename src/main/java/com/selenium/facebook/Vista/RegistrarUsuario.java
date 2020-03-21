@@ -46,10 +46,10 @@ public class RegistrarUsuario extends JFrame {
 	private JTextField simCardField = new JTextField();
 	private Vpn v = new Vpn();
 	private HashMap<String, Integer> vpn = v.getAllVpn();
-	private JComboBox<String> comboBoxvPN_1 = new JComboBox<String>();
+	private JComboBox<String> comboBoxvPN_1 = new JComboBox<>();
 	private Categorie cate = new Categorie();
 	private HashMap<String, Integer> list = cate.getComboBox();
-	private JComboBox<String> comboBoxCategori_1  = new JComboBox<String>();
+	private JComboBox<String> comboBoxCategori_1  = new JComboBox<>();
 	private JButton btnRegistrar = new JButton("Registrar");
 	private RegistrarUsuario frame;
 	
@@ -252,8 +252,8 @@ public class RegistrarUsuario extends JFrame {
 	
 
 	private JComboBox<String> setComboBoxVpn(final SortedSet<String> keysVpn) {
-		comboBoxvPN_1 = new JComboBox<String>();
-		
+		comboBoxvPN_1 = new JComboBox<>();
+	
 		for (String jugador : keysVpn){
 			
 			comboBoxvPN_1.addItem(jugador);
@@ -262,7 +262,7 @@ public class RegistrarUsuario extends JFrame {
 	}
 	
 	private JComboBox<String> setComboBoxCategorias(SortedSet<String> keys) {
-		comboBoxCategori_1 = new JComboBox<String>();
+		comboBoxCategori_1 = new JComboBox<>();
 		
 		for (String string : keys) {
 			comboBoxCategori_1.addItem(string);
@@ -275,47 +275,44 @@ public class RegistrarUsuario extends JFrame {
 			
 			public void actionPerformed(ActionEvent e) {
 
-				BigInteger telefono = new BigInteger(telefonoField.getText().trim());
-				if(Integer.parseInt(vpn.get(comboBoxvPN_1.getSelectedItem().toString()).toString()) == 0) {
-					JOptionPane.showMessageDialog(null,"Debe seleccionar una VPN");
-				}else {
-					User usuario = new User();
-					usuario.setFull_name(NameField.getText().trim());
-					usuario.setUsername(usernameField.getText().trim());
-					usuario.setEmail(emailField.getText().trim());
-					usuario.setPassword(passwordField.getText().trim());
-					usuario.setPhone(telefono);
-					usuario.setCreator(creadorField.getText().trim());
-					usuario.setDate_of_birth(fdnField.getText().trim());
-					usuario.setSim_card_number(Integer.parseInt(simCardField.getText().trim()));
-					usuario.setVpn_id(Integer.parseInt(vpn.get(comboBoxvPN_1.getSelectedItem().toString()).toString()));
-					usuario.setCategories_id(Integer.parseInt(list.get(comboBoxCategori_1.getSelectedItem().toString()).toString()));
-					contentPane.setEnabled(false);
-					try {
-						usuario.insert();
-						JOptionPane.showMessageDialog(null,"Usuario agregado con exito");
-						NameField.setText("");
-						NameField.setFocusable(true);
-						telefonoField.setText("");
-						usernameField.setText("");
-						emailField.setText("");
-						passwordField.setText("");
-						creadorField.setText("");
-						fdnField.setText("");
-						simCardField.setText("");
-						comboBoxvPN_1.setSelectedIndex(0);
-						comboBoxCategori_1.setSelectedIndex(0);
-					}catch(MysqlDataTruncation e3) {
-						JOptionPane.showMessageDialog(null, "Hay error en uno de los datos ingresados, por favor validar","Failed",JOptionPane.ERROR_MESSAGE);
-					}catch(MySQLIntegrityConstraintViolationException e2) {
-						JOptionPane.showMessageDialog(null, "Usuario o correo repetido, por favor validar","Failed",JOptionPane.ERROR_MESSAGE);
-					}catch (SQLException e1) {
-						JOptionPane.showMessageDialog(null, "Error al ingresar usuario, por favor validar los campos","Failed",JOptionPane.ERROR_MESSAGE);
-					}
-					
+			BigInteger telefono = new BigInteger(telefonoField.getText().trim());
+
+			User usuario = new User();
+			usuario.setFull_name(NameField.getText().trim());
+			usuario.setUsername(usernameField.getText().trim());
+			usuario.setEmail(emailField.getText().trim());
+			usuario.setPassword(passwordField.getText().trim());
+			usuario.setPhone(telefono);
+			usuario.setCreator(creadorField.getText().trim());
+			usuario.setDate_of_birth(fdnField.getText().trim());
+			usuario.setSim_card_number(Integer.parseInt(simCardField.getText().trim()));
+			usuario.setVpn_id(Integer.parseInt(vpn.get(comboBoxvPN_1.getSelectedItem().toString()).toString()));
+			usuario.setCategories_id(Integer.parseInt(list.get(comboBoxCategori_1.getSelectedItem().toString()).toString()));
+			contentPane.setEnabled(false);
+			try {
+				usuario.insert();
+				JOptionPane.showMessageDialog(null,"Usuario agregado con exito");
+				NameField.setText("");
+				NameField.setFocusable(true);
+				telefonoField.setText("");
+				usernameField.setText("");
+				emailField.setText("");
+				passwordField.setText("");
+				creadorField.setText("");
+				fdnField.setText("");
+				simCardField.setText("");
+				comboBoxvPN_1.setSelectedIndex(0);
+				comboBoxCategori_1.setSelectedIndex(0);
+			}catch(MysqlDataTruncation e3) {
+				JOptionPane.showMessageDialog(null, "Hay error en uno de los datos ingresados, por favor validar","Failed",JOptionPane.ERROR_MESSAGE);
+			}catch(MySQLIntegrityConstraintViolationException e2) {
+				JOptionPane.showMessageDialog(null, "Usuario o correo repetido, por favor validar","Failed",JOptionPane.ERROR_MESSAGE);
+			}catch (SQLException e1) {
+				JOptionPane.showMessageDialog(null, "Error al ingresar usuario, por favor validar los campos","Failed",JOptionPane.ERROR_MESSAGE);
 				}
 				
 			}
+				
 		});
 	}
 }

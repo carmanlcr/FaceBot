@@ -45,14 +45,12 @@ public class Group implements Model {
 				
 			} catch(SQLException e)  {
 				System.err.println(e);
-			} catch(Exception e){
-				System.err.println(e);
-			}
+			} 
 	}
 
 	@Override
 	public void update() throws SQLException {
-		// TODO Auto-generated method stub
+		// none
 
 	}
 	
@@ -79,7 +77,7 @@ public class Group implements Model {
 	}
 	
 	public List<Group> getGroupNotPublication(String string1, String string2, int users_id) {
-		List<Group> listG = new ArrayList<Group>();
+		List<Group> listG = new ArrayList<>();
 		Group gp = null;
 		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id "
 				+ "FROM users_groups ug "
@@ -117,7 +115,7 @@ public class Group implements Model {
 	}
 	
 	public List<Group> getGroupNotPublication(int quantityGroups) {
-		List<Group> listG = new ArrayList<Group>();
+		List<Group> listG = new ArrayList<>();
 		Group gp = null;
 		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, gp.users_id "
 				+ "FROM "+TABLE_NAME+" gp "
@@ -170,6 +168,28 @@ public class Group implements Model {
 			System.err.println(e);
 		}
 		return gro;
+	}
+	
+	public int getCountUsersForGroups(){
+		String query = "SELECT g.groups_id, count(*) as quantity FROM groups g "  
+				+ "INNER JOIN users_groups ug ON ug.groups_id = g.groups_id "  
+				+ "WHERE g.groups_id = ? "  
+				+"GROUP BY g.groups_id;";
+		int quantityUsersInGroup = 0;
+		try(Connection conexion = conn.conectar();
+				PreparedStatement pre = conexion.prepareStatement(query)) {
+			pre.setString(1, getGroups_id());
+			ResultSet rs = pre.executeQuery();
+			
+			
+			if(rs.next()) {
+				quantityUsersInGroup = rs.getInt("quantity");
+			}
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return quantityUsersInGroup;
 	}
 
 	public String getGroups_id() {

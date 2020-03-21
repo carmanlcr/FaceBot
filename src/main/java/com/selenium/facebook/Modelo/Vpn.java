@@ -150,6 +150,7 @@ public class Vpn implements Model{
 		try (Connection conexion = conn.conectar();){
 			PreparedStatement pst = conexion.prepareStatement(query);
 			ResultSet rs = pst.executeQuery();
+			mapGe.put("Sin Vpn",0);
 			while (rs.next() ) {
 				mapGe.put(rs.getString("v.name"), rs.getInt("v.vpn_id"));
 			}

@@ -5,12 +5,12 @@ public class IniciaSesion {
 	
 	private String username;
 	private String password;
-	private Controller.DriverController dr;
+	private configurations.controller.DriverController dr;
 	private String URL_LOGIN_FACEBOOK = "https://mbasic.facebook.com/";
 	
 	
 	
-	public IniciaSesion(Controller.DriverController drive,String username, String password) {
+	public IniciaSesion(configurations.controller.DriverController drive,String username, String password) {
 		this.dr = drive;
 		this.username = username;
 		this.password = password;
@@ -28,7 +28,7 @@ public class IniciaSesion {
 		System.out.println("Ingreso en la pagina para iniciar sesión");
 		Thread.sleep(1250);
 			
-		while(dr.searchElement(2, "email") == 0);
+		while(dr.searchElement(2, "email") == 0 || dr.searchElement(3, "m_login_email") == 0);
 		//Insertar el usuario
 		if(dr.searchElement(2, "email") != 0) {
 			System.out.println("Escribir el usuario");
@@ -42,10 +42,10 @@ public class IniciaSesion {
 			System.out.println("Dar Click al boton de iniciar sesión");
 			dr.clickButton(2, "login","Login inicio de sesion");
 			
-		}else if(dr.searchElement(2, "email") != 0) {
+		}else if(dr.searchElement(3, "m_login_email") != 0) {
 			//Insertar el usuario
 			System.out.println("Escribir el usuario");
-			dr.inputWrite(2, "email", username ,110);
+			dr.inputWrite(3, "m_login_email", username ,110);
 			//Insertar la contraseña
 			Thread.sleep(1000);
 			System.out.println("Escribir la contraseña");

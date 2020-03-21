@@ -14,7 +14,7 @@ import com.selenium.facebook.Interface.Model;
 
 public class User_Group implements Model {
 
-	private final String TABLE_NAME = "users_groups";
+	private static final String TABLE_NAME = "users_groups";
 	private int users_grouops_id;
 	private int users_id;
 	private String groups_id;
@@ -72,7 +72,6 @@ public class User_Group implements Model {
 	
 	@Override
 	public void update() throws SQLException {
-		// TODO Auto-generated method stub
 
 	}
 	
@@ -99,7 +98,7 @@ public class User_Group implements Model {
 	
 	public List<Group> getGroupNotPublication(String string1, String string2, int users_id) {
 		date = new Date();
-		List<Group> listG = new ArrayList<Group>();
+		List<Group> listG = new ArrayList<>();
 		Group gp = null;
 		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id " + 
 				"FROM "+TABLE_NAME+" ug " + 
@@ -138,7 +137,7 @@ public class User_Group implements Model {
 		Group gp = null;
 		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id " + 
 				"FROM "+TABLE_NAME+" ug " + 
-				"INNER JOIN (select * from groups where name like ?) gp ON ug.groups_id = gp.groups_id " + 
+				"INNER JOIN (select * from groups where name like ? AND cant_miembros >= 3000) gp ON ug.groups_id = gp.groups_id " + 
 				"INNER JOIN (select * from groups where name like ?) C ON C.groups_id = gp.groups_id " + 
 				"WHERE ug.groups_id NOT IN (SELECT pt.groups FROM posts pt WHERE pt.groups IS NOT NULL " + 
 				"AND DATE(pt.created_at) = ?) " + 
@@ -170,10 +169,10 @@ public class User_Group implements Model {
 	}
 	
 	public Group getOneGroupNotPublicationTrash(String string1, String string2) {
-		Group gp = null;
+		Group gp =  null;
 		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id " + 
 				"FROM "+TABLE_NAME+" ug " + 
-				"INNER JOIN (select * from groups where name like ?) gp ON ug.groups_id = gp.groups_id " + 
+				"INNER JOIN (select * from groups where name like ? AND cant_miembros >= 3000) gp ON ug.groups_id = gp.groups_id " + 
 				"LEFT JOIN (select * from groups where name like ?) C ON C.groups_id = gp.groups_id " + 
 				"WHERE ug.groups_id NOT IN (SELECT pt.groups FROM posts pt WHERE pt.groups IS NOT NULL " + 
 				"AND DATE(pt.created_at) = ?) " + 
@@ -190,8 +189,8 @@ public class User_Group implements Model {
 			exe.setInt(4, getUsers_id());
 			ResultSet rs = exe.executeQuery();
 			
-			while(rs.next()) {
-				gp = new Group();
+			if(rs.next()) {
+				gp= new Group();
 				gp.setName(rs.getString("gp.name"));
 				gp.setActive(rs.getBoolean("gp.active"));
 				gp.setGroups_id(rs.getString("gp.groups_id"));
@@ -205,14 +204,14 @@ public class User_Group implements Model {
 	}
 	
 	public List<Group> getGroupNotPublication(int quantityGroups) {
-		List<Group> listG = new ArrayList<Group>();
+		List<Group> listG = new ArrayList<>();
 		Group gp = null;
 		date = new Date();
 		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id "
 				+ "FROM "+TABLE_NAME+" ug "
 				+ "INNER JOIN groups gp ON ug.groups_id = gp.groups_id "
-				+"WHERE ug.groups_id NOT IN (SELECT pt.groups FROM posts pt WHERE pt.groups IS NOT NULL "  
-				+ "AND DATE(pt.created_at) = ?) "
+				+"WHERE ug.groups_id NOT IN "
+				+ "(SELECT pt.groups FROM posts pt WHERE pt.groups IS NOT NULL AND DATE(pt.created_at) = ?) "  
 				+ "AND ug.users_id = ? "
 				+ "GROUP BY gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id "
 				+ "ORDER BY RAND() LIMIT ?; ";

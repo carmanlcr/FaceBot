@@ -21,7 +21,7 @@ public class User_Block extends User implements Model{
 	private String created_at;
 	private String updated_at;
 	private Date date = new Date();
-	private DateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd");
+	private DateFormat dateFormatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private static Conexion conn = new Conexion();
 	Statement st;
@@ -51,10 +51,10 @@ public class User_Block extends User implements Model{
 		String query = "SELECT us.users_id FROM "+TABLE_NAME+" us WHERE users_id = "+getUsers_id()+" AND active = 1;";
 		try (Connection conexion = conn.conectar();
 				Statement st = conexion.createStatement();
-				ResultSet rs = st.executeQuery(query)){
+				ResultSet rs1 = st.executeQuery(query)){
 			
-			while (rs.next() ) {
-               id =  rs.getInt("us.users_id");
+			while (rs1.next() ) {
+               id =  rs1.getInt("us.users_id");
 			}
 		}catch(SQLException e) {
 			System.err.println(e);
