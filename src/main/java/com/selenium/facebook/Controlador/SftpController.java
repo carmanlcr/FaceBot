@@ -11,13 +11,14 @@ import com.jcraft.jsch.SftpException;
  * Connecion SFTP para la descarga de imagenes en el servidor
  * 
  * @author Luis Morales
+ * @deprecated
  *
  */
 public class SftpController {
 
-	private final String URL_SFTP = "192.168.2.6";
-	private final String USERNAME = "root";
-	private final String PASSWORD = "R315T4R*";
+	private static final String URL_SFTP = "192.168.2.6";
+	private static final String USERNAME = "root";
+	private static final String PASSWORD = "R315T4R*";
 	private JSch jsch;
 	
 	
