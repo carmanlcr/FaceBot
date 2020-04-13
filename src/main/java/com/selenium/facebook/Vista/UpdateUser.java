@@ -18,7 +18,7 @@ import com.selenium.facebook.Modelo.Vpn;
 
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -39,7 +39,7 @@ public class UpdateUser {
 	private JTextField email;
 	private JTextField username;
 	private JTextField password;
-	private HashMap<String, Integer> mapVpn;
+	private Map<String, Integer> mapVpn;
 	private Vpn vp = new Vpn();
 	private int users_id;
 	/**

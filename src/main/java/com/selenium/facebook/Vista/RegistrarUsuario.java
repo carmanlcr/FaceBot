@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -45,10 +45,10 @@ public class RegistrarUsuario extends JFrame {
 	private JTextField fdnField = new JTextField();
 	private JTextField simCardField = new JTextField();
 	private Vpn v = new Vpn();
-	private HashMap<String, Integer> vpn = v.getAllVpn();
+	private Map<String, Integer> vpn = v.getAllVpn();
 	private JComboBox<String> comboBoxvPN_1 = new JComboBox<>();
 	private Categorie cate = new Categorie();
-	private HashMap<String, Integer> list = cate.getComboBox();
+	private Map<String, Integer> list = cate.getComboBox();
 	private JComboBox<String> comboBoxCategori_1  = new JComboBox<>();
 	private JButton btnRegistrar = new JButton("Registrar");
 	private RegistrarUsuario frame;

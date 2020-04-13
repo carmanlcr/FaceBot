@@ -15,8 +15,8 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JScrollPane;
 import java.awt.GridLayout;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -39,12 +39,12 @@ public class UpdateUsers extends JFrame {
 	private JLabel lblCategoras = new JLabel("Categorías");
 	private JButton btnActualizar = new JButton("Actualizar");
 	private JPanel panel = new JPanel();
-	private JComboBox<String> comboBox = new JComboBox<String>();
-	private JComboBox<String> comboBox_1 = new JComboBox<String>();
+	private JComboBox<String> comboBox = new JComboBox<>();
+	private JComboBox<String> comboBox_1 = new JComboBox<>();
 	private Categorie cate = new Categorie();
 	private List<JCheckBox> listCheck;
-	private List<String> listUsersSelected = new ArrayList<String>();
-	private HashMap<String, Integer> list;
+	private List<String> listUsersSelected = new ArrayList<>();
+	private Map<String, Integer> list;
 	/**
 	 * Launch the application.
 	 */
@@ -163,8 +163,7 @@ public class UpdateUsers extends JFrame {
 				User us = new User();
 				us.setCategories_id(idCategoria);
 				try {
-					listCheck = new ArrayList<JCheckBox>();
-					listCheck.removeAll(listCheck);
+					listCheck = new ArrayList<>();
 					List<String> list = us.getUserCategories();
 					for(String li : list) {
 						JCheckBox che = new JCheckBox(li);

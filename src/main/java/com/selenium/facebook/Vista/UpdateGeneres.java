@@ -19,6 +19,7 @@ import javax.swing.JCheckBox;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.awt.event.ActionEvent;
 
@@ -26,11 +27,11 @@ public class UpdateGeneres {
 
 	private JFrame frmActualizarCampaa;
 	private JTextField genero_Text;
-	private JComboBox<String> comboBox_Campana = new JComboBox<String>();
-	private JComboBox<String> comboBox_Genero = new JComboBox<String>();
-	private JComboBox<String> comboBox_CampanaChange = new JComboBox<String>();
-	private HashMap<String, Integer> hashCampana = new HashMap<String, Integer>();
-	private HashMap<String, Integer> hashGenere = new HashMap<String, Integer>();
+	private JComboBox<String> comboBox_Campana = new JComboBox<>();
+	private JComboBox<String> comboBox_Genero = new JComboBox<>();
+	private JComboBox<String> comboBox_CampanaChange = new JComboBox<>();
+	private Map<String, Integer> hashCampana = new HashMap<>();
+	private Map<String, Integer> hashGenere = new HashMap<>();
 	private Genere gene;
 	
 	/**
@@ -125,17 +126,8 @@ public class UpdateGeneres {
 					genere.setName(genero_Text.getText());
 					genere.setCategories_id(Integer.parseInt(hashCampana.get(comboBox_CampanaChange.getSelectedItem().toString()).toString()));
 					genere.setFan_page(fanpage.getText());
-					if(basura.isSelected()){
-						genere.setTrash(true);
-					}else {
-						genere.setTrash(false);
-					}
-					
-					if(activo.isSelected()) {
-						genere.setActive(true);
-					}else {
-						genere.setActive(false);
-					}
+					genere.setTrash(basura.isSelected());
+					genere.setActive(activo.isSelected());
 					genere.setGeneres_id(gene.getGeneres_id());
 					
 					try {
@@ -249,7 +241,7 @@ public class UpdateGeneres {
 					for(String s : hashCampana.keySet()) comboBox_CampanaChange.addItem(s);
 					comboBox_CampanaChange.setEnabled(true);
 					for(Entry<String, Integer> entry : hashCampana.entrySet()) 
-						if(entry.getValue() == gene.getCategories_id()) comboBox_CampanaChange.setSelectedItem(entry.getKey());;
+						if(entry.getValue() == gene.getCategories_id()) comboBox_CampanaChange.setSelectedItem(entry.getKey());
 					fanpage.setEditable(true);
 					fanpage.setEnabled(true);
 					fanpage.setText(gene.getFan_page());

@@ -39,7 +39,7 @@ public class InicioFrame extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+	private static final String VERSION = "2.1.51";
 	private JPanel contentPane;
 	private final JMenuBar barMenu = new JMenuBar();
 	private final JMenu mnUsuarios = new JMenu("Usuarios");
@@ -300,7 +300,7 @@ public class InicioFrame extends JFrame {
 			}
 		});
 		
-		JLabel lblNewLabel = new JLabel("v 2.0.47");
+		JLabel lblNewLabel = new JLabel("v "+VERSION);
 		lblNewLabel.setFont(new Font("Arial", Font.PLAIN, 12));
 		
 		final JCheckBox chckbxNewCheckBox = new JCheckBox("Fan Page");
@@ -351,7 +351,7 @@ public class InicioFrame extends JFrame {
 		);
 		contentPane.setLayout(glContentPane);
 		final Inicio_Aplicacion iniApli = new Inicio_Aplicacion();
-		iniApli.setVersion("2.0.47");
+		iniApli.setVersion(VERSION);
 		
 		empezar.addActionListener(new ActionListener() {
 			

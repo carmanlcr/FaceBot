@@ -16,7 +16,7 @@ import org.openqa.selenium.ElementClickInterceptedException;
 import com.selenium.facebook.Modelo.*;
 
 import configurations.controller.VpnController;
-
+import configurations.controller.SftpController;;
 
 
 public class InicioController {
@@ -35,7 +35,7 @@ public class InicioController {
 	private int idGenere;
 	private boolean isAddGroups;
 	private boolean isAddFriends;
-	private boolean isGroupsInSpanish;
+	private int languages_id;
 	private int quantity_groups;
 	private int quantity_min;
 	private int cantGroupsAdd;
@@ -100,7 +100,7 @@ public class InicioController {
 						quantity_min = taskG.getQuantity_min();
 						isAddGroups = taskG.isAddGroups();
 						isAddFriends = taskG.isAddFriends();
-						isGroupsInSpanish = taskG.isGroupsInSpanish();
+						languages_id = taskG.getLanguages_id();
 						
 						
 						if(idlistTask == 0) {
@@ -248,6 +248,14 @@ public class InicioController {
 		if(drive.searchElement(1, "//*[text()[contains(.,'Siguiente')]]") != 0) {
 			try {
 				drive.clickButton(1, "//*[text()[contains(.,'Siguiente')]]", "Siguiente");
+			}catch(ElementClickInterceptedException e) {
+				System.out.println("No se puede hacer click en este elemento");
+			}
+		}
+		
+		if(drive.searchElement(1, "//*[text()[contains(.,'Next')]]") != 0) {
+			try {
+				drive.clickButton(1, "//*[text()[contains(.,'Next')]]", "Next xPath");
 			}catch(ElementClickInterceptedException e) {
 				System.out.println("No se puede hacer click en este elemento");
 			}
@@ -448,7 +456,6 @@ public class InicioController {
 
 	private void taskAthand(Integer task,int listTaskId) throws InterruptedException, SQLException {
 		switch (task) {
-		
 			case 1:
 				// Entrar en Editar Perfil
 				System.out.println("ENTRAR EN PERFIL Y DAR LIKE A FOTO");
@@ -511,6 +518,7 @@ public class InicioController {
 				break;
 			case 10:
 				commentsPost();
+				break;
 			default:
 				break;
 		}
@@ -556,7 +564,7 @@ public class InicioController {
 			
 			SftpController sftp = new SftpController();
 			System.out.println("Descagando imagen "+image);
-			sftp.downloadFileSftp(image);
+			sftp.downloadFileSftp(SftpController.PATH_IMAGE_UPLOAD, image,SftpController.PATH_IMAGE_DOWNLOAD_FTP);
 			//Si el genero esta clasificado como basura ingresar entre 9 y 14 
 			//grupos y publicar
 			if(gene != null && gene.isTrash()) {
@@ -687,7 +695,6 @@ public class InicioController {
 				
 			}
 			
-
 			// Esperar que aparezca el boton de publicar
 			while (drive.searchElement(2, "view_post") == 0)
 				;
@@ -1237,7 +1244,7 @@ public class InicioController {
 		if(trash) {
 			Group_Categorie gp = new Group_Categorie();
 			gp.setCategories_id(categoria_id);
-			gp.setSpanish(isGroupsInSpanish);
+			gp.setLanguages_id(languages_id);
 			Group groupC = new Group();
 			List<Group_Categorie> list = gp.getGroupCategorie();
 			System.out.println("Buscar grupos segun categoria ");
@@ -1467,12 +1474,10 @@ public class InicioController {
 			
 			Thread.sleep(1250);
 			
+			String link_publication = "";
 			if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]") != 0) {
-				String link_publication = "";
-				if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[3]/div/div/a") != 0) {
-				
-					link_publication = drive.getHref(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[3]/div/div/a");
-				}else if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]/div/div/a") != 0) {
+										  //html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]/div/div/a
+				if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]/div/div/a") != 0) {
 				
 					link_publication = drive.getHref(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]/div/div/a");
 				}
@@ -1483,6 +1488,17 @@ public class InicioController {
 					po.setLink_post(link_publication);
 				}
 				
+			}else if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[3]") != 0) {
+				if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[3]/div/div/a") != 0) {
+					
+					link_publication = drive.getHref(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[3]/div/div/a");
+				}
+				
+				System.out.println(link_publication);
+				System.out.println("groups/"+groupId);
+				if(link_publication.contains("groups/"+groupId)) {
+					po.setLink_post(link_publication);
+				}
 			}
 		}
 		
@@ -1595,8 +1611,9 @@ public class InicioController {
 			drive.clickButton(1, "//*[text()[contains(.,'Grupos')]]", "Grupos ");
 		}else if(drive.searchElement(1, "//*[text()[contains(.,'Groups')]]") != 0) {
 			drive.clickButton(1, "//*[text()[contains(.,'Groups')]]", "Grupos ");
+		}else {
+			drive.goPage("https://mbasic.facebook.com/groups/");
 		}
-		
 		if(drive.searchElement(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[6]/div/a") != 0 ) {
 			System.out.println("Ver todos los grupos");
 			pressSeeAll("/html/body/div/div/div[2]/div/table/tbody/tr/td/div[2]/ul/li[6]/div/a");
@@ -1959,7 +1976,7 @@ public class InicioController {
 		drive.goPage(PAGE);
 	}
 	
-	private void commentsPost() {
+	private void commentsPost() throws InterruptedException, SQLException {
 		System.out.println("COMENTAR POST");
 		
 		System.out.println("Buscar Post que no se hayan comentado");
@@ -1969,7 +1986,127 @@ public class InicioController {
 
 		List<Post> listP = pos.getPostForComments();
 		for(Post post : listP){
-			System.out.println(post);
+			drive.goPage(post.getLink_post());
+			if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/span") != 0
+				&& drive.searchElement(1, "/html/body/div/div/div[2]/div/div[2]/a") != 0) {
+				System.err.println("La página que solicitaste no puede mostrarse ahora mismo.");
+			}else {
+				System.out.println("Darle like");
+				likePublication();
+				Thread.sleep(2200);
+				Comment commentToWrite = new Comment();
+				commentToWrite.setCategories_id(post.getCategories_id());
+				commentToWrite = commentToWrite.getCommentCategorie(post.getPosts_id());
+				if(commentToWrite != null) {
+					writeComment(commentToWrite,post);
+				}
+			}
+		}
+	}
+	
+	private void writeComment(Comment commentPost, Post post) throws InterruptedException, SQLException {
+		if(drive.searchElement(3, "composerInput") != 0) {
+			System.out.println("Comentar post");
+			drive.inputWrite(3, "composerInput", commentPost.getComment(), 87);
+			if(drive.searchElement(1, "//*[text()[contains(.,'Comentar')]]") != 0) {
+				System.out.println("Pulsar comentar");
+				drive.clickButton(1, "//*[text()[contains(.,'Comentar')]]", "commentar xPath");
+				
+				if(drive.searchElement(2, "post") != 0 && drive.searchElement(2, "comment_text") != 0) {
+					System.out.println("Volver a comentar el post");
+					drive.inputWrite(2, "comment_text", commentPost.getComment(), 87);
+					
+					if(drive.searchElement(2, "post") != 0) {
+						System.out.println("Volver a pulsar comentar");
+						drive.clickButton(2, "post", "commentar name");
+					}else if(drive.searchElement(1, "//*[text()[contains(.,'Comentar')]]") != 0) {
+						System.out.println("Volver a pulsar comentar");
+						drive.clickButton(1, "//*[text()[contains(.,'Comentar')]]", "commentar xPath");
+					}else {
+						System.out.println("Volver a pulsar comentar 1");
+						robot.enter();
+						Thread.sleep(5000);
+					}
+					insertPostComment(post.getPosts_id(), commentPost.getComments_id());
+				}
+				
+			}else {
+				robot.enter();
+				Thread.sleep(5000);
+				
+				if(drive.searchElement(2, "post") != 0 && drive.searchElement(2, "comment_text") != 0) {
+					System.out.println("Volver a comentar el post");
+					drive.inputWrite(2, "comment_text", commentPost.getComment(), 87);
+					
+					if(drive.searchElement(2, "post") != 0) {
+						System.out.println("Volver a pulsar comentar");
+						drive.clickButton(2, "post", "commentar name");
+					}else if(drive.searchElement(1, "//*[text()[contains(.,'Comentar')]]") != 0) {
+						System.out.println("Volver a pulsar comentar");
+						drive.clickButton(1, "//*[text()[contains(.,'Comentar')]]", "commentar xPath");
+					}else {
+						System.out.println("Volver a pulsar comentar 1");
+						robot.enter();
+						Thread.sleep(5000);
+					}
+					insertPostComment(post.getPosts_id(), commentPost.getComments_id());
+				}
+				
+				
+			}
+			
+		
+		}else if(drive.searchElement(2, "comment_text") != 0) {
+			System.out.println("Comentar post");
+			drive.inputWrite(2, "comment_text", commentPost.getComment(), 87);
+			
+			if(drive.searchElement(1, "//*[text()[contains(.,'Comentar')]]") != 0) {
+				System.out.println("Pulsar comentar");
+				drive.clickButton(1, "//*[text()[contains(.,'Comentar')]]", "commentar xPath");
+				
+				if(drive.searchElement(2, "post") != 0 && drive.searchElement(2, "comment_text") != 0) {
+					System.out.println("Volver a comentar el post");
+					drive.inputWrite(2, "comment_text", commentPost.getComment(), 87);
+					
+					if(drive.searchElement(2, "post") != 0) {
+						System.out.println("Volver a pulsar comentar");
+						drive.clickButton(2, "post", "commentar name");
+					}else if(drive.searchElement(1, "//*[text()[contains(.,'Comentar')]]") != 0) {
+						System.out.println("Volver a pulsar comentar");
+						drive.clickButton(1, "//*[text()[contains(.,'Comentar')]]", "commentar xPath");
+					}else {
+						System.out.println("Volver a pulsar comentar 1");
+						robot.enter();
+						Thread.sleep(5000);
+					}
+					insertPostComment(post.getPosts_id(), commentPost.getComments_id());
+				}
+				
+			}else {
+				robot.enter();
+				Thread.sleep(5000);
+				
+				if(drive.searchElement(2, "post") != 0 && drive.searchElement(2, "comment_text") != 0) {
+					System.out.println("Volver a comentar el post");
+					drive.inputWrite(2, "comment_text", commentPost.getComment(), 87);
+					
+					if(drive.searchElement(2, "post") != 0) {
+						System.out.println("Volver a pulsar comentar");
+						drive.clickButton(2, "post", "commentar name");
+					}else if(drive.searchElement(1, "//*[text()[contains(.,'Comentar')]]") != 0) {
+						System.out.println("Volver a pulsar comentar");
+						drive.clickButton(1, "//*[text()[contains(.,'Comentar')]]", "commentar xPath");
+					}else {
+						System.out.println("Volver a pulsar comentar 1");
+						robot.enter();
+						Thread.sleep(5000);
+					}
+					
+				}
+				insertPostComment(post.getPosts_id(), commentPost.getComments_id());
+				
+			}
+			
 		}
 	}
 	
@@ -1979,6 +2116,18 @@ public class InicioController {
 		userB.setComentario(name);
 		if (userB.getIdUser() == 0) {
 			userB.insert();
+		}
+	}
+	
+	private void insertPostComment(int idPost, int idComments) {
+		Post_Comment postComments = new Post_Comment();
+		postComments.setUsers_id(idUser);
+		postComments.setPosts_id(idPost);
+		postComments.setComments_id(idComments);
+		try {
+			postComments.insert();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -1994,6 +2143,8 @@ public class InicioController {
             }
         
 	}
+	
+	
 
 	private static int getNumberRandomForSecond(int min, int max) {
 		return ThreadLocalRandom.current().nextInt(min, max + 1);
