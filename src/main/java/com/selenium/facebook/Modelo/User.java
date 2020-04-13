@@ -15,10 +15,12 @@ import java.text.SimpleDateFormat;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class User implements Model{
 	
-	private final String TABLE_NAME = "users";
+	private static final String TABLE_NAME = "users";
 	private int users_id;
 	private String username;
 	private String email;
@@ -32,7 +34,7 @@ public class User implements Model{
 	private int vpn_id;
 	private boolean active;
 	private boolean isBlock;
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private String created_at;
@@ -130,10 +132,12 @@ public class User implements Model{
 		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(username,email,full_name,phone,password,creator,date_of_birth,created_at,updated_at,sim_card_number,vpn_id)"
-					+ " VALUES (?, ?, ?,?, ?, ? , ?, ?, ?, ?,?);";
-			PreparedStatement exe = conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(username,email,full_name,phone,password,creator,date_of_birth,created_at,updated_at,sim_card_number,vpn_id)"
+				+ " VALUES (?, ?, ?,?, ?, ? , ?, ?, ?, ?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
+			
 			exe.setString(1, getUsername());
 			exe.setString(2, getEmail());
 			exe.setString(3, getFull_name());

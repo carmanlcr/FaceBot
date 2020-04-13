@@ -8,15 +8,18 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.selenium.facebook.Interface.Model;
+
+import configurations.connection.ConnectionFB;
 
 
 public class Categorie implements Model{
 
-	private final String TABLE_NAME = "categories";
+	private static final String TABLE_NAME = "categories";
 	private String name;
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	
 	
 	public void insert() {
@@ -27,9 +30,7 @@ public class Categorie implements Model{
 				exe.setString(1, getName());
 				exe.executeUpdate();
 				
-			} catch(SQLException e)  {
-				System.err.println(e);
-			} catch(Exception e){
+			} catch(Exception e)  {
 				System.err.println(e);
 			}
 			
@@ -40,13 +41,14 @@ public class Categorie implements Model{
 	}
 	
 	public List<String> getAllActive()  {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 
 		String queryExce = "SELECT * FROM "+TABLE_NAME+" WHERE active = ? ;";
 		
 		ResultSet rs;
-		try (Connection conexion = conn.conectar()){
-			PreparedStatement  query = conexion.prepareStatement(queryExce);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
+			
 			query.setInt(1, 1);
 			rs = query.executeQuery();
 			while (rs.next() ) {
@@ -64,7 +66,7 @@ public class Categorie implements Model{
 		int id = 0;
 		String query = "SELECT * FROM "+TABLE_NAME+" WHERE name = '"+name+"' AND active = 1;";
 		try(Connection conexion = conn.conectar();
-				Statement st = (Statement) conexion.createStatement();
+				Statement st =  conexion.createStatement();
 				ResultSet rs = st.executeQuery(query);) {
 		
 			while (rs.next() ) {
@@ -120,7 +122,7 @@ public class Categorie implements Model{
 	}
 	
 	public List<Integer> getSubCategorieConcat() throws SQLException {
-		List<Integer> concat = new ArrayList<Integer>();
+		List<Integer> concat = new ArrayList<>();
 		String query = "SELECT ca.categories_id, ca.name, sb.sub_categories_id, sb.name "
 				+"FROM "+TABLE_NAME+" ca " + 
 				"INNER JOIN sub_categories sb ON ca.categories_id = sb.categories_id " + 
@@ -140,8 +142,8 @@ public class Categorie implements Model{
 		return concat;
 	}
 	
-	public HashMap<String, Integer> getComboBox(){
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
+	public Map<String, Integer> getComboBox(){
+		Map<String, Integer> map = new HashMap<>();
 		String sql = "SELECT * FROM "+TABLE_NAME+" WHERE active = ? ORDER BY name ASC";
 		ResultSet rs = null;
 		try (Connection conexion = conn.conectar();

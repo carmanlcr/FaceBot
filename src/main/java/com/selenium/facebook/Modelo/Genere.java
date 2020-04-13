@@ -11,12 +11,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class Genere implements Model{
-	private final String TABLE_NAME = "generes";
+	private static final String TABLE_NAME = "generes";
 	private int generes_id;
 	private String name;
 	private String fan_page;
@@ -27,7 +30,7 @@ public class Genere implements Model{
 	private boolean isTrash;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	Statement st;
 	ResultSet rs;
 	
@@ -38,7 +41,7 @@ public class Genere implements Model{
 		String insert = "INSERT INTO "+TABLE_NAME+"(name,fan_page,created_at,updated_at,categories_id) VALUE "
 				+ " (?,?,?,?,?);";
 		try (Connection conexion = conn.conectar();
-				PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);){
+				PreparedStatement exe = conexion.prepareStatement(insert);){
 			exe.setString(1, getName());
 			exe.setString(2, getFan_page());
 			exe.setString(3, getCreated_at());
@@ -77,12 +80,13 @@ public class Genere implements Model{
 	}
 	
 	public List<String> getGeneresActive(){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				"WHERE categories_id = ? AND active = ?;"; 
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, getCategories_id());
 			pst.setInt(2, 1);
 			rs = pst.executeQuery();
@@ -98,14 +102,15 @@ public class Genere implements Model{
 		return list;
 	}
 	
-	public HashMap<String, Integer> getGeneresActiveForCategorie(){
-		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+	public Map<String, Integer> getGeneresActiveForCategorie(){
+		Map<String,Integer> mapGe = new HashMap<>();
 		
 		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				       "WHERE categories_id = ?;";
 		
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, getCategories_id());
 			rs = pst.executeQuery();
 			while (rs.next() ) {
@@ -118,8 +123,8 @@ public class Genere implements Model{
 		return mapGe;
 	}
 	
-	public HashMap<String,Integer> getGeneresForCategorieActive(){
-		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+	public Map<String,Integer> getGeneresForCategorieActive(){
+		Map<String,Integer> mapGe = new HashMap<>();
 		
 		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				"INNER JOIN path_photos pp ON pp.generes_id = g.generes_id AND pp.active = 1 " + 
@@ -127,8 +132,9 @@ public class Genere implements Model{
 				"INNER JOIN hashtag ht ON ht.generes_id = g.generes_id AND ht.active = 1 " + 
 				"WHERE g.categories_id = ? AND g.active = ?;";
 		
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, getCategories_id());
 			pst.setInt(2, 1);
 			rs = pst.executeQuery();
@@ -144,8 +150,8 @@ public class Genere implements Model{
 		return mapGe;
 	}
 	
-	public HashMap<String,Integer> getGeneresForCategorieActives(){
-		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+	public Map<String,Integer> getGeneresForCategorieActives(){
+		Map<String,Integer> mapGe = new HashMap<>();
 		
 		String query = "SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
 				"LEFT JOIN path_photos pp ON pp.generes_id = g.generes_id AND pp.active = 1 " + 
@@ -154,8 +160,9 @@ public class Genere implements Model{
 				"WHERE g.categories_id = ? AND g.active = ? " +
 				"GROUP BY g.generes_id, g.name; ";
 		
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, getCategories_id());
 			pst.setInt(2, 1);
 			ResultSet rs = pst.executeQuery();
@@ -172,7 +179,7 @@ public class Genere implements Model{
 	}
 	
 	public List<String> getGeneresForCategories(){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
 		String query = "SELECT DISTINCT(g.generes_id), g.name FROM (" + 
 				"SELECT g.generes_id, g.name FROM "+TABLE_NAME+" g " + 
@@ -180,8 +187,9 @@ public class Genere implements Model{
 				"LEFT JOIN phrases ph ON ph.generes_id = g.generes_id AND ph.active = ? " + 
 				"LEFT JOIN hashtag ht ON ht.generes_id = g.generes_id AND ht.active = ? " + 
 				"WHERE g.categories_id = ? AND g.active = ?) g ;"; 
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, 1);
 			pst.setInt(2, 1);
 			pst.setInt(3, 1);

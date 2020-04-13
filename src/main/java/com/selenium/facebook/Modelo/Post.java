@@ -14,6 +14,8 @@ import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class Post implements Model{
 	
@@ -34,7 +36,7 @@ public class Post implements Model{
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
 	
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	Statement st;
 	ResultSet rs;
 
@@ -42,10 +44,12 @@ public class Post implements Model{
 		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,tasks_grid_id,link_post,isFanPage,isMaduration,groups,created_at,updated_at) "
-					+ " VALUE (?,?,?,?,?,?,?,?,?,?);";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,tasks_grid_id,link_post,isFanPage,isMaduration,groups,created_at,updated_at) "
+				+ " VALUE (?,?,?,?,?,?,?,?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(insert);){
+			
+			
 			query.setInt(1, getUsers_id());
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getTasks_model_id());
@@ -66,7 +70,7 @@ public class Post implements Model{
 	}
 	
 	public List<String[]> getCountPostUsers(int categories_id){
-		List<String[]> list = new ArrayList<String[]>();
+		List<String[]> list = new ArrayList<>();
 		String[] array = null;
 		int increment = 0;
 		date = c.getTime();
@@ -78,8 +82,9 @@ public class Post implements Model{
 				+ " WHERE DATE(pt.created_at) = ?) AS c "
 				+ " GROUP BY c.username; ";
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = (PreparedStatement) conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);){
+			
 			pst.setInt(1, categories_id);
 			pst.setString(2, created_at);
 			rs = pst.executeQuery();
@@ -107,8 +112,9 @@ public class Post implements Model{
 		String query = "SELECT count(*) cuenta FROM "+TABLE_NAME + 
 				" WHERE users_id = ? AND DATE(created_at) = ?;";
 		
-		try (Connection conexion = conn.conectar();) {
-			PreparedStatement pst = (PreparedStatement) conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);) {
+			
 			pst.setInt(1, getUsers_id());
 			pst.setString(2, date1);
 			rs = pst.executeQuery();
@@ -146,13 +152,14 @@ public class Post implements Model{
 	public int getLastsTasktPublic(){
 		int idTask = 0;
 		date = c.getTime();
-		
-		try (Connection conexion = conn.conectar();){
-			String queryExce = "SELECT * FROM tasks_model tm " + 
-					"WHERE tm.tasks_model_id NOT IN (SELECT pt.tasks_model_id FROM "+TABLE_NAME+" pt WHERE users_id = ? AND DATE(pt.created_at) BETWEEN ? AND ?) " + 
-					"ORDER BY RAND() LIMIT 1;";
+		String queryExce = "SELECT * FROM tasks_model tm " + 
+				"WHERE tm.tasks_model_id NOT IN (SELECT pt.tasks_model_id FROM "+TABLE_NAME+" pt WHERE users_id = ? AND DATE(pt.created_at) BETWEEN ? AND ?) " + 
+				"ORDER BY RAND() LIMIT 1;";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
+			
 	
-		PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+		
 		query.setInt(1, getUsers_id());
 		query.setString(2, dateFormat1.format(new Date( date.getTime()-86400000)));
 		query.setString(3, dateFormat1.format(date));
@@ -174,8 +181,9 @@ public class Post implements Model{
 		Date date1 = c.getTime();
 		date = c.getTime();
 		String query = "SELECT * FROM posts po WHERE DATE(created_at) BETWEEN ? AND ? AND po.groups = ?;";
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(query);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(query);){
+			
 			exe.setString(1, dateFormat1.format(date1));
 			exe.setString(2, dateFormat1.format(date));
 			exe.setString(3, getGroups());
@@ -200,18 +208,24 @@ public class Post implements Model{
 	
 	public List<Post> getPostForComments() {
 		List<Post> listPost = new ArrayList<>();
+		date = new Date();
 		StringBuilder query = new StringBuilder();
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(Calendar.DAY_OF_YEAR, -2); 
+		Date date1 = c.getTime();
+		
 		query.append("SELECT p.* FROM posts p ");
 		query.append("INNER JOIN users_groups ug ON ug.groups_id = p.groups AND ug.users_id = ? ");
 		query.append("WHERE p.posts_id NOT IN (SELECT pc.posts_id FROM posts_comments pc WHERE pc.users_id = ?) ");
-		query.append("AND p.users_id <> ? AND p.link_post IS NOT NULL;");
+		query.append("AND p.users_id <> ? AND p.link_post IS NOT NULL AND DATE(p.created_at)>=?;");
 		
 		try (Connection conexion = conn.conectar();
 				PreparedStatement exe = conexion.prepareStatement(query.toString());){
 			exe.setInt(1, getUsers_id());
 			exe.setInt(2, getUsers_id());
 			exe.setInt(3, getUsers_id());
-			
+			exe.setString(4, dateFormat1.format(date1));
 			ResultSet result = exe.executeQuery();
 			
 			while(result.next()){
@@ -236,7 +250,7 @@ public class Post implements Model{
 	
 	@Override
 	public void update() throws SQLException {
-		// TODO Auto-generated method stub
+		// None
 		
 	}
 	

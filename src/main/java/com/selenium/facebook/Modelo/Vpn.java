@@ -8,20 +8,23 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.selenium.facebook.Interface.Model;
+
+import configurations.connection.ConnectionFB;
 
 
 public class Vpn implements Model{
 	
-	private final String TABLE_NAME = "vpn";
+	private static final String TABLE_NAME = "vpn";
 	private int vpn_id;
 	private String name;
 	private boolean active;
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	
 	public List<String> getAllActive() throws SQLException {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 	    String query = "SELECT name FROM "+TABLE_NAME+" WHERE active = 1 ORDER BY name ASC";
 		try (Connection conexion = conn.conectar();
 				Statement st = conexion.createStatement();
@@ -102,10 +105,11 @@ public class Vpn implements Model{
 	
 	public void insert() throws SQLException {
 		
-
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(name) VALUES (?);";
-			PreparedStatement exe = conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(name) VALUES (?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
+			
 			exe.setString(1, getName());
 			
 			exe.executeUpdate();
@@ -142,15 +146,16 @@ public class Vpn implements Model{
 		
 	}
 	
-	public HashMap<String,Integer> getAllVpn(){
-		HashMap<String,Integer> mapGe = new HashMap<String,Integer>();
+	public Map<String,Integer> getAllVpn(){
+		Map<String,Integer> mapGe = new HashMap<>();
 		
 		String query = "SELECT * FROM "+TABLE_NAME+" v WHERE active = 1;";
 		
-		try (Connection conexion = conn.conectar();){
-			PreparedStatement pst = conexion.prepareStatement(query);
-			ResultSet rs = pst.executeQuery();
-			mapGe.put("Sin Vpn",0);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement pst = conexion.prepareStatement(query);
+				ResultSet rs = pst.executeQuery();){
+			
+			mapGe.put("SIN VPN",0);
 			while (rs.next() ) {
 				mapGe.put(rs.getString("v.name"), rs.getInt("v.vpn_id"));
 			}
@@ -165,7 +170,7 @@ public class Vpn implements Model{
 	
 	@Override
 	public void update() throws SQLException {
-		
+		//None
 	}
 	
 	public int getVpn_id() {

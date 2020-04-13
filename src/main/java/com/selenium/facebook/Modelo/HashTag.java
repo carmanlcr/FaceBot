@@ -12,17 +12,19 @@ import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class HashTag implements Model{
 
-	private final String TABLE_NAME = "hashtag";
+	private static final String TABLE_NAME = "hashtag";
 	private String name;
 	private boolean active;
 	private int created_at;
 	private int categories_id;
 	private int sub_categories_id;
 	private int generes_id;
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	
 	public void insert() throws SQLException {
 		
@@ -44,18 +46,16 @@ public class HashTag implements Model{
 							+getGeneres_id()+");";
 				}
 				st.executeUpdate(insert);
-			} catch(SQLException e)  {
+			} catch(Exception e)  {
 				System.err.println(e);
-			} catch(Exception e){
-				System.err.println(e);
-			}
+			} 
 			
 		
 	}
 	
 	@Override
 	public void update() throws SQLException {
-		
+		//None
 	}
 	
 	public String[] getHashTagRandom() throws SQLException{
@@ -64,13 +64,15 @@ public class HashTag implements Model{
 		int indice = 0;
 		
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT ht.name FROM "+TABLE_NAME+" ht "
+				+ "WHERE ht.active = ? AND ht.generes_id = ? "
+				+ "AND ht.categories_id = ? "
+				+ "ORDER BY RAND() LIMIT 4;";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =  conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT ht.name FROM "+TABLE_NAME+" ht "
-					+ "WHERE ht.active = ? AND ht.generes_id = ? "
-					+ "AND ht.categories_id = ? "
-					+ "ORDER BY RAND() LIMIT 4;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
+			
 			query.setInt(1, 1);
 			query.setInt(2, getGeneres_id());
 			query.setInt(3, getCategories_id());
@@ -88,16 +90,17 @@ public class HashTag implements Model{
  	}
 	
 	public List<String> getHashTagForCategories(){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		
-		
+		String queryExce = "SELECT ht.name FROM "+TABLE_NAME+" ht "
+				+ "WHERE ht.active = ? AND ht.generes_id = ? "
+				+ "AND ht.categories_id = ? ; ";
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =  conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT ht.name FROM "+TABLE_NAME+" ht "
-					+ "WHERE ht.active = ? AND ht.generes_id = ? "
-					+ "AND ht.categories_id = ? ; ";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
+			
 			query.setInt(1, 1);
 			query.setInt(2, getGeneres_id());
 			query.setInt(3, getCategories_id());
@@ -106,7 +109,6 @@ public class HashTag implements Model{
 			while (rs.next() ) {
                list.add(rs.getString("name"));
 			}
-			conexion.close();
 		}catch(SQLException e) {
 			System.err.println(e);
 		}
@@ -117,13 +119,15 @@ public class HashTag implements Model{
 	public int getIdCategorieHashTag() throws SQLException {
 		int id = 0;
 		ResultSet rs = null;
+		String queryExce = "SELECT ht.hashtag_id "
+		         + "FROM "+TABLE_NAME+" ht "
+		         + "WHERE ht.active = ? AND ht.name = ? "
+		         + "AND ht.categories_id = ? AND generes_id = ?;";
 		
-		try (Connection conexion = conn.conectar();){
-			String queryExce = "SELECT ht.hashtag_id "
-					         + "FROM "+TABLE_NAME+" ht "
-					         + "WHERE ht.active = ? AND ht.name = ? "
-					         + "AND ht.categories_id = ? AND generes_id = ?;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =  conexion.prepareStatement(queryExce);){
+			
+			
 			query.setInt(1, 1);
 			query.setString(2, getName());
 			query.setInt(3, getCategories_id());

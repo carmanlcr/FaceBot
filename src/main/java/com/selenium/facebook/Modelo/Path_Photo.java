@@ -11,9 +11,11 @@ import java.util.Date;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 public class Path_Photo implements Model {
 	
-	private final String TABLE_NAME = "path_photos";
+	private static final String TABLE_NAME = "path_photos";
 	private String path;
 	private boolean active;
 	private String created_at;
@@ -22,7 +24,7 @@ public class Path_Photo implements Model {
 	private int generes_id;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	ResultSet rs;
 	
 	public void insert() throws SQLException {
@@ -46,11 +48,9 @@ public class Path_Photo implements Model {
 						+getGeneres_id()+");";
 			}
 			st.executeUpdate(insert);
-		} catch(SQLException e)  {
+		} catch(Exception e)  {
 			System.err.println(e);
-		} catch(Exception e){
-			System.err.println(e);
-		}
+		} 
 	}
 	
 	/**
@@ -86,19 +86,19 @@ public class Path_Photo implements Model {
 			
 			if(getSub_categories_id() == 0) {
 				query = "SELECT path FROM "+TABLE_NAME+" WHERE categories_id=? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
-				queryE= (PreparedStatement) conexion.prepareStatement(query);
+				queryE=  conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getGeneres_id());
 				queryE.setInt(3, 1);
 			}else if(getGeneres_id() == 0) {
 				query = "SELECT path FROM "+TABLE_NAME+" WHERE categories_id=? AND sub_categories_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
-				queryE= (PreparedStatement) conexion.prepareStatement(query);
+				queryE=  conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getSub_categories_id());
 				queryE.setInt(3, 1);
 			}else {
 				query = "SELECT path FROM "+TABLE_NAME+" WHERE categories_id=? AND sub_categories_id = ? AND generes_id = ? AND active = ? ORDER BY RAND() LIMIT 1;";
-				queryE= (PreparedStatement) conexion.prepareStatement(query);
+				queryE= conexion.prepareStatement(query);
 				queryE.setInt(1, getCategories_id());
 				queryE.setInt(2, getSub_categories_id());
 				queryE.setInt(3, getGeneres_id());
@@ -117,7 +117,7 @@ public class Path_Photo implements Model {
 	
 	@Override
 	public void update() throws SQLException {
-		
+		//none
 	}
 	
 	public String getPath() {

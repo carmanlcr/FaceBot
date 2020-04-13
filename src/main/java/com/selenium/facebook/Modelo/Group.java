@@ -12,9 +12,11 @@ import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 public class Group implements Model {
 
-	private final String TABLE_NAME = "groups";
+	private static final String TABLE_NAME = "groups";
 	private String groups_id;
 	private String name;
 	private int cant_miembros;
@@ -22,7 +24,7 @@ public class Group implements Model {
 	private String created_at;
 	private String updated_at;
 	private int users_id;
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");

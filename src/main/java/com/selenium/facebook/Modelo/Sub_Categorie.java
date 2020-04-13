@@ -11,23 +11,27 @@ import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class Sub_Categorie implements Model {
 	
-	private final String TABLE_NAME = "sub_categories";
+	private static final String TABLE_NAME = "sub_categories";
 	private String name;
 	private int categories_id;
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	
 	public void insert() throws SQLException {
 		
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 		String strDate= formatter.format(date);
-			try (Connection conexion = conn.conectar();){
-				String insert = "INSERT INTO "+TABLE_NAME+"(name,categories_id,created_at,updated_at) "
-						+ "VALUES (?,?,?,?);";
-				PreparedStatement exe = conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(name,categories_id,created_at,updated_at) "
+				+ "VALUES (?,?,?,?);";
+			try (Connection conexion = conn.conectar();
+					PreparedStatement exe = conexion.prepareStatement(insert);){
+				
+				
 				exe.setString(1, getName());
 				exe.setInt(2, getCategories_id());
 				exe.setString(3, strDate);
@@ -44,20 +48,23 @@ public class Sub_Categorie implements Model {
 	
 	@Override
 	public void update() throws SQLException {
-		
+		//Noone
 	}
 	
 	public List<String> getSubCategories(){
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 
 		
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT sca.name FROM "+TABLE_NAME+" sca "
+				+ "WHERE sca.categories_id = ? ; ";
+		
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query = conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT sca.name FROM "+TABLE_NAME+" sca "
-					+ "WHERE sca.categories_id = ? ; ";
 			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
+			
 			query.setInt(1, getCategories_id());
 			rs = query.executeQuery();
 
@@ -76,12 +83,13 @@ public class Sub_Categorie implements Model {
 		int indice = 0;
 		
 		ResultSet rs = null;
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT sca.sub_categories_id FROM "+TABLE_NAME+" sca "
+				+ "WHERE sca.name = ? LIMIT 1; ";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT sca.sub_categories_id FROM "+TABLE_NAME+" sca "
-					+ "WHERE sca.name = ? LIMIT 1; ";
 			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
 			query.setString(1, name);
 			rs = query.executeQuery();
 

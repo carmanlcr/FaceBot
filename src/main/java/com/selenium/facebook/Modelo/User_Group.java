@@ -12,6 +12,8 @@ import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 public class User_Group implements Model {
 
 	private static final String TABLE_NAME = "users_groups";
@@ -22,7 +24,7 @@ public class User_Group implements Model {
 	private Date date;
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	
 	@Override
 	public void insert() throws SQLException {
@@ -72,7 +74,7 @@ public class User_Group implements Model {
 	
 	@Override
 	public void update() throws SQLException {
-
+		//None
 	}
 	
 	public int getCountGroups() {

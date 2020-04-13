@@ -9,17 +9,19 @@ import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 public class Group_Categorie implements Model {
 
 	private static final String TABLE_NAME = "groups_categories";
 	private int groups_categories_id;
 	private String name;
-	private boolean isSpanish;
 	private String created_at;
 	private String updated_at;
 	private int categories_id;
+	private int languages_id;
 	
-	private Conexion conn = new Conexion();
+	private ConnectionFB conn = new ConnectionFB();
 	ResultSet rs;
 	@Override
 	public void insert() throws SQLException {
@@ -47,7 +49,7 @@ public class Group_Categorie implements Model {
 				groCa = new Group_Categorie();
 				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
 				groCa.setName(rs.getString("name"));
-				groCa.setSpanish(rs.getBoolean("isSpanish"));
+				groCa.setLanguages_id(rs.getInt("languages_id"));
 				groCa.setCreated_at(rs.getString("created_at"));
 				groCa.setUpdated_at(rs.getString("updated_at"));
 				groCa.setCategories_id(rs.getInt("categories_id"));
@@ -72,7 +74,7 @@ public class Group_Categorie implements Model {
 				groCa = new Group_Categorie();
 				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
 				groCa.setName(rs.getString("name"));
-				groCa.setSpanish(rs.getBoolean("isSpanish"));
+				groCa.setLanguages_id(rs.getInt("languages_id"));
 				groCa.setCreated_at(rs.getString("created_at"));
 				groCa.setUpdated_at(rs.getString("updated_at"));
 				groCa.setCategories_id(rs.getInt("categories_id"));
@@ -93,14 +95,14 @@ public class Group_Categorie implements Model {
 				PreparedStatement  queryE =  conexion.prepareStatement(query);){
 			
 			queryE.setInt(1, getCategories_id());
-			queryE.setBoolean(2, isSpanish());
+			queryE.setInt(2, getLanguages_id());
 			rs = queryE.executeQuery();
 			
 			while(rs.next()) {
 				groCa = new Group_Categorie();
 				groCa.setGroups_categories_id(rs.getInt("groups_categories_id"));
 				groCa.setName(rs.getString("name"));
-				groCa.setSpanish(rs.getBoolean("isSpanish"));
+				groCa.setLanguages_id(rs.getInt("languages_id"));
 				groCa.setCreated_at(rs.getString("created_at"));
 				groCa.setUpdated_at(rs.getString("updated_at"));
 				groCa.setCategories_id(rs.getInt("categories_id"));
@@ -127,12 +129,12 @@ public class Group_Categorie implements Model {
 		this.name = name;
 	}
 
-	public boolean isSpanish() {
-		return isSpanish;
+	public int getLanguages_id() {
+		return languages_id;
 	}
 
-	public void setSpanish(boolean isSpanish) {
-		this.isSpanish = isSpanish;
+	public void setLanguages_id(int languages_id) {
+		this.languages_id = languages_id;
 	}
 
 	public String getCreated_at() {

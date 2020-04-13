@@ -10,16 +10,18 @@ import java.util.Date;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class Phrases implements Model{
 	
-	private final String TABLE_NAME = "phrases";
+	private static final String TABLE_NAME = "phrases";
 	private String phrase;
 	private boolean active;
 	private int categories_id;
 	private int sub_categories_id;
 	private int generes_id;
-	private Conexion conn = new Conexion();
+	private ConnectionFB conn = new ConnectionFB();
 	
 	
 	public void insert() throws SQLException {
@@ -47,16 +49,14 @@ public class Phrases implements Model{
 				conexion.close();
 			} catch(SQLException e)  {
 				System.err.println(e);
-			} catch(Exception e){
-				System.err.println(e);
-				
-			}
+			} 
+			
 			
 	}
 	
 	@Override
 	public void update() throws SQLException {
-		
+		//None
 	}
 	 
 	public Phrases getPhraseRandom() throws SQLException{
@@ -71,7 +71,7 @@ public class Phrases implements Model{
 					+ "WHERE ph.active = ? AND ph.categories_id = ? "
 					+ "AND ph.generes_id = ? "
 					+ "ORDER BY RAND() LIMIT 1;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			PreparedStatement  query =  conexion.prepareStatement(queryExce);
 			query.setInt(1, 1);
 			query.setInt(2, getCategories_id());
 			query.setInt(3,getGeneres_id());
@@ -105,7 +105,7 @@ public class Phrases implements Model{
 					+ "WHERE ph.active = ? AND ph.categories_id = ? "
 					+ "AND ph.sub_categories_id = ? "
 					+ "ORDER BY RAND() LIMIT 1;";
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			PreparedStatement  query = conexion.prepareStatement(queryExce);
 			query.setInt(1, 1);
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getSub_categories_id());

@@ -9,6 +9,8 @@ import java.util.Date;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 public class Post_Comment implements Model {
 
 	private static final String TABLE_NAME = "posts_comments";
@@ -21,7 +23,7 @@ public class Post_Comment implements Model {
 	private String updated_at;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	
 	
 	@Override

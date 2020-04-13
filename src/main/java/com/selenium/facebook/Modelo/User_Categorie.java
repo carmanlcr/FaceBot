@@ -12,14 +12,16 @@ import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class User_Categorie implements Model{
 
-	private final String TABLE_NAME = "users_categories";
+	private static final String TABLE_NAME = "users_categories";
 	private int users_id;
 	private int categories_id;
 	private String created_at;
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	Statement st;
@@ -27,11 +29,14 @@ public class User_Categorie implements Model{
 	
 	public void insert() {
 		
+		date = new Date();
 		setCreated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
-					+ " VALUE (?,?,?);";
-			PreparedStatement exe = conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,created_at) "
+				+ " VALUE (?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
+			
 			exe.setInt(1, getUsers_id());
 			exe.setInt(2, getCategories_id());
 			exe.setString(3, getCreated_at());
@@ -45,7 +50,7 @@ public class User_Categorie implements Model{
 	
 	@Override
 	public void update() throws SQLException {
-		
+		//none
 	}
 	
 	public void inserts(List<Integer> list) {
@@ -59,7 +64,7 @@ public class User_Categorie implements Model{
 			}
 			String sinUltimoCaracter = insert.substring(0, insert.length()-1);
 			sinUltimoCaracter += ";";
-			st = (Statement) conexion.createStatement();
+			st =  conexion.createStatement();
 			st.executeUpdate(sinUltimoCaracter);
 			
 		}catch(SQLException e) {

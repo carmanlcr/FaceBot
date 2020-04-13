@@ -9,16 +9,18 @@ import java.util.List;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class Task_Model_Detail implements Model {
 	
-	private final String TABLE_NAME = "tasks_model_detail";
+	private static final String TABLE_NAME = "tasks_model_detail";
 	private int tasks_model_id;
 	private int tasks_id;
 	private String created_at;
 	private Date date = new Date();
 	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	Statement st;
 	ResultSet rs;
 	
@@ -27,10 +29,12 @@ public class Task_Model_Detail implements Model {
 		
 		setCreated_at(dateFormatDateTime.format(date));
 		
-		try(Connection conexion = conn.conectar();) {
-			String insert = "INSERT INTO "+TABLE_NAME+"(tasks_model_id,tasks_id,created_at) VALUE "
-					+ " (?,?,?);";
-			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(tasks_model_id,tasks_id,created_at) VALUE "
+				+ " (?,?,?);";
+		try(Connection conexion = conn.conectar();
+				PreparedStatement exe =  conexion.prepareStatement(insert);) {
+			
+			
 			exe.setInt(1, getTasks_model_id());
 			exe.setInt(2, getTasks_id());
 			exe.setString(3, getCreated_at());
@@ -45,12 +49,14 @@ public class Task_Model_Detail implements Model {
 	public List<Integer> getTaskModelDetailDiferent(){
 		List<Integer> list = new ArrayList<>();
 		
-		try (Connection conexion = conn.conectar();){
+		String queryExce = "SELECT tmd.tasks_id FROM "+TABLE_NAME+" tmd " + 
+				"WHERE tasks_model_id = ?;";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement  query =  conexion.prepareStatement(queryExce);){
 			
-			String queryExce = "SELECT tmd.tasks_id FROM "+TABLE_NAME+" tmd " + 
-								"WHERE tasks_model_id = ?;";
 			
-			PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(queryExce);
+			
+			
 			query.setInt(1, getTasks_model_id());
 			rs = query.executeQuery();
 			
@@ -65,7 +71,7 @@ public class Task_Model_Detail implements Model {
 	
 	@Override
 	public void update() throws SQLException {
-		
+		//None
 	}
 
 	public int getTasks_model_id() {

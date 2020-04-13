@@ -9,16 +9,18 @@ import java.util.Date;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class Inicio_Aplicacion implements Model{
 	
-	private final String TABLE_NAME = "inicio_aplicacion";
+	private static final String TABLE_NAME = "inicio_aplicacion";
 	private String created_at;
 	private String updated_at;
 	private String version;
 	private int categories_id;
 	private int generes_id;
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
@@ -26,10 +28,12 @@ public class Inicio_Aplicacion implements Model{
 		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
-		try (Connection conexion = conn.conectar();){
-			String insert = "INSERT INTO "+TABLE_NAME+"(version,created_at,updated_at,categories_id,generes_id) "
-					+ " VALUE (?,?,?,?,?);";
-			PreparedStatement exe = (PreparedStatement) conexion.prepareStatement(insert);
+		String insert = "INSERT INTO "+TABLE_NAME+"(version,created_at,updated_at,categories_id,generes_id) "
+				+ " VALUE (?,?,?,?,?);";
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(insert);){
+			
+			
 			exe.setString(1, getVersion());
 			exe.setString(2, getCreated_at());
 			exe.setString(3, getUpdated_at());
@@ -44,7 +48,7 @@ public class Inicio_Aplicacion implements Model{
 	
 	@Override
 	public void update() throws SQLException {
-		
+		//None
 	}
 	
 	public String getCreated_at() {

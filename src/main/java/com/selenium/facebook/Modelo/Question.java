@@ -10,17 +10,19 @@ import java.util.Date;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 
 public class Question implements Model {
 	
 	
-	private final String TABLE_NAME = "questions";
+	private static final String TABLE_NAME = "questions";
 	private String question;
 	private String answer;
 	private String created_at;
 	private Date date = new Date();
 	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd H:m:s");
-	private static Conexion conn = new Conexion();
+	private static ConnectionFB conn = new ConnectionFB();
 	private ResultSet rs;
 	
 	@Override
@@ -30,7 +32,7 @@ public class Question implements Model {
 				+ "(question, answer, created_at) "
 				+ " VALUE (?,?,?);";
 		try (Connection conexion = conn.conectar();
-				PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(insert);){
+				PreparedStatement  query = conexion.prepareStatement(insert);){
 			
 			query.setString(1, getQuestion());
 			query.setString(2, getAnswer());
@@ -51,7 +53,7 @@ public class Question implements Model {
 		
 		
 		try (Connection conexion = conn.conectar();
-				PreparedStatement  query = (PreparedStatement) conexion.prepareStatement(select);){
+				PreparedStatement  query = conexion.prepareStatement(select);){
 			query.setString(1, getQuestion());
 			rs = query.executeQuery();
 			while(rs.next()) {

@@ -13,6 +13,8 @@ import java.util.Map;
 
 import com.selenium.facebook.Interface.Model;
 
+import configurations.connection.ConnectionFB;
+
 public class Task_Grid implements Model {
 	
 	private static final String TABLE_NAME = "tasks_grid";
@@ -24,9 +26,9 @@ public class Task_Grid implements Model {
 	private String date_publication;
 	private boolean isFanPage;
 	private boolean isGroups;
-	private boolean isGroupsInSpanish;
 	private boolean isAddGroups;
 	private boolean isAddFriends;
+	private int languages_id;
 	private int quantity_groups;
 	private int quantity_min;
 	private boolean active;
@@ -34,17 +36,17 @@ public class Task_Grid implements Model {
 	private String updated_at;
 	private int db_admin_tasks_id;
 	private Date date;
-	private Conexion conn = new Conexion();
+	private ConnectionFB conn = new ConnectionFB();
 	private SimpleDateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
 	
 	@Override
 	public void insert() throws SQLException {
-
+		//none
 	}
 
 	@Override
 	public void update() throws SQLException {
-
+		//none
 	}
 	
 	public Map<String, Integer> getCategoriesToday(){
@@ -135,7 +137,7 @@ public class Task_Grid implements Model {
 				taskG.setImage(rs.getString("tg.image"));
 				taskG.setGroups(rs.getBoolean("tg.isGroups"));
 				taskG.setFanPage(rs.getBoolean("tg.isFanPage"));
-				taskG.setGroupsInSpanish(rs.getBoolean("tg.isGroupsInSpanish"));
+				taskG.setLanguages_id(rs.getInt("tg.languages_id"));
 				taskG.setAddGroups(rs.getBoolean("tg.isAddGroups"));
 				taskG.setAddFriends(rs.getBoolean("tg.isAddFriends"));
 				taskG.setActive(rs.getBoolean("tg.active"));
@@ -178,7 +180,7 @@ public class Task_Grid implements Model {
 				taskG.setImage(rs.getString("tg.image"));
 				taskG.setGroups(rs.getBoolean("tg.isGroups"));
 				taskG.setFanPage(rs.getBoolean("tg.isFanPage"));
-				taskG.setGroupsInSpanish(rs.getBoolean("tg.isGroupsInSpanish"));
+				taskG.setLanguages_id(rs.getInt("tg.languages_id"));
 				taskG.setAddGroups(rs.getBoolean("tg.isAddGroups"));
 				taskG.setAddFriends(rs.getBoolean("tg.isAddFriends"));
 				taskG.setActive(rs.getBoolean("tg.active"));
@@ -259,13 +261,6 @@ public class Task_Grid implements Model {
 		this.isGroups = isGroups;
 	}
 
-	public boolean isGroupsInSpanish() {
-		return isGroupsInSpanish;
-	}
-
-	public void setGroupsInSpanish(boolean isGroupsInSpanish) {
-		this.isGroupsInSpanish = isGroupsInSpanish;
-	}
 
 	public boolean isAddGroups() {
 		return isAddGroups;
@@ -281,6 +276,14 @@ public class Task_Grid implements Model {
 
 	public void setAddFriends(boolean isAddFriends) {
 		this.isAddFriends = isAddFriends;
+	}
+
+	public int getLanguages_id() {
+		return languages_id;
+	}
+
+	public void setLanguages_id(int languages_id) {
+		this.languages_id = languages_id;
 	}
 
 	public int getQuantity_groups() {
