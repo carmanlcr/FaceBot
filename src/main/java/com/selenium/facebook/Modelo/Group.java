@@ -83,7 +83,7 @@ public class Group implements Model {
 		Group gp = null;
 		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id "
 				+ "FROM users_groups ug "
-				+ "INNER JOIN (select * from "+TABLE_NAME+" where name like ?) gp ON gp.groups_id = ug.groups_id " 
+				+ "INNER JOIN (select * from "+TABLE_NAME+" where name like ? AND cant_miembros >= 3000) gp ON gp.groups_id = ug.groups_id " 
 				+ "INNER JOIN (select * from "+TABLE_NAME+" where name like ?) C "  
 				+ "ON C.groups_id = gp.groups_id "  
 				+ "WHERE ug.users_id = ? "

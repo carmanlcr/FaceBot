@@ -89,7 +89,7 @@ public class Group_Categorie implements Model {
 		List<Group_Categorie> listC = new ArrayList<>();
 		Group_Categorie groCa = null;
 		String query = "SELECT * FROM "+TABLE_NAME+" WHERE categories_id = ? "
-				+ " AND isSpanish = ? ORDER BY RAND();";
+				+ " AND languages_id = ? ORDER BY RAND();";
 		
 		try (Connection conexion = conn.conectar();
 				PreparedStatement  queryE =  conexion.prepareStatement(query);){

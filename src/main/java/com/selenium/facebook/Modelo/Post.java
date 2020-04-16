@@ -25,6 +25,7 @@ public class Post implements Model{
 	private int categories_id;
 	private int tasks_model_id;
 	private int tasks_grid_id;
+	private int tasks_maduration_id;
 	private String link_post;
 	private boolean isFanPage;
 	private boolean isMaduration;
@@ -44,8 +45,8 @@ public class Post implements Model{
 		date = new Date();
 		setCreated_at(dateFormat.format(date));
 		setUpdated_at(dateFormat.format(date));
-		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,tasks_grid_id,link_post,isFanPage,isMaduration,groups,created_at,updated_at) "
-				+ " VALUE (?,?,?,?,?,?,?,?,?,?);";
+		String insert = "INSERT INTO "+TABLE_NAME+"(users_id,categories_id,tasks_model_id,tasks_grid_id,tasks_maduration_id,link_post,isFanPage,isMaduration,groups,created_at,updated_at) "
+				+ " VALUE (?,?,?,?,?,?,?,?,?,?,?);";
 		try (Connection conexion = conn.conectar();
 				PreparedStatement  query = conexion.prepareStatement(insert);){
 			
@@ -54,12 +55,13 @@ public class Post implements Model{
 			query.setInt(2, getCategories_id());
 			query.setInt(3, getTasks_model_id());
 			query.setInt(4, getTasks_grid_id());
-			query.setString(5, getLink_post());
-			query.setBoolean(6, isFanPage());
-			query.setBoolean(7, isMaduration());
-			query.setString(8, getGroups());
-			query.setString(9, getCreated_at());
-			query.setString(10, getUpdated_at());
+			query.setInt(5, getTasks_maduration_id());
+			query.setString(6, getLink_post());
+			query.setBoolean(7, isFanPage());
+			query.setBoolean(8, isMaduration());
+			query.setString(9, getGroups());
+			query.setString(10, getCreated_at());
+			query.setString(11, getUpdated_at());
 			query.executeUpdate();
 			
 		}catch(SQLException e) {
@@ -153,7 +155,7 @@ public class Post implements Model{
 		int idTask = 0;
 		date = c.getTime();
 		String queryExce = "SELECT * FROM tasks_model tm " + 
-				"WHERE tm.tasks_model_id NOT IN (SELECT pt.tasks_model_id FROM "+TABLE_NAME+" pt WHERE users_id = ? AND DATE(pt.created_at) BETWEEN ? AND ?) " + 
+				"WHERE tm.tasks_model_id NOT IN (SELECT pt.tasks_model_id FROM "+TABLE_NAME+" pt WHERE users_id = ? AND DATE(pt.created_at) BETWEEN ? AND ? AND isMaduration = 0)" + 
 				"ORDER BY RAND() LIMIT 1;";
 		try (Connection conexion = conn.conectar();
 				PreparedStatement  query = conexion.prepareStatement(queryExce);){
@@ -197,6 +199,7 @@ public class Post implements Model{
 				po.setGroups(rs.getString("po.groups"));
 				po.setLink_post(rs.getString("po.link_post"));
 				po.setTasks_model_id(rs.getInt("po.tasks_model_id"));
+				po.setTasks_maduration_id(rs.getInt("po.tasks_maduration_id"));
 				po.setUsers_id(rs.getInt("po.users_id"));
 			}
 		}catch(SQLException e) {
@@ -234,6 +237,7 @@ public class Post implements Model{
 				post.setUsers_id(result.getInt("p.users_id"));
 				post.setCategories_id(result.getInt("p.categories_id"));
 				post.setTasks_grid_id(result.getInt("p.tasks_grid_id"));
+				post.setTasks_maduration_id(result.getInt("p.tasks_maduration_id"));
 				post.setLink_post(result.getString("p.link_post"));
 				post.setMaduration(result.getBoolean("p.isMaduration"));
 				post.setFanPage(result.getBoolean("p.isFanPage"));
@@ -308,6 +312,14 @@ public class Post implements Model{
 
 	public void setTasks_grid_id(int tasks_grid_id) {
 		this.tasks_grid_id = tasks_grid_id;
+	}
+
+	public int getTasks_maduration_id() {
+		return tasks_maduration_id;
+	}
+
+	public void setTasks_maduration_id(int tasks_maduration_id) {
+		this.tasks_maduration_id = tasks_maduration_id;
 	}
 
 	public String getLink_post() {
