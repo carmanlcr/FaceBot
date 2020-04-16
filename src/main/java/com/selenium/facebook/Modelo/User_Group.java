@@ -211,7 +211,7 @@ public class User_Group implements Model {
 		date = new Date();
 		String query = "SELECT gp.name, gp.active, gp.groups_id, gp.created_at, ug.users_id "
 				+ "FROM "+TABLE_NAME+" ug "
-				+ "INNER JOIN groups gp ON ug.groups_id = gp.groups_id "
+				+ "INNER JOIN groups gp ON ug.groups_id = gp.groups_id AND gp.cant_miembros >= 3000 "
 				+"WHERE ug.groups_id NOT IN "
 				+ "(SELECT pt.groups FROM posts pt WHERE pt.groups IS NOT NULL AND DATE(pt.created_at) = ?) "  
 				+ "AND ug.users_id = ? "
