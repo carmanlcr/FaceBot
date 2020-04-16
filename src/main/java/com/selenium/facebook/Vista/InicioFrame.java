@@ -39,7 +39,7 @@ public class InicioFrame extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String VERSION = "2.1.51";
+	private static final String VERSION = "2.1.53";
 	private JPanel contentPane;
 	private final JMenuBar barMenu = new JMenuBar();
 	private final JMenu mnUsuarios = new JMenu("Usuarios");

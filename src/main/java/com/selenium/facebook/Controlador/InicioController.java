@@ -16,12 +16,12 @@ import org.openqa.selenium.ElementClickInterceptedException;
 import com.selenium.facebook.Modelo.*;
 
 import configurations.controller.VpnController;
+import configurations.model.Task_Maduration;
 import configurations.controller.SftpController;;
 
 
 public class InicioController {
 	private static final String PAGE = "https://mbasic.facebook.com/";
-	protected static final  String PATH_IMAGE_DOWNLOAD_FTP = "C:\\imagesSftp\\";
 	private configurations.controller.DriverController drive;
 	private User users;
 	private configurations.controller.RobotController robot;
@@ -455,7 +455,7 @@ public class InicioController {
 	}
 
 	private void taskAthand(Integer task,int listTaskId) throws InterruptedException, SQLException {
-		switch (task) {
+		switch (task) {		
 			case 1:
 				// Entrar en Editar Perfil
 				System.out.println("ENTRAR EN PERFIL Y DAR LIKE A FOTO");
@@ -636,7 +636,12 @@ public class InicioController {
 					int quantityPublicationsNormal = getNumberRandomForSecond(1, 2);
 					
 					for(int i = 1; i <= quantityPublicationsNormal; i++) {
-						uploadImage();
+						Task_Maduration tMaduration = new Task_Maduration();
+						tMaduration.setLanguages(languages_id);
+						tMaduration = tMaduration.getTaskMaduratioRandomn();
+						SftpController sftp = new SftpController();
+						sftp.downloadFileSftp(SftpController.PATH_IMAGE_MADURATION_UPLOAD, tMaduration.getImage(),SftpController.PATH_IMAGE_DOWNLOAD_FTP);
+						uploadImage(tMaduration,false);
 						Thread.sleep(getNumberRandomForSecond(2456, 3478));
 						drive.goPage(urlGroup);
 						Thread.sleep(getNumberRandomForSecond(2456, 3478));
@@ -648,6 +653,7 @@ public class InicioController {
 					po.setCategories_id(categoria_id);
 					po.setTasks_model_id(listTaskId);
 					po.setTasks_grid_id(tasks_grid_id);
+					po.setTasks_maduration_id(0);
 					po.setUsers_id(idUser);
 					po.setMaduration(false);
 					po.setGroups(idGroups);
@@ -661,30 +667,35 @@ public class InicioController {
 	}
 	
 	private void addPostNormal() throws InterruptedException, SQLException {
-		int random = getNumberRandomForSecond(1, 2);
-		if(random == 1) {
-			uploadImage();
+		Task_Maduration tMaduration = new Task_Maduration();
+		tMaduration.setLanguages(languages_id);
+		tMaduration = tMaduration.getTaskMaduration(idUser);
+		
+		if(tMaduration == null) {
+			tMaduration = new Task_Maduration();
+			tMaduration.setLanguages(languages_id);
+			tMaduration = tMaduration.getTaskMaduratioRandomn();	
+		}
+		
+		if(tMaduration.getImage() != null) {
+			SftpController sftp = new SftpController();
+			sftp.downloadFileSftp(SftpController.PATH_IMAGE_MADURATION_UPLOAD, tMaduration.getImage(), SftpController.PATH_IMAGE_DOWNLOAD_FTP);
+			uploadImage(tMaduration,true);
 		}else {
 			addPostWrite();
 		}
 	}
 
-	private void uploadImage() throws InterruptedException, SQLException {
+	private void uploadImage(Task_Maduration tMaduration, boolean bandera) throws InterruptedException, SQLException {
 		
 		if(ifElementPhotoExist()) {
 			Thread.sleep(getNumberRandom(2560, 4980));
-			Categorie ca = new Categorie();
-			List<Integer> la = ca.getSubCategorieConcat();
-			Path_Photo pathPhoto = new Path_Photo();
-			pathPhoto.setCategories_id(la.get(0));
-			pathPhoto.setSub_categories_id(la.get(1));
-			System.out.println("Extraer el path de la foto");
-			String path = pathPhoto.getPathPhotos();
+			
 			System.out.println("Colocar el path de la foto en el file");
 			try {
-				drive.inputWriteFile(2, "file1", path);
+				drive.inputWriteFile(2, "file1", SftpController.PATH_IMAGE_DOWNLOAD_FTP+tMaduration.getImage());
 			}catch (org.openqa.selenium.NoSuchElementException e) {
-				drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[1]/div/input[1]", path, 115);
+				drive.inputWrite(1, "/html/body/div/div/div[2]/div/table/tbody/tr/td/form/div[1]/div/input[1]", SftpController.PATH_IMAGE_DOWNLOAD_FTP+tMaduration.getImage(), 115);
 			}
 			Thread.sleep(getNumberRandomForSecond(1201, 1899));
 			System.out.println("Darle click al boton siguiente para escribir el pie de foto");
@@ -698,14 +709,9 @@ public class InicioController {
 			// Esperar que aparezca el boton de publicar
 			while (drive.searchElement(2, "view_post") == 0)
 				;
-			System.out.println("Extraer frase random");
-			Phrases ph = new Phrases();
-			ph.setCategories_id(la.get(0));
-			ph.setSub_categories_id(la.get(1));
-			System.out.println("Extraer frase random");
-			String post = ph.getPhraseRandomSubCategorie();
+			
 			System.out.println("Escribir el pie de la foto");
-			drive.inputWrite(2, "xc_message", post,120);
+			drive.inputWrite(2, "xc_message", tMaduration.getPhrase(),120);
 
 			Thread.sleep(getNumberRandom(1250, 2000));
 			System.out.println("Darle a postear imagen");
@@ -718,6 +724,16 @@ public class InicioController {
 			}
 			
 			Thread.sleep(getNumberRandomForSecond(3250, 4000));
+			if(bandera) {
+				po.setCategories_id(categoria_id);
+				po.setFanPage(false);
+				po.setGroups("0");
+				po.setMaduration(true);
+				po.setTasks_maduration_id(tMaduration.getTasks_Maduration_id());
+				po.setTasks_grid_id(0);
+				po.setTasks_model_id(0);
+				po.insert();
+			}
 			
 			skipAddComplementPhoto();
 		}else {
@@ -788,7 +804,7 @@ public class InicioController {
 	private void publicIfExistElementFoto() throws InterruptedException {
 		Thread.sleep(getNumberRandom(2562, 3279));
 		System.out.println("Extraer el path de la foto");
-		String path = PATH_IMAGE_DOWNLOAD_FTP+image;
+		String path = SftpController.PATH_IMAGE_DOWNLOAD_FTP+image;
 		System.out.println("Colocar el path de la foto en el file");
 		try {
 			drive.inputWriteFile(2, "file1", path);
@@ -1152,7 +1168,13 @@ public class InicioController {
 			countQuantityGroup();
 		}
 		
-		drive.clickButton(1, "/html/body/div/div/div[1]/div/div/a[1]", "Volver Inicio xpath");
+		if(drive.searchElement(1, "/html/body/div/div/div[1]/div/div/a[1]") != 0) {
+			drive.clickButton(1, "/html/body/div/div/div[1]/div/div/a[1]", "Inicio xPath");
+		}else if(drive.searchElement(1, "/html/body/div/div/div[1]/div/nav/a[1]") != 0) {
+			drive.clickButton(1, "/html/body/div/div/div[1]/div/nav/a[1]", "xPath");
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'Inicio')]]") != 0) {
+			drive.clickButton(1, "//*[text()[contains(.,'Inicio')]]", "xPath");
+		}
 	}
 	
 	
@@ -1369,6 +1391,7 @@ public class InicioController {
 						po.setTasks_model_id(taskModelId);
 						po.setCategories_id(categoria_id);
 						po.setTasks_grid_id(tasks_grid_id);
+						po.setTasks_maduration_id(0);
 						po.setMaduration(false);
 						po.setUsers_id(idUser);
 						po.setFanPage(true);
@@ -1450,6 +1473,7 @@ public class InicioController {
 			po.setTasks_model_id(taskModelId);
 			po.setCategories_id(categoria_id);
 			po.setTasks_grid_id(tasks_grid_id);
+			po.setTasks_maduration_id(0);
 			po.setUsers_id(idUser);
 			po.setMaduration(false);
 			po.setFanPage(true);
@@ -1593,9 +1617,6 @@ public class InicioController {
 						po.setMaduration(false);
 						po.setFanPage(false);
 						searchLinkPublication(idGroups);
-
-					
-				
 
 						System.out.println("El usuario publico correctamente");
 
@@ -1891,7 +1912,14 @@ public class InicioController {
 		robot.mouseScroll(8);
 		Thread.sleep(getNumberRandom(1240, 1780));
 		System.out.println("Volver al inicio");
-		drive.clickButton(1, "/html/body/div/div/div[1]/div/div/a[1]", "Inicio xPath");
+		if(drive.searchElement(1, "/html/body/div/div/div[1]/div/div/a[1]") != 0) {
+			drive.clickButton(1, "/html/body/div/div/div[1]/div/div/a[1]", "Inicio xPath");
+		}else if(drive.searchElement(1, "/html/body/div/div/div[1]/div/nav/a[1]") != 0) {
+			drive.clickButton(1, "/html/body/div/div/div[1]/div/nav/a[1]", "xPath");
+		}else if(drive.searchElement(1, "//*[text()[contains(.,'Inicio')]]") != 0) {
+			drive.clickButton(1, "//*[text()[contains(.,'Inicio')]]", "xPath");
+		}
+		
 	}
 	
 	private void addAndAceptedNewUsers() throws InterruptedException {
