@@ -29,6 +29,12 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 
+/**
+ * Movido a la aplicación web
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarUsuario extends JFrame {
 
 	/**
