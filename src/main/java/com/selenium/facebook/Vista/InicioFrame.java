@@ -39,11 +39,10 @@ public class InicioFrame extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String VERSION = "2.1.53";
+	private static final String VERSION = "2.1.58";
 	private JPanel contentPane;
 	private final JMenuBar barMenu = new JMenuBar();
 	private final JMenu mnUsuarios = new JMenu("Usuarios");
-	private final JMenuItem registrarUsuario = new JMenuItem("Registrar");
 	private final JMenuItem importarUsuarios = new JMenuItem("Importar Usuarios");
 	private final JMenuItem buscarUsuario = new JMenuItem("Buscar");
 	private final JMenuItem actualizarUsuario = new JMenuItem("Actualizar Usuarios");
@@ -129,22 +128,6 @@ public class InicioFrame extends JFrame {
 		mnUsuarios.setFont(new Font("Arial", Font.BOLD, 12));
 		empezar.setEnabled(false);
 		barMenu.add(mnUsuarios);
-		registrarUsuario.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				RegistrarUsuario registerUser;
-				try {
-					registerUser = new RegistrarUsuario();
-					registerUser.inicio();
-					
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				
-			}
-		});
-		
-		
-		mnUsuarios.add(registrarUsuario);
 		
 		importarUsuarios.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {

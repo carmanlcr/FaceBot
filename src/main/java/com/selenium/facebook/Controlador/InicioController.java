@@ -455,7 +455,7 @@ public class InicioController {
 	}
 
 	private void taskAthand(Integer task,int listTaskId) throws InterruptedException, SQLException {
-		switch (task) {		
+		switch (task) {
 			case 1:
 				// Entrar en Editar Perfil
 				System.out.println("ENTRAR EN PERFIL Y DAR LIKE A FOTO");
@@ -686,7 +686,7 @@ public class InicioController {
 		}
 	}
 
-	private void uploadImage(Task_Maduration tMaduration, boolean bandera) throws InterruptedException, SQLException {
+	private void uploadImage(Task_Maduration tMaduration, boolean bandera) throws InterruptedException {
 		
 		if(ifElementPhotoExist()) {
 			Thread.sleep(getNumberRandom(2560, 4980));
@@ -729,6 +729,7 @@ public class InicioController {
 				po.setFanPage(false);
 				po.setGroups("0");
 				po.setMaduration(true);
+				po.setLink_post(null);
 				po.setTasks_maduration_id(tMaduration.getTasks_Maduration_id());
 				po.setTasks_grid_id(0);
 				po.setTasks_model_id(0);
@@ -1499,11 +1500,10 @@ public class InicioController {
 			Thread.sleep(1250);
 			
 			String link_publication = "";
-			if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]") != 0) {
-										  //html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]/div/div/a
-				if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]/div/div/a") != 0) {
+			if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/section[2]") != 0) {
+				if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/section[2]/section/div/a") != 0) {
 				
-					link_publication = drive.getHref(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[2]/div/div/a");
+					link_publication = drive.getHref(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/section[2]/section/div/a");
 				}
 				
 				System.out.println(link_publication);
@@ -1512,10 +1512,10 @@ public class InicioController {
 					po.setLink_post(link_publication);
 				}
 				
-			}else if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[3]") != 0) {
-				if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[3]/div/div/a") != 0) {
+			}else if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/section[3]") != 0) {
+				if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/section[3]/section/div/a") != 0) {
 					
-					link_publication = drive.getHref(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/div[3]/div/div/a");
+					link_publication = drive.getHref(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/div/div[1]/div/div[1]/div/div/section[3]/section/div/a");
 				}
 				
 				System.out.println(link_publication);
@@ -1687,7 +1687,7 @@ public class InicioController {
 				if(validateElementViewPost()) {
 					String idGroup = getIdGroup();
 					gp.setGroups_id(idGroup);
-					String nameGroup = drive.getText(1, "/html/body/div/div/div[2]/div/div[1]/div[2]/table/tbody/tr/td[1]/a/table/tbody/tr/td[2]/h1/div");
+					String nameGroup = drive.getText(1, "/html/body/div/div/div[2]/div/div[1]/header/table/tbody/tr/td[1]/a/table/tbody/tr/td[2]/h1/div");
 					System.out.println("Grupo a agregar "+nameGroup);
 					gp = gp.find();
 					//Si el grupo no esta en la base de datos ingresarlo
@@ -2015,8 +2015,11 @@ public class InicioController {
 		List<Post> listP = pos.getPostForComments();
 		for(Post post : listP){
 			drive.goPage(post.getLink_post());
-			if(drive.searchElement(1, "/html/body/div/div/div[2]/div/div[1]/span") != 0
-				&& drive.searchElement(1, "/html/body/div/div/div[2]/div/div[2]/a") != 0) {
+			StringBuilder error = new StringBuilder();
+			error.append("La página que solicitaste no puede mostrarse ahora mismo. Es posible que el enlace ");
+			error.append("no esté disponible temporalmente, que esté roto o que haya caducado, ");
+			error.append("o que no tengas permiso para ver esta página.");
+			if(drive.searchElement(1, "//*[text()[contains(.,'"+error.toString()+"')]]") != 0) {
 				System.err.println("La página que solicitaste no puede mostrarse ahora mismo.");
 			}else {
 				System.out.println("Darle like");
