@@ -24,6 +24,12 @@ import java.awt.event.ActionEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.PopupMenuEvent;
 
+/**
+ * Las frases yano se guardan de forma manual, se generan en el aplicativo web por tareas
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarFrase extends JFrame {
 
 	/**

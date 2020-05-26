@@ -27,6 +27,12 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+/**
+ * Las frases yano se guardan de forma manual, se generan en el aplicativo web por tareas
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarDireccionFotos extends JFrame {
 
 	/**

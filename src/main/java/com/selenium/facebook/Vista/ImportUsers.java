@@ -29,6 +29,12 @@ import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
 
+/**
+ * No hay importacion de usuarios
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class ImportUsers extends JFrame {
 
 	/**

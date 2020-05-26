@@ -82,6 +82,7 @@ public class UpdateUsers extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				listUsersSelected.clear();
 				for(JCheckBox list : listCheck) {
 					if(list.isSelected()) listUsersSelected.add(list.getText());
 				}

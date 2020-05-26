@@ -1,6 +1,14 @@
 package com.selenium.facebook.Controlador;
 
 
+/**
+ * 
+ * Ejecución de inicio de sesión en Facebook
+ * Ingresa un usuario, contraseña y pulsa el boton de entrar 
+ * 
+ * @author Luis Morales
+ *
+ */
 public class IniciaSesion {
 	
 	private String username;

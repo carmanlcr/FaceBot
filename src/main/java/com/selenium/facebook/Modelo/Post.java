@@ -19,7 +19,7 @@ import configurations.connection.ConnectionFB;
 
 public class Post implements Model{
 	
-	private final String TABLE_NAME ="posts";
+	private static final String TABLE_NAME ="posts";
 	private int posts_id;
 	private int users_id;
 	private int categories_id;
@@ -215,12 +215,14 @@ public class Post implements Model{
 		StringBuilder query = new StringBuilder();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
-		calendar.add(Calendar.DAY_OF_YEAR, -2); 
+		calendar.add(Calendar.DAY_OF_YEAR, -3); 
 		Date date1 = c.getTime();
 		
 		query.append("SELECT p.* FROM posts p ");
 		query.append("INNER JOIN users_groups ug ON ug.groups_id = p.groups AND ug.users_id = ? ");
-		query.append("WHERE p.posts_id NOT IN (SELECT pc.posts_id FROM posts_comments pc WHERE pc.users_id = ?) ");
+		query.append("WHERE p.posts_id NOT IN (SELECT pc.posts_id FROM posts_comments pc  ");
+		query.append("INNER JOIN comments c ON c.comments_id = pc.comments_id AND c.isNormal = 1 ");
+		query.append("WHERE pc.users_id = ?) ");
 		query.append("AND p.users_id <> ? AND p.link_post IS NOT NULL AND DATE(p.created_at)>=?;");
 		
 		try (Connection conexion = conn.conectar();
@@ -252,6 +254,45 @@ public class Post implements Model{
 		return listPost;
 	}
 	
+	public List<Post> getMyPostforComment() {
+		List<Post> listPost = new ArrayList<>();
+		date = new Date();
+		StringBuilder query = new StringBuilder();
+		Date date1 = new Date();
+		
+		query.append("SELECT p.* FROM posts p ");
+		query.append("WHERE p.posts_id NOT IN (SELECT pc.posts_id FROM posts_comments pc ");
+		query.append("INNER JOIN comments c ON c.comments_id = pc.comments_id AND c.isNormal = 0 ");
+		query.append("WHERE pc.users_id = ?) ");
+		query.append("AND p.users_id = ? AND p.link_post IS NOT NULL AND DATE(p.created_at)=DATE_SUB(?, INTERVAL 1 DAY);");
+		
+		try (Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(query.toString());){
+			exe.setInt(1, getUsers_id());
+			exe.setInt(2, getUsers_id());
+			exe.setString(3, dateFormat1.format(date1));
+			ResultSet result = exe.executeQuery();
+			
+			while(result.next()){
+				Post post = new Post();
+				post.setPosts_id(result.getInt("p.posts_id"));
+				post.setUsers_id(result.getInt("p.users_id"));
+				post.setCategories_id(result.getInt("p.categories_id"));
+				post.setTasks_grid_id(result.getInt("p.tasks_grid_id"));
+				post.setTasks_maduration_id(result.getInt("p.tasks_maduration_id"));
+				post.setLink_post(result.getString("p.link_post"));
+				post.setMaduration(result.getBoolean("p.isMaduration"));
+				post.setFanPage(result.getBoolean("p.isFanPage"));
+				post.setGroups(result.getString("p.groups"));
+				listPost.add(post);
+			}
+			
+			result.close();
+		}catch(SQLException e) {
+			e.getStackTrace();
+		}
+		return listPost;
+	}
 	@Override
 	public void update() throws SQLException {
 		// None

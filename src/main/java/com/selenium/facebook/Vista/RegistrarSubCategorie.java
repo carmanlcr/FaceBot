@@ -22,6 +22,12 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * Las frases yano se guardan de forma manual, se generan en el aplicativo web por tareas
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarSubCategorie extends JFrame {
 
 	/**

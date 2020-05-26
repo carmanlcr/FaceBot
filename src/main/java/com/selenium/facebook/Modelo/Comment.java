@@ -4,9 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import com.selenium.facebook.Interface.Model;
 
@@ -20,8 +17,6 @@ public class Comment implements Model {
 	private int categories_id;
 	private String created_at;
 	private String updated_at;
-	private Date date = new Date();
-	private DateFormat dateFormatDateTime = new SimpleDateFormat("yyyy-MM-dd H:m:s");
 	private static ConnectionFB conn = new ConnectionFB();
 	
 	
@@ -40,16 +35,64 @@ public class Comment implements Model {
 	public Comment getCommentCategorie(int postId) {
 		Comment comment = null;
 		StringBuilder query = new StringBuilder();
-		date = new Date();
 		query.append("SELECT * FROM facebook.comments c ");
 		query.append("WHERE c.comments_id NOT IN ");
 		query.append("(SELECT pc.comments_id FROM posts_comments pc WHERE pc.posts_id = ? ) ");
-		query.append("AND c.categories_id = ? AND c.active = 1 ");
+		query.append("AND c.categories_id = ? AND c.active = 1 AND c.isNormal = 1 ");
 		query.append("ORDER BY RAND() LIMIT 1;"); 
 		try(Connection conexion = conn.conectar();
 				PreparedStatement exe = conexion.prepareStatement(query.toString())){
 			exe.setInt(1, postId);
 			exe.setInt(2, getCategories_id());
+			
+			ResultSet rs = exe.executeQuery();
+			if(rs.next()) {
+				comment = new Comment();
+				comment.setComments_id(rs.getInt("comments_id"));
+				comment.setComment(rs.getString("comment"));
+				comment.setActive(rs.getBoolean("active"));
+				comment.setCategories_id(rs.getInt("categories_id"));
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return comment;
+	}
+	
+	public Comment getCommentisNotNormal() {
+		Comment comment = null;
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT * FROM facebook.comments c ");
+		query.append("WHERE c.categories_id = ? AND c.active = 1 AND c.isNormal = 0 ");
+		query.append("ORDER BY RAND() LIMIT 1;"); 
+		try(Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(query.toString())){
+			exe.setInt(1, getCategories_id());
+			
+			ResultSet rs = exe.executeQuery();
+			if(rs.next()) {
+				comment = new Comment();
+				comment.setComments_id(rs.getInt("comments_id"));
+				comment.setComment(rs.getString("comment"));
+				comment.setActive(rs.getBoolean("active"));
+				comment.setCategories_id(rs.getInt("categories_id"));
+			}
+			
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return comment;
+	}
+	
+	public Comment validateComment() {
+		Comment comment = null;
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT * FROM comments c ");
+		query.append("WHERE c.comment = ?;");
+		try(Connection conexion = conn.conectar();
+				PreparedStatement exe = conexion.prepareStatement(query.toString())){
+			exe.setString(1, getComment());
 			
 			ResultSet rs = exe.executeQuery();
 			if(rs.next()) {

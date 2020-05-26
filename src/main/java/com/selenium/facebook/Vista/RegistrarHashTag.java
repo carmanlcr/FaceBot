@@ -20,7 +20,12 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.List;
 import java.awt.event.ActionEvent;
-
+/**
+ * Las frases yano se guardan de forma manual, ya no se generan
+ * 
+ * @author Luis Morales
+ * @deprecated
+ */
 public class RegistrarHashTag extends JFrame {
 
 	/**

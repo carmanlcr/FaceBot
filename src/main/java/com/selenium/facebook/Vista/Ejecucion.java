@@ -20,7 +20,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JPopupMenu;
@@ -49,11 +48,11 @@ public class Ejecucion extends JFrame {
 	private JPanel panelUsuario = new JPanel();
 	private List<JLabel> listCheckBoxUsers = new ArrayList<>();
 	private List<String> listUsers = new ArrayList<>();
-	public static int lengthString = 0;
 	private int totalUser = 0;
 	private Categorie categories = new Categorie();
 	private Inicio_Aplicacion inicio;
-	private JCheckBox chchbxNewCheckBox;
+	private boolean isFanPage;
+	private boolean isManual;
 	/**
 	 * Launch the application.
 	 */
@@ -61,7 +60,7 @@ public class Ejecucion extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Ejecucion frame = new Ejecucion(categoria_id, generes_id, inicio, chchbxNewCheckBox);
+					Ejecucion frame = new Ejecucion(categoria_id, generes_id, inicio, isFanPage,isManual);
 					frame.setTitle(categories.getNameCategories(categoria_id));
 					frame.setVisible(true);
 					
@@ -80,14 +79,14 @@ public class Ejecucion extends JFrame {
 	 * @param chckbxNewCheckBox2 
 	 * @throws SQLException 
 	 */
-	public Ejecucion(int id, int id_genere, final Inicio_Aplicacion iniApli, JCheckBox chckbxNewCheckBox2) throws SQLException {
+	public Ejecucion(int id, int id_genere, final Inicio_Aplicacion iniApli, final boolean isFanPage,final boolean isManual) throws SQLException {
 		setTitle("Validacion");
 		inicio = iniApli;
 		
 		this.categoria_id = id;
 		this.generes_id = id_genere;
-		this.chchbxNewCheckBox = chckbxNewCheckBox2;
-		final boolean isFanPage = chchbxNewCheckBox.isSelected() ? true : false;
+		this.isFanPage = isFanPage;
+		this.isManual = isManual;
 		inicio.setCategories_id(categoria_id);
 		inicio.setGeneres_id(generes_id);
 		setResizable(false);
@@ -103,43 +102,7 @@ public class Ejecucion extends JFrame {
 		
 		//Se crear el boton de empezar y se agrega su ActionListener
 		JButton btnEmpezar = new JButton("Empezar");
-		
-		//Se empieza el proceso de post
-		btnEmpezar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-				for (JLabel checkbox : listCheckBoxUsers) {
-					String text = "";
-					for (int i = 0; i < checkbox.getText().length(); i++) {
-						if(!checkbox.getText().substring(i,i+1).equals("(")) {
-							text += checkbox.getText().substring(i,i+1);
-							
-						}
-						if(checkbox.getText().substring(i,i+1).equals("(")) {
-							break;
-						}
-					}
-					listUsers.add(text.trim());
-				}
-
-				if(listCheckBoxUsers.isEmpty()) {
-					JOptionPane.showMessageDialog(null, "NO HAY USUARIOS PARA ESTA CAMPAÑA PARA PUBLICAR");
-				}else {
-					iniApli.setCategories_id(categoria_id);
-					iniApli.setGeneres_id(generes_id);
-					iniApli.insert();
-					InicioController init = new InicioController(categoria_id,listUsers,isFanPage);
-					setExtendedState(ICONIFIED);
-					try {
-						init.init();
-					} catch (SQLException |IOException | InterruptedException e) {
-						e.printStackTrace();
-					} 	
-				}
-				
-			}
-		});
-
+	
 		
 		JLabel lblTotal = new JLabel("Total");
 		lblTotal.setBackground(new Color(0, 0, 128));
@@ -210,6 +173,74 @@ public class Ejecucion extends JFrame {
 		lblTotal.setText(lblTotal.getText()+": "+totalUser);
 
 		contentPane.setLayout(gl_contentPane);
+		
+		//Se empieza el proceso de post
+		if(isManual) {
+			btnEmpezar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					
+					for (JLabel checkbox : listCheckBoxUsers) {
+						String text = "";
+						for (int i = 0; i < checkbox.getText().length(); i++) {
+							if(!checkbox.getText().substring(i,i+1).equals("(")) {
+								text += checkbox.getText().substring(i,i+1);
+								
+							}
+							if(checkbox.getText().substring(i,i+1).equals("(")) {
+								break;
+							}
+						}
+						listUsers.add(text.trim());
+					}
+					if(listCheckBoxUsers.isEmpty()) {
+						JOptionPane.showMessageDialog(null, "NO HAY USUARIOS PARA ESTA CAMPAÑA PARA PUBLICAR");
+					}else {
+						iniApli.setCategories_id(categoria_id);
+						iniApli.setGeneres_id(generes_id);
+						iniApli.insert();
+						InicioController init = new InicioController(categoria_id,listUsers,isFanPage);
+						setExtendedState(ICONIFIED);
+						try {
+							init.init();
+						} catch (SQLException |IOException | InterruptedException e) {
+							e.printStackTrace();
+						} 	
+					}
+					
+				}
+			});
+		}else {
+			
+			for (JLabel checkbox : listCheckBoxUsers) {
+				String text = "";
+				for (int i = 0; i < checkbox.getText().length(); i++) {
+					if(!checkbox.getText().substring(i,i+1).equals("(")) {
+						text += checkbox.getText().substring(i,i+1);
+						
+					}
+					if(checkbox.getText().substring(i,i+1).equals("(")) {
+						break;
+					}
+				}
+				listUsers.add(text.trim());
+			}
+			
+			if(listCheckBoxUsers.isEmpty()) {
+				JOptionPane.showMessageDialog(null, "NO HAY USUARIOS PARA ESTA CAMPAÑA PARA PUBLICAR");
+			}else {
+				iniApli.setCategories_id(categoria_id);
+				iniApli.setGeneres_id(generes_id);
+				iniApli.insert();
+				InicioController init = new InicioController(categoria_id,listUsers,isFanPage);
+				setExtendedState(ICONIFIED);
+				try {
+					init.init();
+				} catch (SQLException |IOException | InterruptedException e) {
+					e.printStackTrace();
+				} 	
+			}
+			
+		}
 	}
 	
 }
